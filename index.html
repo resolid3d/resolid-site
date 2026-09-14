@@ -241,6 +241,14 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .section { padding: 64px 0; }
     .nav .btn.small span { display: none; } /* лише іконка Play на вузьких */
 }
+
+/* На телефоні шапка не влазила: логотип із підписом «3D VIEWER», перемикач мови
+   і кнопка Play разом дають більше за 375 px, і рядок вилазив за екран разом із
+   горизонтальною прокруткою. Підпис на цій ширині зайвий — назва поруч. */
+@media (max-width: 420px) {
+    .logo em { display: none; }
+    .wrap { padding: 0 16px; }
+}
 </style>
 </head>
 <body>
@@ -269,7 +277,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
         <div class="hero-copy">
             <div class="eyebrow" data-i18n="eyebrow">ANDROID · ПРАЦЮЄ ОФЛАЙН</div>
             <h1 data-i18n-html="h1">Портативний <span class="accent">інженерний стіл</span></h1>
-            <p class="lead" data-i18n-html="lead">Перегляд, вимірювання та аналіз 3D-моделей просто на телефоні: <b>STL, OBJ (+MTL), 3MF, STEP, ZIP</b>. Повністю офлайн — файли не залишають пристрій.</p>
+            <p class="lead" data-i18n-html="lead">Перегляд, вимірювання та аналіз 3D-моделей просто на телефоні: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Повністю офлайн — файли не залишають пристрій.</p>
             <div class="cta-row">
                 <a class="btn" href="https://play.google.com/store/apps/details?id=app.resolid3d.viewer">
                     <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3.5v17c0 .4.5.7.8.4l9.5-8.1c.2-.2.2-.5 0-.7L4.8 3.1c-.3-.3-.8 0-.8.4zM15.5 9.7l2.6 2.1c.3.2.3.6 0 .8l-2.6 2.1-2.8-2.5 2.8-2.5z"/></svg>
@@ -312,7 +320,9 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
             <div class="fmt"><code>.stl</code><p data-i18n="fmt_stl">Бінарний і текстовий. Стандарт 3D-друку.</p></div>
             <div class="fmt"><code>.obj <i>+.mtl</i></code><p data-i18n="fmt_obj">З матеріалами та кольорами — виберіть обидва файли разом, кольори застосуються одразу.</p></div>
             <div class="fmt"><code>.3mf</code><p data-i18n="fmt_3mf">Сучасний формат адитивного виробництва, з кольорами.</p></div>
-            <div class="fmt"><code>.step</code><p data-i18n="fmt_step">Точна інженерна геометрія. Конвертація прямо на пристрої, без інтернету.</p></div>
+            <div class="fmt"><code>.step <i>.stp</i></code><p data-i18n="fmt_step">Точна інженерна геометрія. Конвертація прямо на пристрої, без інтернету.</p></div>
+            <div class="fmt"><code>.iges <i>.brep</i></code><p data-i18n="fmt_iges">Те саме CAD-ядро, що й для STEP. Поверхневі моделі відкриваються нарівні з тілами.</p></div>
+            <div class="fmt"><code>.ply</code><p data-i18n="fmt_ply">Формат 3D-сканерів, із кольором у кожній вершині.</p></div>
             <div class="fmt"><code>.zip</code><p data-i18n="fmt_zip">Розпаковується сам. Кілька моделей усередині — виберіть потрібну або відкрийте всі разом.</p></div>
         </div>
     </div>
@@ -332,8 +342,8 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
             </div>
             <div class="tool">
                 <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 7h14"/><circle cx="5" cy="12" r="3"/><circle cx="19" cy="12" r="3"/></svg></div>
-                <h3 data-i18n="t2_h">Вага та об'єм</h3>
-                <p data-i18n="t2_p">Миттєва маса виробу: PLA, PETG, ABS, нейлон — і метали, від сталі до золота 14K/18K.</p>
+                <h3 data-i18n="t2_h">Вага, площа, вартість</h3>
+                <p data-i18n="t2_p">Маса виробу: PLA, PETG, ABS, нейлон — і метали, від сталі до золота 14K/18K. Поруч — площа поверхні та вартість за вашою ціною матеріалу.</p>
             </div>
             <div class="tool">
                 <div class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 14 20 6M8 18l4-2"/></svg></div>
@@ -348,7 +358,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
             <div class="tool">
                 <div class="icon"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></div>
                 <h3 data-i18n="t5_h">6 режимів показу</h3>
-                <p data-i18n="t5_p">Rendered, Shaded, Wireframe, X-ray, Ghosted, Technical — і матеріали: золото, срібло, хром, мідь, скло.</p>
+                <p data-i18n="t5_p">Rendered, Shaded, Wireframe, X-ray, Ghosted, Technical — і матеріали: золото, срібло, хром, мідь, скло, діамант. Колір і матеріал можна дати окремій деталі.</p>
             </div>
             <div class="tool">
                 <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 2 20 7v10l-8 5-8-5V7z"/><path d="M12 12 20 7M12 12v10M12 12 4 7"/></svg></div>
@@ -357,8 +367,8 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
             </div>
             <div class="tool">
                 <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M8 4v6h7V4"/><rect x="8" y="14" width="8" height="6"/></svg></div>
-                <h3 data-i18n="t7_h">Збереження в STL</h3>
-                <p data-i18n="t7_p">Зберігається те, що видно: одна деталь, збірка без зайвого або кілька файлів разом. Заразом — конвертер STEP у STL.</p>
+                <h3 data-i18n="t7_h">Збереження STL, OBJ, 3MF</h3>
+                <p data-i18n="t7_p">Зберігається те, що видно: одна деталь, збірка без зайвого або кілька файлів разом — з кольорами, якщо формат їх тримає. Заразом — конвертер STEP у STL.</p>
             </div>
             <div class="tool">
                 <div class="icon"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/><path d="M4 4l16 16"/></svg></div>
@@ -369,6 +379,26 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <div class="icon"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg></div>
                 <h3 data-i18n="t9_h">Список деталей</h3>
                 <p data-i18n="t9_p">Уся збірка поіменно, як дерево в CAD. Назви беруться з файлу — STEP, OBJ, 3MF. Список тримається смугою внизу, тож модель лишається видимою й керованою.</p>
+            </div>
+            <div class="tool">
+                <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h9l3 3h4v13H4z"/><path d="M8 13h8M8 17h5"/></svg></div>
+                <h3 data-i18n="t10_h">Проєкт</h3>
+                <p data-i18n="t10_p">Орієнтація, кольори, приховане, переріз, розліт і камера зберігаються разом із самою моделлю. Проєкт можна переслати чи відкрити на іншому пристрої — важка STEP-збірка після цього піднімається за частку секунди.</p>
+            </div>
+            <div class="tool">
+                <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 7h11v10H4z"/><path d="m15 11 5-3v8l-5-3z"/></svg></div>
+                <h3 data-i18n="t11_h">Запис ролика та знімок</h3>
+                <p data-i18n="t11_p">Розліт і обертання пишуться у відео з рівною кількістю обертів — ролик зациклюється без шва. Знімається сама модель, без кнопок і панелі телефона; окремим пунктом — PNG-кадр.</p>
+            </div>
+            <div class="tool">
+                <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 6h6l2 2h10v11H3z"/><circle cx="9.5" cy="13.5" r="1.4"/><path d="m6 17 3.5-2.5L13 17"/></svg></div>
+                <h3 data-i18n="t12_h">Бібліотека</h3>
+                <p data-i18n="t12_p">Вкажіть теку з моделями — застосунок покаже її зі знімками й підтеками, без обмеження на дванадцять недавніх. Сусідній .mtl підхоплюється сам. Безкоштовно.</p>
+            </div>
+            <div class="tool">
+                <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 20V9l7-5 9 6v10z"/><path d="M4 20 20 8"/><path d="M8 17v-3M12 17v-5"/></svg></div>
+                <h3 data-i18n="t13_h">Масштаб</h3>
+                <p data-i18n="t13_p">Модель приїхала в дюймах або не влазить у стіл принтера — розмір міняється тут: габаритом X/Y/Z, пресетами ×2 та дюйми↔мм або за вже виміряним відрізком. Окрему деталь теж.</p>
             </div>
         </div>
     </div>
@@ -398,7 +428,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3.5v17c0 .4.5.7.8.4l9.5-8.1c.2-.2.2-.5 0-.7L4.8 3.1c-.3-.3-.8 0-.8.4zM15.5 9.7l2.6 2.1c.3.2.3.6 0 .8l-2.6 2.1-2.8-2.5 2.8-2.5z"/></svg>
             <span data-i18n="cta">Завантажити в Google Play</span>
         </a>
-        <span class="cta-note" data-i18n="dl_note">v1.3.5 · безкоштовно, Pro — за бажанням · ~10 МБ</span>
+        <span class="cta-note" data-i18n="dl_note">v2.2.0 · безкоштовно, Pro — за бажанням · ~10 МБ</span>
     </div>
 </section>
 
@@ -415,7 +445,7 @@ const i18n = {
         nav_get: "Google Play",
         eyebrow: "ANDROID · ПРАЦЮЄ ОФЛАЙН",
         h1: 'Портативний <span class="accent">інженерний стіл</span>',
-        lead: 'Перегляд, вимірювання та аналіз 3D-моделей просто на телефоні: <b>STL, OBJ (+MTL), 3MF, STEP, ZIP</b>. Повністю офлайн — файли не залишають пристрій.',
+        lead: 'Перегляд, вимірювання та аналіз 3D-моделей просто на телефоні: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Повністю офлайн — файли не залишають пристрій.',
         cta: "Завантажити в Google Play",
         cta_note: "Безкоштовно, Pro — за бажанням · Android 7.0+",
         face_front: "ПЕРЕД", face_right: "ПРАВО", face_top: "ВЕРХ",
@@ -425,41 +455,51 @@ const i18n = {
         fmt_obj: "З матеріалами та кольорами — виберіть обидва файли разом, кольори застосуються одразу.",
         fmt_3mf: "Сучасний формат адитивного виробництва, з кольорами.",
         fmt_step: "Точна інженерна геометрія. Конвертація прямо на пристрої, без інтернету.",
+        fmt_iges: "Те саме CAD-ядро, що й для STEP. Поверхневі моделі відкриваються нарівні з тілами.",
+        fmt_ply: "Формат 3D-сканерів, із кольором у кожній вершині.",
         fmt_zip: "Розпаковується сам. Кілька моделей усередині — виберіть потрібну або відкрийте всі разом.",
         tools_eyebrow: "ІНСТРУМЕНТИ",
         tools_h2: "Як у великих CAD — тільки в кишені",
         t1_h: "Вимір Smart Snap",
         t1_p: "Відстані, кути між гранями, радіус і діаметр по трьох точках, товщина стінки одним тапом. Прив'язка до вершин.",
-        t2_h: "Вага та об'єм",
-        t2_p: "Миттєва маса виробу: PLA, PETG, ABS, нейлон — і метали, від сталі до золота 14K/18K.",
+        t2_h: "Вага, площа, вартість",
+        t2_p: "Маса виробу: PLA, PETG, ABS, нейлон — і метали, від сталі до золота 14K/18K. Поруч — площа поверхні та вартість за вашою ціною матеріалу.",
         t3_h: "Секційний аналіз",
         t3_p: "Переріз по X/Y/Z або перпендикулярно погляду, зі штриховкою зрізу, як у CAD. Погляд усередину деталі під будь-яким кутом.",
         t4_h: "Розбір збірок",
         t4_p: "Розсуньте деталі повзунком — навіть якщо модель прийшла одним STL-файлом. Застосунок сам знаходить окремі тіла там, де формат про них нічого не знає.",
         t5_h: "6 режимів показу",
-        t5_p: "Rendered, Shaded, Wireframe, X-ray, Ghosted, Technical — і матеріали: золото, срібло, хром, мідь, скло.",
+        t5_p: "Rendered, Shaded, Wireframe, X-ray, Ghosted, Technical — і матеріали: золото, срібло, хром, мідь, скло, діамант. Колір і матеріал можна дати окремій деталі.",
         t6_h: "Керування CAD-класу",
         t6_p: "Навігаційний куб, орто/перспектива, джойстик освітлення, Zen-режим подвійним тапом.",
-        t7_h: "Збереження в STL",
-        t7_p: "Зберігається те, що видно: одна деталь, збірка без зайвого або кілька файлів разом. Заразом — конвертер STEP у STL.",
+        t7_h: "Збереження STL, OBJ, 3MF",
+        t7_p: "Зберігається те, що видно: одна деталь, збірка без зайвого або кілька файлів разом — з кольорами, якщо формат їх тримає. Заразом — конвертер STEP у STL.",
         t8_h: "Приховати деталь",
         t8_p: "Утримайте палець на деталі або скористайтесь списком — сховайте її чи лишіть на екрані тільки її. Зручно порахувати вагу чи виміряти один вузол окремо.",
         t9_h: "Список деталей",
         t9_p: "Уся збірка поіменно, як дерево в CAD. Назви беруться з файлу — STEP, OBJ, 3MF. Список тримається смугою внизу, тож модель лишається видимою й керованою.",
+        t10_h: "Проєкт",
+        t10_p: "Уся робота над моделлю в одному файлі: орієнтація, кольори, приховане, переріз, розліт і камера зберігаються разом із самою моделлю. Проєкт можна переслати чи відкрити на іншому пристрої — важка STEP-збірка після цього піднімається за частку секунди.",
+        t11_h: "Запис ролика та знімок",
+        t11_p: "Розліт і обертання пишуться у відео з рівною кількістю обертів — ролик зациклюється без шва. Знімається сама модель, без кнопок і панелі телефона; окремим пунктом — PNG-кадр.",
+        t12_h: "Бібліотека",
+        t12_p: "Вкажіть теку з моделями — застосунок покаже її зі знімками й підтеками, без обмеження на дванадцять недавніх. Сусідній .mtl підхоплюється сам. Безкоштовно.",
+        t13_h: "Масштаб",
+        t13_p: "Модель приїхала в дюймах або не влазить у стіл принтера — розмір міняється тут: габаритом X/Y/Z, пресетами ×2 та дюйми↔мм або за вже виміряним відрізком. Окрему деталь теж.",
         off_stat: "0 байт", off_stat_l: "передається в мережу",
         off_h2: "Офлайн — це приватність",
         off_p: "Усе обчислюється на пристрої: конвертація STEP, розрахунок ваги, вимірювання. Жодної реєстрації, жодних хмар. Працює в літаку, в цеху та в майстерні без покриття.",
         dl_eyebrow: "ЗАВАНТАЖИТИ",
         dl_h2: "Модель уже чекає в телефоні?",
         dl_p: "Відкрийте її в RE:solid — прямо з файлового менеджера, месенджера чи пошти.",
-        dl_note: "v1.3.5 · безкоштовно, Pro — за бажанням · ~10 МБ",
+        dl_note: "v2.2.0 · безкоштовно, Pro — за бажанням · ~10 МБ",
         privacy: "Політика конфіденційності"
     },
     en: {
         nav_get: "Google Play",
         eyebrow: "ANDROID · WORKS OFFLINE",
         h1: 'A portable <span class="accent">engineering desk</span>',
-        lead: 'View, measure, and analyze 3D models right on your phone: <b>STL, OBJ (+MTL), 3MF, STEP, ZIP</b>. Fully offline — your files never leave the device.',
+        lead: 'View, measure, and analyze 3D models right on your phone: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Fully offline — your files never leave the device.',
         cta: "Get it on Google Play",
         cta_note: "Free, Pro optional · Android 7.0+",
         face_front: "FRONT", face_right: "RIGHT", face_top: "TOP",
@@ -469,34 +509,44 @@ const i18n = {
         fmt_obj: "With materials and colors — pick both files together and colors apply instantly.",
         fmt_3mf: "The modern additive-manufacturing format, with colors.",
         fmt_step: "Precise engineering geometry. Converted on-device, no internet.",
+        fmt_iges: "The same CAD kernel as STEP. Surface models open alongside solids.",
+        fmt_ply: "The 3D-scanner format, with color on every vertex.",
         fmt_zip: "Unpacks itself. Multiple models inside — pick one or open them all together.",
         tools_eyebrow: "TOOLS",
         tools_h2: "Big-CAD tools — pocket sized",
         t1_h: "Smart Snap measuring",
         t1_p: "Distances, face angles, radius and diameter from three points, wall thickness in one tap. Snaps to vertices.",
-        t2_h: "Weight & volume",
-        t2_p: "Instant part mass: PLA, PETG, ABS, nylon — plus metals from steel to 14K/18K gold.",
+        t2_h: "Weight, area, cost",
+        t2_p: "Part mass: PLA, PETG, ABS, nylon — plus metals from steel to 14K/18K gold. Alongside it, surface area and cost at your own material price.",
         t3_h: "Section analysis",
         t3_p: "Cut along X/Y/Z or perpendicular to your line of sight, with a hatched cross-section, CAD-style. Look inside the part from any angle.",
         t4_h: "Assembly breakdown",
         t4_p: "Pull the parts apart with a slider — even if the model arrived as a single STL. The app finds separate bodies where the format stores none.",
         t5_h: "6 display modes",
-        t5_p: "Rendered, Shaded, Wireframe, X-ray, Ghosted, Technical — with gold, silver, chrome, copper, and glass materials.",
+        t5_p: "Rendered, Shaded, Wireframe, X-ray, Ghosted, Technical — with gold, silver, chrome, copper, glass, and diamond materials. Any single part can get its own color and material.",
         t6_h: "CAD-grade controls",
         t6_p: "Navigation cube, ortho/perspective, lighting joystick, Zen mode on double tap.",
-        t7_h: "Save to STL",
-        t7_p: "What you see is what gets saved: one part, an assembly without the clutter, or several files merged into one. Also works as a STEP-to-STL converter.",
+        t7_h: "Save as STL, OBJ, 3MF",
+        t7_p: "What you see is what gets saved: one part, an assembly without the clutter, or several files merged into one — with colors, where the format keeps them. Also works as a STEP-to-STL converter.",
         t8_h: "Hide a part",
         t8_p: "Press and hold a part, or use the list — hide it, or isolate it and hide everything else. Handy for weighing or measuring one sub-assembly on its own.",
         t9_h: "Parts list",
         t9_p: "The whole assembly by name, like a CAD tree. Names come from the file — STEP, OBJ, 3MF. The list sits in a sheet along the bottom, so the model stays visible and under your control.",
+        t10_h: "Project",
+        t10_p: "The whole job on a model in one file: orientation, colors, hidden parts, the section cut, the exploded view and the camera are saved together with the model itself. Send a project on or open it on another device — a heavy STEP assembly then loads in a fraction of a second.",
+        t11_h: "Video capture & snapshot",
+        t11_p: "The explode and the spin record to video with a whole number of turns, so the clip loops seamlessly. It captures the model itself — no buttons, no phone status bar; a PNG frame is a separate menu item.",
+        t12_h: "Library",
+        t12_p: "Point the app at a folder of models and it shows them with thumbnails and sub-folders, with no twelve-file limit on recents. A neighbouring .mtl is picked up automatically. Free.",
+        t13_h: "Scale",
+        t13_p: "The model came in inches, or it doesn't fit the print bed — resize it here: by X/Y/Z dimension, by presets (×2, inches↔mm), or from a segment you already measured. A single part, too.",
         off_stat: "0 bytes", off_stat_l: "sent over the network",
         off_h2: "Offline means private",
         off_p: "Everything runs on-device: STEP conversion, weight math, measuring. No sign-up, no cloud. Works on a plane, on the shop floor, in a workshop with no signal.",
         dl_eyebrow: "DOWNLOAD",
         dl_h2: "Got a model on your phone already?",
         dl_p: "Open it in RE:solid — straight from your file manager, messenger, or email.",
-        dl_note: "v1.3.5 · free, Pro optional · ~10 MB",
+        dl_note: "v2.2.0 · free, Pro optional · ~10 MB",
         privacy: "Privacy Policy"
     }
 };
