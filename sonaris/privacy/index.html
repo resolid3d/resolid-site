@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Політика конфіденційності застосунку Sonaris — Audiobooks / Privacy policy of Sonaris — Audiobooks">
+<meta name="color-scheme" content="light dark">
+<title>Sonaris — Privacy Policy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+  :root {
+    --bg: #E9E3EE;
+    --surface: #FBF8FD;
+    --text: #1D1B20;
+    --muted: #49454F;
+    --line: #CEC6D6;
+    --accent: #6750A4;
+    --accent-soft: #EADDFF;
+    --on-accent-soft: #21005D;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141218;
+      --surface: #1D1B20;
+      --text: #E6E0E9;
+      --muted: #CAC4D0;
+      --line: #3A3541;
+      --accent: #D0BCFF;
+      --accent-soft: #4F378B;
+      --on-accent-soft: #EADDFF;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141218;
+    --surface: #1D1B20;
+    --text: #E6E0E9;
+    --muted: #CAC4D0;
+    --line: #3A3541;
+    --accent: #D0BCFF;
+    --accent-soft: #4F378B;
+    --on-accent-soft: #EADDFF;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    padding: 0 16px;
+  }
+  .page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding-block: 40px 64px;
+    display: grid;
+    gap: 28px;
+  }
+  header { display: grid; gap: 12px; }
+  .app {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(28px, 6vw, 38px);
+    line-height: 1.15;
+    font-weight: 800;
+    text-wrap: balance;
+  }
+  .meta { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+  .lang { display: flex; gap: 8px; flex-wrap: wrap; }
+  .lang button {
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .lang button[aria-pressed="true"] {
+    background: var(--accent-soft);
+    color: var(--on-accent-soft);
+    border-color: transparent;
+  }
+  .lang button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .summary {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 20px 22px;
+    display: grid;
+    gap: 8px;
+  }
+  .summary h2 { margin: 0; font-size: 18px; }
+  .summary ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+
+  section { display: grid; gap: 10px; }
+  h2 { margin: 0; font-size: 21px; line-height: 1.3; font-weight: 700; text-wrap: balance; }
+  p, ul { margin: 0; }
+  ul { padding-left: 22px; display: grid; gap: 6px; }
+  a { color: var(--accent); text-underline-offset: 3px; }
+  strong { font-weight: 700; }
+
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 480px; font-size: 15px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); }
+  th { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  td:first-child { font-weight: 600; white-space: nowrap; }
+
+  footer { color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 18px; }
+</style>
+<style>body{margin:0}</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="app">Sonaris — Audiobooks</div>
+    <div class="lang" role="group" aria-label="Language / Мова">
+      <button type="button" id="btn-uk" data-lang="uk" aria-pressed="true">Українська</button>
+      <button type="button" id="btn-en" data-lang="en" aria-pressed="false">English</button>
+    </div>
+  </header>
+
+  <!-- ─────────────── УКРАЇНСЬКА ─────────────── -->
+  <article lang="uk" id="uk" class="page" style="padding:0">
+    <div>
+      <h1>Політика конфіденційності</h1>
+      <p class="meta">Чинна з 19 вересня 2026 року</p>
+    </div>
+
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Sonaris не має акаунтів, реклами, аналітики й трекерів.</li>
+        <li>Ваші книги, прогрес, закладки й історія зберігаються лише на телефоні.</li>
+        <li>В інтернет застосунок звертається тільки тоді, коли ви самі шукаєте обкладинку чи опис книги. Тоді надсилається назва й автор цієї книги.</li>
+        <li>Ми не отримуємо жодних ваших даних: у нас немає сервера, куди вони могли б потрапити.</li>
+      </ul>
+    </div>
+
+    <section>
+      <h2>Що зберігається на телефоні</h2>
+      <p>Щоб працювати, застосунок зберігає у своїй пам'яті на вашому пристрої:</p>
+      <ul>
+        <li>бібліотеку: назви, авторів, читців, описи й обкладинки книг;</li>
+        <li>місце, де ви зупинились, закладки й нотатки до них;</li>
+        <li>історію прослуховування, з якої рахується статистика;</li>
+        <li>налаштування, зокрема ключ Google Books, якщо ви його ввели.</li>
+      </ul>
+      <p>Ці дані не надсилаються ні нам, ні третім особам.</p>
+    </section>
+
+    <section>
+      <h2>Доступ до файлів</h2>
+      <p>Застосунок бачить лише папку з аудіокнигами, яку ви вибрали через системне вікно Android. Інших файлів на телефоні він не читає. У цій папці застосунок видаляє файли лише тоді, коли ви видаляєте книгу, і розпаковує ZIP-архіви лише тоді, коли ви натискаєте «Розпакувати».</p>
+    </section>
+
+    <section>
+      <h2>Коли застосунок звертається в інтернет</h2>
+      <p>Лише за вашої дії на екрані редагування книги: «Знайти онлайн», «Знайти обкладинку в інтернеті» або перевірка ключа Google Books. Автоматичних запитів у фоні немає.</p>
+      <p>У запиті надсилається текст пошуку: назва книги й автор. Як і під час будь-якого звернення в інтернет, сервіс бачить вашу IP-адресу й технічні дані запиту. Як він їх обробляє, визначає його власна політика.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Сервіс</th><th>Для чого</th><th>Що отримує</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://policies.google.com/privacy">Google Books</a></td><td>опис, видання, обкладинка</td><td>назва й автор; ваш ключ Google Books, якщо він заданий</td></tr>
+            <tr><td><a href="https://archive.org/about/terms.php">Open Library</a></td><td>опис, обкладинка</td><td>назва й автор</td></tr>
+            <tr><td><a href="https://foundation.wikimedia.org/wiki/Policy:Privacy_policy">Wikidata, Вікіпедія</a></td><td>серія, опис</td><td>назва книги</td></tr>
+            <tr><td><a href="https://duckduckgo.com/privacy">DuckDuckGo</a></td><td>пошук картинок для обкладинки</td><td>назва й автор</td></tr>
+            <tr><td>Сайти з картинками</td><td>завантаження обкладинки, яку ви вибрали</td><td>лише запит на цю картинку</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Мініатюри в пошуку картинок DuckDuckGo показує через сервери Microsoft Bing.</p>
+    </section>
+
+    <section>
+      <h2>Резервні копії</h2>
+      <ul>
+        <li><strong>Копія в застосунку.</strong> Це файл у папці, яку ви самі вибрали. У ньому бібліотека, прогрес, закладки, історія й налаштування, зокрема ключ Google Books. Де зберігати цей файл і кому його передавати, вирішуєте ви.</li>
+        <li><strong>Резервна копія Android.</strong> Якщо в налаштуваннях телефона ввімкнене резервне копіювання, Android може зберігати дані застосунку у вашому акаунті Google. Цим керує система, а не Sonaris, і вимкнути це можна в налаштуваннях телефона.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Дозволи</h2>
+      <ul>
+        <li><strong>Сповіщення</strong> — кнопки керування відтворенням.</li>
+        <li><strong>Інтернет</strong> — лише для пошуку, описаного вище.</li>
+        <li><strong>Робота у фоні</strong> — щоб книга грала з вимкненим екраном.</li>
+        <li><strong>Вібрація</strong> — відгук на кнопки віджета.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Покупки</h2>
+      <p>Якщо в застосунку з'являться платні функції, оплату оброблятиме Google Play. Ми не отримуємо ваших платіжних даних, лише підтвердження від Google про те, що покупку зроблено.</p>
+    </section>
+
+    <section>
+      <h2>Діти</h2>
+      <p>Застосунок не призначений спеціально для дітей і ні в кого не збирає персональних даних.</p>
+    </section>
+
+    <section>
+      <h2>Як видалити дані</h2>
+      <p>Видаліть застосунок або очистіть його дані в налаштуваннях Android — усе, що він зберігав на телефоні, зникне. Файли резервних копій у вашій папці та самі аудіокниги лишаються, доки ви їх не видалите.</p>
+    </section>
+
+    <section>
+      <h2>Зміни й контакти</h2>
+      <p>Якщо політика зміниться, нова версія з'явиться на цій сторінці з новою датою. Питання щодо конфіденційності надсилайте на <a href="mailto:resolid.3d@gmail.com">resolid.3d@gmail.com</a>.</p>
+    </section>
+  </article>
+
+  <!-- ─────────────── ENGLISH ─────────────── -->
+  <article lang="en" id="en" class="page" style="padding:0" hidden>
+    <div>
+      <h1>Privacy Policy</h1>
+      <p class="meta">Effective September 19, 2026</p>
+    </div>
+
+    <div class="summary">
+      <h2>In short</h2>
+      <ul>
+        <li>Sonaris has no accounts, ads, analytics or trackers.</li>
+        <li>Your books, progress, bookmarks and history stay on your phone.</li>
+        <li>The app goes online only when you search for a book’s cover or description. It then sends that book’s title and author.</li>
+        <li>We don’t receive any of your data: there is no server of ours for it to reach.</li>
+      </ul>
+    </div>
+
+    <section>
+      <h2>What is stored on your phone</h2>
+      <p>To work, the app keeps the following in its own storage on your device:</p>
+      <ul>
+        <li>your library: book titles, authors, narrators, descriptions and covers;</li>
+        <li>where you stopped, bookmarks and their notes;</li>
+        <li>listening history, used for statistics;</li>
+        <li>settings, including a Google Books key if you entered one.</li>
+      </ul>
+      <p>This data is not sent to us or to anyone else.</p>
+    </section>
+
+    <section>
+      <h2>File access</h2>
+      <p>The app can see only the audiobooks folder you chose in Android’s system picker. It doesn’t read any other files on your phone. In that folder, it deletes files only when you delete a book, and extracts ZIP archives only when you tap Extract.</p>
+    </section>
+
+    <section>
+      <h2>When the app goes online</h2>
+      <p>Only when you act on the book editing screen: Find online, Find cover on the web, or checking your Google Books key. There are no automatic background requests.</p>
+      <p>A request contains the search text: the book title and author. As with any internet request, the service sees your IP address and technical request details, and handles them under its own policy.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Service</th><th>Used for</th><th>Receives</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://policies.google.com/privacy">Google Books</a></td><td>description, edition, cover</td><td>title and author; your Google Books key, if set</td></tr>
+            <tr><td><a href="https://archive.org/about/terms.php">Open Library</a></td><td>description, cover</td><td>title and author</td></tr>
+            <tr><td><a href="https://foundation.wikimedia.org/wiki/Policy:Privacy_policy">Wikidata, Wikipedia</a></td><td>series, description</td><td>book title</td></tr>
+            <tr><td><a href="https://duckduckgo.com/privacy">DuckDuckGo</a></td><td>image search for covers</td><td>title and author</td></tr>
+            <tr><td>Image websites</td><td>downloading the cover you picked</td><td>only the request for that image</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>DuckDuckGo serves image search thumbnails through Microsoft Bing servers.</p>
+    </section>
+
+    <section>
+      <h2>Backups</h2>
+      <ul>
+        <li><strong>In-app backup.</strong> A file in a folder you choose. It contains your library, progress, bookmarks, history and settings, including your Google Books key. You decide where the file is kept and who gets it.</li>
+        <li><strong>Android backup.</strong> If backup is turned on in your phone’s settings, Android may store the app’s data in your Google account. This is controlled by the system, not by Sonaris, and can be turned off in your phone’s settings.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Permissions</h2>
+      <ul>
+        <li><strong>Notifications</strong> — playback controls.</li>
+        <li><strong>Internet</strong> — only for the searches described above.</li>
+        <li><strong>Background playback</strong> — so books keep playing with the screen off.</li>
+        <li><strong>Vibration</strong> — feedback on widget buttons.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Purchases</h2>
+      <p>If paid features are added, payments will be handled by Google Play. We don’t receive your payment details, only Google’s confirmation that a purchase was made.</p>
+    </section>
+
+    <section>
+      <h2>Children</h2>
+      <p>The app isn’t directed at children and doesn’t collect personal data from anyone.</p>
+    </section>
+
+    <section>
+      <h2>Deleting your data</h2>
+      <p>Uninstall the app or clear its data in Android settings, and everything it stored on your phone is removed. Backup files in your folder and the audiobooks themselves stay until you delete them.</p>
+    </section>
+
+    <section>
+      <h2>Changes and contact</h2>
+      <p>If this policy changes, the new version will appear on this page with a new date. Send privacy questions to <a href="mailto:resolid.3d@gmail.com">resolid.3d@gmail.com</a>.</p>
+    </section>
+  </article>
+
+  <footer>Sonaris — Audiobooks · app.resolid3d.sonaris</footer>
+</div>
+
+<script>
+  (function () {
+    var buttons = document.querySelectorAll('.lang button');
+    function show(lang) {
+      ['uk', 'en'].forEach(function (l) { document.getElementById(l).hidden = l !== lang; });
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === lang)); });
+      document.documentElement.lang = lang;
+    }
+    var saved = null;
+    try { saved = localStorage.getItem('sonaris-privacy-lang'); } catch (e) {}
+    var guess = (navigator.language || '').toLowerCase().indexOf('uk') === 0 ? 'uk' : 'en';
+    show(saved === 'uk' || saved === 'en' ? saved : guess);
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        show(b.dataset.lang);
+        try { localStorage.setItem('sonaris-privacy-lang', b.dataset.lang); } catch (e) {}
+      });
+    });
+  })();
+</script>
+</body>
+</html>
