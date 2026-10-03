@@ -1441,9 +1441,6 @@ async function initSectionViewer(box, calm) {
         const m = new T.Mesh(g, mat);
         m.userData = { name: p.name || '—', base: col.clone() };
         model.add(m); meshes.push(m);
-        // зріз: задні грані за площиною - світліший тон деталі зі штриховкою
-        const capCol = col.clone().lerp(new T.Color(0xffffff), .35);
-        model.add(new T.Mesh(g, hatch(new T.MeshBasicMaterial({ color: capCol, side: T.BackSide, clippingPlanes: [plane] }), pi % 2 ? -1 : 1)));
     });
 
     // площина перерізу: ледь видима плівка з рамкою
@@ -1452,6 +1449,36 @@ async function initSectionViewer(box, calm) {
     sheet.add(new T.LineSegments(new T.EdgesGeometry(sheet.geometry),
         new T.LineBasicMaterial({ color: 0xD0BCFF, transparent: true, opacity: .55 })));
     model.add(sheet);
+
+    /* Кришки зрізу - через стенсил, як у CAD і в прикладі three.js webgl_clipping_stencil.
+       Для кожної деталі: задні грані за площиною додають 1, передні віднімають 1 - де
+       лишилось не 0, промінь на площині всередині тіла. Туди й малюється справжній
+       квадрат у самій площині, тож кришка має глибину площини. Попередній спосіб
+       (зафарбовувати задні грані) давав мерехтіння, де вал сидить в отворі маточини:
+       внутрішні грані обох деталей збігаються, і дві штриховки билися за ті самі пікселі. */
+    const capGeo = new T.PlaneGeometry(1, 1);
+    const stencilMat = side => new T.MeshBasicMaterial({
+        side, clippingPlanes: [plane], colorWrite: false, depthWrite: false, depthTest: false,
+        stencilWrite: true, stencilFunc: T.AlwaysStencilFunc,
+        stencilZPass: side === T.BackSide ? T.IncrementWrapStencilOp : T.DecrementWrapStencilOp,
+        stencilFail: side === T.BackSide ? T.IncrementWrapStencilOp : T.DecrementWrapStencilOp,
+        stencilZFail: side === T.BackSide ? T.IncrementWrapStencilOp : T.DecrementWrapStencilOp });
+    const backMat = stencilMat(T.BackSide), frontMat = stencilMat(T.FrontSide);
+    meshes.forEach((m, pi) => {
+        const ro = 1 + pi * 3;
+        const back = new T.Mesh(m.geometry, backMat); back.renderOrder = ro;
+        const front = new T.Mesh(m.geometry, frontMat); front.renderOrder = ro + 1;
+        model.add(back, front);
+        // світліший тон деталі зі штриховкою; квадрат скидає стенсил у 0 для наступної деталі
+        const capCol = m.userData.base.clone().lerp(new T.Color(0xffffff), .35);
+        const cap = new T.Mesh(capGeo, hatch(new T.MeshBasicMaterial({ color: capCol, side: T.DoubleSide,
+            stencilWrite: true, stencilRef: 0, stencilFunc: T.NotEqualStencilFunc,
+            stencilFail: T.ReplaceStencilOp, stencilZFail: T.ReplaceStencilOp, stencilZPass: T.ReplaceStencilOp }),
+            pi % 2 ? -1 : 1));
+        cap.renderOrder = ro + 2;
+        cap.onAfterRender = r => r.clearStencil();
+        sheet.add(cap);
+    });
 
     let axis = 0, u = .5, flip = false;
     const readAxis = document.getElementById('sc-axis-read'), readCut = document.getElementById('sc-cut');
