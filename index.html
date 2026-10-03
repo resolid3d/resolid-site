@@ -434,9 +434,6 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .tour-steps { padding-left: 0; margin-top: -60svh; padding-bottom: calc(30svh - 62px); }
     .tour-rail { display: none; }
     .step { min-height: 70svh; visibility: hidden; }
-    /* один свайп - один крок: інерція більше не пролітає кілька 3D-сцен разом */
-    html { scroll-snap-type: y proximity; scroll-padding-top: 62px; }
-    .step { scroll-snap-align: start; scroll-snap-stop: always; }
     /* керування на телефоні - тонке, щоб не закривати модель: панелі без заголовка,
        габарити сховані (вони є в тексті кроку), кнопки дрібніші */
     .tour-stage .viewer { height: 62%; }
@@ -2119,6 +2116,79 @@ async function initExplodeViewer(box, calm) {
             rail.style.setProperty('--p', p.toFixed(4));
         };
         addEventListener('scroll', progress, { passive: true }); progress();
+
+        /* Телефон: крок за свайп під нашим контролем. scroll-snap-stop браузер Samsung
+           ігнорує, і інерція пролітала кілька сцен. Тому всередині туру вертикальний свайп
+           по сцені не гортає сторінку сам - ми плавно доводимо її рівно до сусіднього кроку;
+           розгін ззовні (зверху чи знизу) зупиняємо на першому чи останньому кроці. */
+        if (matchMedia('(max-width: 860px)').matches && matchMedia('(pointer: coarse)').matches) {
+            const stage = tourEl.querySelector('.tour-stage');
+            const HEAD = 62;
+            const stepTop = i => steps[i].getBoundingClientRect().top + scrollY - HEAD;
+            const last = steps.length - 1;
+            // доїзд до кроку - своєю анімацією покадрово: вбудований smooth у різних
+            // браузерах (Samsung теж) поводиться по-різному й буває, що зупиняється на півдорозі
+            let auto = null;               // {to} - поки сторінка їде сама
+            const go = n => {
+                n = Math.max(0, Math.min(last, n));
+                const from = scrollY, to = stepTop(n), t0 = performance.now(), dur = 480;
+                const run = auto = { to };
+                (function frame(now) {
+                    if (auto !== run) return;
+                    const k = Math.min(1, (now - t0) / dur), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+                    scrollTo({ top: from + (to - from) * e, behavior: 'instant' });
+                    if (k < 1) requestAnimationFrame(frame); else auto = null;
+                })(t0);
+            };
+            const pinned = () => {
+                const r = stage.getBoundingClientRect();
+                return Math.abs(r.top - HEAD) < 3;
+            };
+            let t = null;
+            stage.addEventListener('touchstart', e => {
+                t = null;
+                if (!pinned() || e.touches.length !== 1 || e.target.closest('input, button')) return;
+                t = { x: e.touches[0].clientX, y: e.touches[0].clientY, axis: null };
+            }, { passive: true });
+            stage.addEventListener('touchmove', e => {
+                if (!t) return;
+                const dx = e.touches[0].clientX - t.x, dy = e.touches[0].clientY - t.y;
+                if (!t.axis && Math.hypot(dx, dy) > 8) {
+                    t.axis = Math.abs(dy) > Math.abs(dx) ? 'v' : 'h';
+                    // з першого кроку вгору й з останнього вниз - звичайна прокрутка зі сторінки
+                    if (t.axis === 'v' && ((dy > 0 && cur === 0) || (dy < 0 && cur === last))) t.axis = 'out';
+                }
+                if (t.axis === 'v' && e.cancelable) e.preventDefault();
+            }, { passive: false });
+            stage.addEventListener('touchend', e => {
+                if (!t || t.axis !== 'v') { t = null; return; }
+                const dy = e.changedTouches[0].clientY - t.y;
+                t = null;
+                if (Math.abs(dy) > 30) go(cur + (dy < 0 ? 1 : -1));
+            });
+            // розгін ззовні: щойно сторінка перетнула перший (або з низу - останній) крок,
+            // ставимо її точно на нього - програмна прокрутка гасить інерцію
+            // інерцію програмна прокрутка не гасить - лише мить без прокрутки (overflow: hidden)
+            const root = document.documentElement;
+            function stopAt(y) {
+                root.style.overflow = 'hidden';
+                scrollTo({ top: y, behavior: 'instant' });
+                touchEndAt = -1e9;
+                setTimeout(() => { root.style.overflow = ''; scrollTo({ top: y, behavior: 'instant' }); prevY = y; }, 60);
+            }
+            let prevY = scrollY, touchEndAt = -1e9;
+            addEventListener('touchend', () => { touchEndAt = performance.now(); }, { passive: true });
+            addEventListener('scroll', () => {
+                const y = scrollY, a = stepTop(0), b = stepTop(last);
+                if (auto) {
+                    /* сторінка їде сама */
+                } else if (!t && performance.now() - touchEndAt < 3000) {   // лише інерція після свайпу, не клік по лого чи посилання
+                    if (prevY < a - 2 && y > a + 2) stopAt(a);
+                    else if (prevY > b + 2 && y < b - 2) stopAt(b);
+                }
+                prevY = scrollY;
+            }, { passive: true });
+        }
     }
 
     // Reveal-анімація героя: клас на час програвання, потім знімаємо —
