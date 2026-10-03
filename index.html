@@ -288,12 +288,29 @@ header {
     grid-area: stage; position: sticky; top: 78px; align-self: start;
     height: calc(100vh - 110px); max-height: 760px; margin: 16px 0;
 }
+/* Перехід між кроками - різка шторка без розмиття: нова модель відкривається поверх
+   старої, а по краю шторки йде світла лінія, як площина перерізу. Прокрутка вниз -
+   шторка знизу вгору, назад - згори вниз. Стара лишається під нею, поки шторка не дійде. */
 .tour-stage .viewer {
     position: absolute; inset: 0; height: auto;
-    opacity: 0; transform: scale(.94) translateY(18px); filter: blur(10px); pointer-events: none;
-    transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1), filter .7s;
+    visibility: hidden; pointer-events: none; z-index: 1;
+    clip-path: inset(0 0 0 0 round 26px);
+    transition: clip-path .62s cubic-bezier(.7,0,.2,1);
 }
-.tour-stage .viewer.on { opacity: 1; transform: none; filter: none; pointer-events: auto; }
+.tour-stage .viewer.on { visibility: visible; pointer-events: auto; z-index: 2; }
+.tour-stage .viewer.was { visibility: visible; z-index: 1; transition: none; }
+.tour-stage .viewer.prep { transition: none; }
+.tour-stage .viewer.prep.from-b { clip-path: inset(100% 0 0 0 round 26px); }
+.tour-stage .viewer.prep.from-t { clip-path: inset(0 0 100% 0 round 26px); }
+.tour-scan {
+    position: absolute; z-index: 4; left: 0; right: 0; height: 2px; top: 0; opacity: 0; pointer-events: none;
+    background: var(--measure); box-shadow: 0 0 18px 3px rgba(92,232,200,.55);
+}
+.tour-scan.up { animation: scanUp .62s cubic-bezier(.7,0,.2,1); }
+.tour-scan.down { animation: scanDown .62s cubic-bezier(.7,0,.2,1); }
+.tour-stage { --scan-top: 0px; --scan-bot: 100%; }
+@keyframes scanUp { 0% { top: var(--scan-bot); opacity: 1; } 92% { opacity: 1; } 100% { top: var(--scan-top); opacity: 0; } }
+@keyframes scanDown { 0% { top: var(--scan-top); opacity: 1; } 92% { opacity: 1; } 100% { top: var(--scan-bot); opacity: 0; } }
 .tour-dots { position: absolute; z-index: 5; right: 16px; top: 16px; display: flex; gap: 6px; pointer-events: none; }
 .tour-dots span { width: 8px; height: 8px; border-radius: 4px; background: rgba(232,228,239,.28); transition: width .4s, background .4s; }
 .tour-dots span.on { width: 24px; background: var(--primary); }
@@ -302,9 +319,9 @@ header {
 .tour-rail i { position: absolute; inset: 0 0 auto; height: calc(var(--p, 0) * 100%); background: linear-gradient(var(--measure), var(--primary)); border-radius: 1px; }
 .step {
     min-height: 92vh; display: flex; flex-direction: column; justify-content: center; gap: 12px;
-    opacity: .28; transform: translateX(-8px); transition: opacity .5s, transform .5s;
+    opacity: .2; transition: opacity .25s;
 }
-.step.on { opacity: 1; transform: none; }
+.step.on { opacity: 1; }
 .step h2 { font-size: clamp(26px, 3.4vw, 36px); line-height: 1.15; }
 .step p { color: var(--muted); max-width: 44ch; }
 .step-n { font-family: var(--mono); font-size: 13px; color: var(--primary); letter-spacing: .1em; }
@@ -401,6 +418,8 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .tour-stage .viewer { inset: 10px 16px auto; height: 58%; }
     .tour-stage .viewer canvas { touch-action: pan-y; }   /* свайп угору-вниз гортає сторінку, убік - крутить модель */
     .tour-dots { right: 28px; top: 22px; }
+    .tour-stage { --scan-top: 10px; --scan-bot: calc(10px + 58%); }
+    .tour-scan { left: 16px; right: 16px; }
     .tour-caption { display: flex; }
     .tour-steps { padding-left: 0; margin-top: -60svh; }
     .tour-rail { display: none; }
@@ -511,6 +530,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
         <div class="tour-stage">
             <div class="tour-dots" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
             <div class="tour-caption" aria-live="polite"></div>
+            <div class="tour-scan" aria-hidden="true"></div>
             <div class="viewer on" id="viewer">
                     <div class="loading" data-i18n="lv_loading">ЗАВАНТАЖЕННЯ…</div>
                     <div class="v-modes" role="group" aria-label="Режим показу" data-i18n-aria="lv_modes_aria">
@@ -1799,14 +1819,34 @@ async function initSectionViewer(box, calm) {
         const views = [...tourEl.querySelectorAll('.tour-stage .viewer')];
         const dots = [...tourEl.querySelectorAll('.tour-dots span')];
         const caption = tourEl.querySelector('.tour-caption');
+        const scan = tourEl.querySelector('.tour-scan');
+        let wipeT;
+        function wipe(from, to) {
+            const next = views[to], prev = views[from];
+            clearTimeout(wipeT);
+            views.forEach(v => v.classList.remove('was', 'prep', 'from-b', 'from-t'));
+            if (!prev || prev === next || calm) {          // перший показ або зміна мови - без шторки
+                views.forEach(v => v.classList.toggle('on', v === next));
+                return;
+            }
+            const down = to > from;
+            prev.classList.remove('on'); prev.classList.add('was');
+            next.classList.add('prep', down ? 'from-b' : 'from-t');
+            void next.offsetWidth;                         // зафіксувати стартову шторку
+            next.classList.remove('prep'); next.classList.add('on');
+            scan.classList.remove('up', 'down'); void scan.offsetWidth;
+            scan.classList.add(down ? 'up' : 'down');
+            wipeT = setTimeout(() => prev.classList.remove('was'), 650);
+        }
         let cur = -1;
         const show = n => {
             if (n < 0 || n === cur) return;
+            const prevN = cur;
             cur = n;
             // підпис під 3D на телефоні - копія тексту кроку (мову перемикаємо там же нижче)
             caption.innerHTML = steps[n].innerHTML;
             steps.forEach((s, i) => s.classList.toggle('on', i === n));
-            views.forEach((v, i) => v.classList.toggle('on', i === n));
+            wipe(prevN, n);
             dots.forEach((d, i) => d.classList.toggle('on', i === n));
         };
         // на телефоні верх екрана зайнятий сценою - лінія читання нижче
