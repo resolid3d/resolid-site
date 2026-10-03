@@ -129,6 +129,14 @@ header {
     border-radius: 30px; background: #2b3a42;
 }
 .hero .phone { max-width: 300px; transform: rotate(2.5deg); }
+/* нахил за курсором: скрипт пише --rx/--ry, обгортка дає перспективу */
+.tilt { perspective: 1100px; }
+.tilt .phone {
+    transform: rotate(2.5deg) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition: transform .5s cubic-bezier(.2,.7,.2,1);
+    animation: float 7s ease-in-out infinite;
+}
+@keyframes float { 50% { translate: 0 -10px; } }
 .hero .phone-tag {
     position: absolute; left: -64px; top: 30%;
     font-family: var(--mono); font-size: 12px; line-height: 1.45;
@@ -149,6 +157,9 @@ header {
 
 @media (prefers-reduced-motion: reduce) {
     .hero-copy.reveal > * { animation: none; opacity: 1; transform: none; }
+    .tilt .phone { animation: none; transition: none; }
+    .rv { opacity: 1; translate: none; filter: none; transition: none; }
+    .proof .draw { transform: none; transition: none; }
 }
 
 .logo-mark { width: 26px; height: 26px; border-radius: 7px; background: var(--logo) center/contain no-repeat; align-self: center; }
@@ -169,9 +180,9 @@ header {
 .spot-copy h3 { font-family: var(--mono); font-size: clamp(22px, 3vw, 28px); line-height: 1.2; letter-spacing: -.02em; text-wrap: balance; }
 .spot-copy p { color: var(--muted); max-width: 44ch; }
 /* «число-доказ» — та сама розмірна лінія, що була під кубом */
-.proof { display: flex; align-items: center; gap: 12px; color: var(--measure); max-width: 320px; margin-top: 6px; }
+.proof { display: flex; align-items: center; gap: 12px; color: var(--measure); max-width: 440px; margin-top: 6px; }
 .proof b { font-family: var(--mono); font-size: clamp(28px, 4vw, 38px); font-weight: 600; letter-spacing: -.02em; white-space: nowrap; }
-.proof small { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.proof small { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
 
 /* ---------- ролики ---------- */
 .reels { border-top: 1px solid var(--line); }
@@ -184,6 +195,69 @@ header {
 }
 .reel h3 { font-family: var(--mono); font-size: 14.5px; letter-spacing: -.01em; line-height: 1.3; }
 .reel p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* ---------- 3D: справжня модель із застосунку ---------- */
+.live { border-bottom: 1px solid var(--line); }
+.viewer {
+    position: relative; border-radius: 26px; overflow: hidden;
+    border: 1px solid var(--line);
+    background: radial-gradient(ellipse at 50% 35%, #3a4d57, #2b3a42 55%, #1f2a30);
+    height: clamp(380px, 56vw, 560px);
+    box-shadow: 0 30px 90px rgba(0,0,0,.45);
+}
+.viewer canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.viewer canvas:active { cursor: grabbing; }
+.viewer .loading {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-family: var(--mono); font-size: 12px; letter-spacing: .2em; color: rgba(232,228,239,.6);
+    transition: opacity .4s;
+}
+.viewer.ready .loading { opacity: 0; pointer-events: none; }
+/* плашки в стилі застосунку: панель режимів угорі, рядок габаритів унизу */
+.v-modes {
+    position: absolute; top: 14px; left: 50%; translate: -50% 0;
+    display: flex; gap: 6px; padding: 6px; border-radius: 16px;
+    background: rgba(28,27,34,.78); backdrop-filter: blur(10px);
+    border: 1px solid rgba(208,188,255,.18);
+}
+.v-modes button {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .02em;
+    border: 0; border-radius: 11px; padding: 8px 12px; cursor: pointer;
+    background: transparent; color: var(--muted); transition: background .2s, color .2s;
+}
+.v-modes button.on { background: var(--primary); color: var(--on-primary); font-weight: 700; }
+.v-modes button:focus-visible { outline: 2px solid var(--measure); outline-offset: 1px; }
+.v-info {
+    position: absolute; left: 14px; bottom: 14px; right: 14px;
+    display: flex; justify-content: space-between; align-items: end; gap: 12px; pointer-events: none;
+    font-family: var(--mono); font-size: 12px; color: rgba(232,228,239,.75);
+}
+.v-info b { color: var(--measure); font-weight: 600; }
+.v-info .chip {
+    background: rgba(28,27,34,.72); backdrop-filter: blur(8px);
+    border: 1px solid rgba(208,188,255,.14); border-radius: 12px; padding: 8px 12px;
+}
+.v-hint { opacity: .8; }
+
+/* ---------- поява при прокрутці ---------- */
+/* базовий стан видимий: клас .rv ставить скрипт, тож без JS нічого не ховається */
+.rv { opacity: 0; translate: 0 26px; filter: blur(6px);
+      transition: opacity .8s cubic-bezier(.2,.7,.2,1), translate .8s cubic-bezier(.2,.7,.2,1), filter .8s;
+      transition-delay: var(--d, 0s); }
+.rv.in { opacity: 1; translate: 0 0; filter: none; }
+
+/* світло під курсором на картках */
+.tool, .fmt { position: relative; isolation: isolate; }
+.tool::after, .fmt::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+    background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(208,188,255,.11), transparent 70%);
+    opacity: 0; transition: opacity .3s;
+}
+.tool:hover::after, .fmt:hover::after { opacity: 1; }
+
+/* розмірна лінія під числом-доказом «прокреслюється» */
+.proof .draw { flex: 1; height: 1px; background: var(--measure); opacity: .7; transform-origin: left; transform: scaleX(0); transition: transform 1.2s cubic-bezier(.2,.7,.2,1) .2s; min-width: 40px; }
+.proof.in .draw { transform: scaleX(1); }
 
 /* ---------- formats ---------- */
 .formats { border-bottom: 1px solid var(--line); }
@@ -239,6 +313,9 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
 .foot a:hover { color: var(--primary); }
 
 @media (max-width: 860px) {
+    .v-modes button { padding: 7px 9px; font-size: 11px; white-space: nowrap; }
+    .viewer { height: 440px; }
+    .v-hint { display: none; }
     .hero-grid { grid-template-columns: 1fr; padding-block: 64px 72px; gap: 56px; }
     .stage { order: -1; }
     .hero .phone { max-width: 230px; }
@@ -312,16 +389,39 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
         </div>
         <div class="stage">
             <!-- справжній запис екрана: розліт збірки мотоцикла (1.16 млн трикутників), туди й назад -->
-            <div class="phone">
+            <div class="tilt"><div class="phone">
                 <video src="assets/hero-explode.mp4" poster="assets/hero-explode.jpg"
                        autoplay muted loop playsinline preload="metadata"
                        aria-label="Запис екрана: розліт збірки мотоцикла в RE:solid" data-i18n-aria="hero_video_aria"></video>
                 <div class="phone-tag" aria-hidden="true">Full Assy.3mf<br><b>1.16 MΔ</b></div>
-            </div>
+            </div></div>
             <div class="dim" aria-hidden="true">
                 <span class="dim-line l"></span>
                 <b>Z:1887.0&nbsp;mm</b>
                 <span class="dim-line r"></span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section live">
+    <div class="wrap">
+        <div class="section-head">
+            <div class="eyebrow" data-i18n="lv_eyebrow">ПОКРУТІТЬ САМІ</div>
+            <h2 data-i18n="lv_h2">Справжня модель, просто на сторінці</h2>
+            <p data-i18n="lv_p">Той самий логотип, який RE:solid відкриває при першому запуску: logo.obj з кольорами з .mtl. Тягніть, щоб обертати, і перемикайте режими — як у застосунку.</p>
+        </div>
+        <div class="viewer" id="viewer">
+            <div class="loading" data-i18n="lv_loading">ЗАВАНТАЖЕННЯ…</div>
+            <div class="v-modes" role="group" aria-label="Режим показу" data-i18n-aria="lv_modes_aria">
+                <button class="on" data-mode="rendered">Rendered</button>
+                <button data-mode="wire">Wireframe</button>
+                <button data-mode="xray">X-ray</button>
+                <button data-mode="section">Section</button>
+            </div>
+            <div class="v-info">
+                <span class="chip">logo.obj · <span id="v-dims">—</span></span>
+                <span class="chip v-hint" data-i18n="lv_hint">тягніть, щоб обертати</span>
             </div>
         </div>
     </div>
@@ -343,7 +443,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <div class="eyebrow" data-i18n="cu1_eyebrow">ПЕРЕРІЗ + ВИМІР</div>
                 <h3 data-i18n="cu1_h">Розріжте і зміряйте стінку</h3>
                 <p data-i18n="cu1_p">Площина перерізу по X, Y чи Z, штриховка на зрізі. Два тапи по краях — і товщина шинки готова, з прив'язкою до вершин та історією вимірів.</p>
-                <div class="proof"><b>1.32&nbsp;mm</b><small data-i18n="cu1_proof">стінка шинки на зрізі</small></div>
+                <div class="proof"><b>1.32&nbsp;mm</b><span class="draw"></span><small data-i18n="cu1_proof">стінка шинки на зрізі</small></div>
             </div>
         </div>
 
@@ -355,7 +455,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <div class="eyebrow" data-i18n="cu2_eyebrow">КАРТА ТОВЩИН</div>
                 <h3 data-i18n="cu2_h">Слабке місце знаходиться саме</h3>
                 <p data-i18n="cu2_p">Уся деталь розфарбована за товщиною: червоне — тонко, синє — товсто. Найтонша стінка підписана, а з порогом лишаються кольоровими тільки місця, які треба виправити до лиття чи друку.</p>
-                <div class="proof"><b>0.351&nbsp;mm</b><small data-i18n="cu2_proof">найтонша стінка</small></div>
+                <div class="proof"><b>0.351&nbsp;mm</b><span class="draw"></span><small data-i18n="cu2_proof">найтонша стінка</small></div>
             </div>
         </div>
 
@@ -368,7 +468,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <div class="eyebrow" data-i18n="cu3_eyebrow">МАТЕРІАЛИ + ВАГА</div>
                 <h3 data-i18n="cu3_h">Золото, діамант — і скільки це важить</h3>
                 <p data-i18n="cu3_p">Сирий STL стає золотом із каменем. Камінь ховається одним тапом, і таблиця рахує вагу самої оправи — від PLA до золота 14K/18K, з площею поверхні й вартістю.</p>
-                <div class="proof"><b>2.95&nbsp;g</b><small data-i18n="cu3_proof">золото 18K, без каменя</small></div>
+                <div class="proof"><b>2.95&nbsp;g</b><span class="draw"></span><small data-i18n="cu3_proof">золото 18K, без каменя</small></div>
             </div>
         </div>
     </div>
@@ -550,6 +650,13 @@ const i18n = {
         cta: "Завантажити в Google Play",
         cta_note: "Безкоштовно, Pro — за бажанням · Android 7.0+",
         hero_video_aria: "Запис екрана: розліт збірки мотоцикла в RE:solid",
+        lv_eyebrow: "ПОКРУТІТЬ САМІ",
+        lv_h2: "Справжня модель, просто на сторінці",
+        lv_p: "Той самий логотип, який RE:solid відкриває при першому запуску: logo.obj з кольорами з .mtl. Тягніть, щоб обертати, і перемикайте режими — як у застосунку.",
+        lv_loading: "ЗАВАНТАЖЕННЯ…",
+        lv_failed: "3D НЕДОСТУПНЕ В ЦЬОМУ БРАУЗЕРІ",
+        lv_hint: "тягніть, щоб обертати",
+        lv_modes_aria: "Режим показу",
         cu_eyebrow: "КРУПНИМ ПЛАНОМ",
         cu_h2: "Одна каблучка, три питання ювеліра",
         cu_p: "Справжні знімки екрана: ring.stl, 356 тисяч трикутників, телефон без інтернету. Кожне число порахував застосунок.",
@@ -631,6 +738,13 @@ const i18n = {
         cta: "Get it on Google Play",
         cta_note: "Free, Pro optional · Android 7.0+",
         hero_video_aria: "Screen recording: a motorcycle assembly exploding in RE:solid",
+        lv_eyebrow: "SPIN IT YOURSELF",
+        lv_h2: "A real model, right on the page",
+        lv_p: "The same logo RE:solid opens on first launch: logo.obj with its colors from the .mtl. Drag to rotate and switch modes — just like in the app.",
+        lv_loading: "LOADING…",
+        lv_failed: "3D IS NOT AVAILABLE IN THIS BROWSER",
+        lv_hint: "drag to rotate",
+        lv_modes_aria: "Display mode",
         cu_eyebrow: "UP CLOSE",
         cu_h2: "One ring, three questions a jeweler asks",
         cu_p: "Real screenshots: ring.stl, 356 thousand triangles, a phone with no internet. Every number was computed by the app.",
@@ -730,6 +844,132 @@ function setLang(lang) {
     try { localStorage.setItem('site_lang', lang); } catch (e) {}
 }
 
+function loadScript(src) {
+    return new Promise((ok, fail) => {
+        const el = document.createElement('script');
+        el.src = src; el.onload = ok; el.onerror = () => fail(new Error('script: ' + src));
+        document.head.appendChild(el);
+    });
+}
+
+// r128 — та сама версія three.js, що й у застосунку
+async function initViewer(box, calm) {
+    const CDN = 'https://cdn.jsdelivr.net/npm/three@0.128.0/';
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
+    await Promise.all([
+        loadScript(CDN + 'examples/js/loaders/OBJLoader.js'),
+        loadScript(CDN + 'examples/js/controls/OrbitControls.js')
+    ]);
+    const T = THREE;
+    const renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.outputEncoding = T.sRGBEncoding;
+    renderer.localClippingEnabled = true;
+    box.prepend(renderer.domElement);
+
+    const scene = new T.Scene();
+    const camera = new T.PerspectiveCamera(32, 1, 1, 1000);
+    camera.position.set(34, 20, 96);
+    scene.add(new T.HemisphereLight(0xffffff, 0x2b3a42, .85));
+    const key = new T.DirectionalLight(0xffffff, 1.05); key.position.set(40, 60, 80); scene.add(key);
+    const rim = new T.DirectionalLight(0xD0BCFF, .7); rim.position.set(-60, 20, -70); scene.add(rim);
+
+    const grid = new T.GridHelper(240, 48, 0x6d8c99, 0x435a65);
+    grid.position.y = -27; grid.material.transparent = true; grid.material.opacity = .55;
+    scene.add(grid);
+
+    const obj = await new Promise((ok, fail) => new T.OBJLoader().load('assets/logo.obj', ok, undefined, fail));
+    const mesh = obj.children.find(c => c.isMesh);
+    const geo = mesh.geometry;
+    geo.computeBoundingBox();
+    const size = new T.Vector3(); geo.boundingBox.getSize(size);
+    const center = new T.Vector3(); geo.boundingBox.getCenter(center);
+    geo.translate(-center.x, -center.y, -center.z);
+    document.getElementById('v-dims').innerHTML =
+        'X:' + size.x.toFixed(1) + ' Y:' + size.y.toFixed(1) + ' Z:' + size.z.toFixed(1) + ' mm · <b>' +
+        (geo.attributes.position.count / 3).toLocaleString('uk-UA') + ' Δ</b>';
+
+    // кольори з logo.mtl (Kd)
+    const kd = { Black: [.098, .098, .098], White: [.965, .965, .953], Blue: [.188, .231, .588] };
+    const plane = new T.Plane(new T.Vector3(-1, 0, 0), 100);
+    const names = (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).map(m => m.name);
+    const solid = names.map(n => {
+        const c = kd[Object.keys(kd).find(k => n.includes(k))] || [.8, .8, .8];
+        return new T.MeshStandardMaterial({ color: new T.Color().setRGB(c[0], c[1], c[2]).convertSRGBToLinear(),
+            roughness: .3, metalness: .05, clippingPlanes: [plane] });
+    });
+    const wire = new T.MeshBasicMaterial({ color: 0xD0BCFF, wireframe: true, transparent: true, opacity: .5 });
+    // X-ray: тіло ледь видно, а намальоване (чорне й синє) світиться — інакше лишається лише контур
+    const glass = (c, o) => new T.MeshBasicMaterial({ color: c, transparent: true, opacity: o,
+        blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide });
+    const xray = names.map(n => n.includes("Blue") ? glass(0x5CE8C8, .5) : n.includes("Black") ? glass(0xD0BCFF, .38) : glass(0x9fd8ff, .05));
+    const multi = Array.isArray(mesh.material);
+    const pick = m => Array.isArray(m) ? (multi ? m : m[0]) : (multi ? names.map(() => m) : m);
+
+    const model = new T.Group(); scene.add(model);
+    mesh.material = multi ? solid : solid[0]; model.add(mesh);
+    // зріз: задні грані за площиною зафарбовуються — переріз виглядає суцільним
+    const cap = new T.Mesh(geo, new T.MeshBasicMaterial({ color: 0x5CE8C8, side: T.BackSide, clippingPlanes: [plane] }));
+    cap.visible = false; model.add(cap);
+    const edges = new T.LineSegments(new T.EdgesGeometry(geo, 30),
+        new T.LineBasicMaterial({ color: 0xD0BCFF, transparent: true, opacity: .85 }));
+    edges.visible = false; model.add(edges);
+    const sheet = new T.Mesh(new T.PlaneGeometry(56, 56), new T.MeshBasicMaterial({
+        color: 0x5CE8C8, transparent: true, opacity: .07, side: T.DoubleSide, depthWrite: false }));
+    sheet.rotation.y = Math.PI / 2; sheet.visible = false; scene.add(sheet);
+    sheet.add(new T.LineSegments(new T.EdgesGeometry(sheet.geometry),
+        new T.LineBasicMaterial({ color: 0x5CE8C8, transparent: true, opacity: .6 })));
+
+    let mode = 'rendered';
+    function setMode(m) {
+        mode = m;
+        mesh.material = m === 'wire' ? pick(wire) : m === 'xray' ? pick(xray) : (multi ? solid : solid[0]);
+        edges.visible = m === 'xray';
+        cap.visible = sheet.visible = m === 'section';
+        if (m !== 'section') plane.constant = 100;
+        box.querySelectorAll('.v-modes button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+    }
+    box.querySelectorAll('.v-modes button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+
+    const controls = new T.OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = false; controls.enablePan = false; controls.enableDamping = true;
+    controls.autoRotate = !calm; controls.autoRotateSpeed = 2.4;
+    let resume;
+    controls.addEventListener('start', () => { controls.autoRotate = false; clearTimeout(resume); });
+    controls.addEventListener('end', () => { if (!calm) resume = setTimeout(() => controls.autoRotate = true, 2500); });
+
+    function fit() {
+        const w = box.clientWidth, h = box.clientHeight;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        // вузький екран — камеру далі, щоб плитка 40 мм влазила по ширині
+        camera.position.setLength(w / h < .9 ? 170 : 128);
+        camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(fit).observe(box); fit();
+
+    let visible = true, t0 = null;
+    new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(box);
+    model.scale.setScalar(calm ? 1 : .01);
+    box.classList.add('ready');
+    renderer.setAnimationLoop(t => {
+        if (!visible || document.hidden) return;
+        if (t0 === null) t0 = t;
+        const k = Math.min(1, (t - t0) / 1200);
+        if (!calm && k <= 1) {   // поява: виростає з пружинкою й доворотом
+            const e = 1 + 2.2 * Math.pow(k - 1, 3) + 1.2 * Math.pow(k - 1, 2);
+            model.scale.setScalar(Math.max(.01, e));
+            model.rotation.y = (1 - k) * -Math.PI;
+        }
+        if (mode === 'section') {
+            plane.constant = calm ? 0 : Math.sin(t / 1300) * 17;
+            sheet.position.x = plane.constant;
+        }
+        controls.update();
+        renderer.render(scene, camera);
+    });
+}
+
 (function () {
     // Мова: збережений вибір, інакше — мова системи
     let lang = 'uk';
@@ -750,6 +990,75 @@ function setLang(lang) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         const hv = document.querySelector('.hero video');
         if (hv) { hv.removeAttribute('autoplay'); hv.pause(); hv.controls = true; }
+    }
+
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Поява блоків при прокрутці; у сітках — зі сходинкою
+    const groups = ['.section-head', '.viewer', '.spot', '.offline .band', '.download .inner',
+                    '.fmt-grid > *', '.tools-grid > *', '.reel-grid > *'];
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+        if (e.target.matches('.proof')) countUp(e.target.querySelector('b'));
+    }), { threshold: .14, rootMargin: '0px 0px -40px 0px' });
+    if (!calm) {
+        groups.forEach(sel => document.querySelectorAll(sel).forEach((el, i) => {
+            el.classList.add('rv');
+            if (sel.includes('>')) el.style.setProperty('--d', (i % 4) * .07 + 's');
+            io.observe(el);
+        }));
+    }
+    document.querySelectorAll('.proof').forEach(el => calm ? el.classList.add('in') : io.observe(el));
+
+    // Число-доказ набігає від нуля до справжнього значення
+    function countUp(b) {
+        const m = b.textContent.match(/^([\d.]+)([\s\S]*)$/);
+        if (!m) return;
+        const end = parseFloat(m[1]), dec = (m[1].split('.')[1] || '').length, t0 = performance.now();
+        (function step(t) {
+            const k = Math.min(1, Math.max(0, t - t0) / 1100), e = 1 - Math.pow(1 - k, 3);
+            b.textContent = (end * e).toFixed(dec) + m[2];
+            if (k < 1) requestAnimationFrame(step);
+        })(t0);
+    }
+
+    // Світло під курсором на картках
+    document.querySelectorAll('.tool, .fmt').forEach(el => el.addEventListener('pointermove', e => {
+        const r = el.getBoundingClientRect();
+        el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    }));
+
+    // Телефон у герої нахиляється за курсором
+    const tilt = document.querySelector('.tilt'), heroEl = document.querySelector('.hero');
+    if (tilt && !calm && matchMedia('(pointer: fine)').matches) {
+        heroEl.addEventListener('pointermove', e => {
+            const r = heroEl.getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+            tilt.style.setProperty('--ry', (x * 16).toFixed(2) + 'deg');
+            tilt.style.setProperty('--rx', (-y * 10).toFixed(2) + 'deg');
+        });
+        heroEl.addEventListener('pointerleave', () => {
+            tilt.style.setProperty('--ry', '0deg'); tilt.style.setProperty('--rx', '0deg');
+        });
+    }
+
+    // 3D: three.js вантажиться, лише коли блок підходить до екрана
+    const viewer = document.getElementById('viewer');
+    if (viewer) {
+        const lazy = new IntersectionObserver(es => {
+            if (!es[0].isIntersecting) return;
+            lazy.disconnect();
+            initViewer(viewer, calm).catch(err => {
+                console.error(err);
+                const l = viewer.querySelector('.loading');
+                l.setAttribute('data-i18n', 'lv_failed');
+                l.textContent = i18n[document.documentElement.lang].lv_failed;
+            });
+        }, { rootMargin: '600px 0px' });
+        lazy.observe(viewer);
     }
 
     // Reveal-анімація героя: клас на час програвання, потім знімаємо —
