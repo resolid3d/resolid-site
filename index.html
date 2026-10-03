@@ -291,17 +291,17 @@ header {
 /* Перехід між кроками - різка шторка без розмиття: нова модель відкривається поверх
    старої, а по краю шторки йде світла лінія, як площина перерізу. Прокрутка вниз -
    шторка знизу вгору, назад - згори вниз. Стара лишається під нею, поки шторка не дійде. */
-.tour-stage .viewer {
+.tour-stage > .tour-item {
     position: absolute; inset: 0; height: auto;
     visibility: hidden; pointer-events: none; z-index: 1;
     clip-path: inset(0 0 0 0 round 26px);
     transition: clip-path .62s cubic-bezier(.7,0,.2,1);
 }
-.tour-stage .viewer.on { visibility: visible; pointer-events: auto; z-index: 2; }
-.tour-stage .viewer.was { visibility: visible; z-index: 1; transition: none; }
-.tour-stage .viewer.prep { transition: none; }
-.tour-stage .viewer.prep.from-b { clip-path: inset(100% 0 0 0 round 26px); }
-.tour-stage .viewer.prep.from-t { clip-path: inset(0 0 100% 0 round 26px); }
+.tour-stage > .tour-item.on { visibility: visible; pointer-events: auto; z-index: 2; }
+.tour-stage > .tour-item.was { visibility: visible; z-index: 1; transition: none; }
+.tour-stage > .tour-item.prep { transition: none; }
+.tour-stage > .tour-item.prep.from-b { clip-path: inset(100% 0 0 0 round 26px); }
+.tour-stage > .tour-item.prep.from-t { clip-path: inset(0 0 100% 0 round 26px); }
 .tour-scan {
     position: absolute; z-index: 4; left: 0; right: 0; height: 2px; top: 0; opacity: 0; pointer-events: none;
     background: var(--measure); box-shadow: 0 0 18px 3px rgba(92,232,200,.55);
@@ -344,6 +344,19 @@ header {
 }
 .ex-play.on { padding-left: 0; }
 .ex-play:focus-visible { outline: 2px solid var(--measure); outline-offset: 2px; }
+
+/* скріни в турі: телефон на тлі сцени, як 3D поруч */
+.tour-item.shot {
+    border-radius: 26px; border: 1px solid var(--line); overflow: hidden;
+    background: radial-gradient(ellipse at 50% 35%, #3a4d57, #2b3a42 55%, #1f2a30);
+    display: flex; align-items: center; justify-content: center; gap: 4%;
+}
+.tour-item.shot .phone { height: 92%; width: auto; max-width: none; aspect-ratio: 981 / 2000; padding: 8px; border-radius: 32px; }
+.tour-item.shot .phone > img { height: 100%; border-radius: 25px; }
+.tour-item.shot.pair .phone { height: 80%; }
+.tour-item.shot.pair .phone:first-child { margin-bottom: 6%; }
+.tour-item.shot.pair .phone:last-child { margin-top: 6%; }
+.tour-shots .tour-head { padding-top: 88px; }
 
 /* ---------- поява при прокрутці ---------- */
 /* базовий стан видимий: клас .rv ставить скрипт, тож без JS нічого не ховається */
@@ -424,8 +437,12 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
        прикріпленою сценою, на телефоні просто не встигали б прочитати. */
     .tour-grid { grid-template-columns: 1fr; grid-template-areas: "stage" "steps"; gap: 0; }
     .tour-stage { top: 62px; height: calc(100svh - 62px); min-height: 560px; max-height: none; margin: 0 -24px; z-index: 3; background: var(--bg); }
-    .tour-stage .viewer { inset: 10px 16px auto; height: 58%; }
-    .tour-stage .viewer canvas { touch-action: pan-y; }   /* свайп угору-вниз гортає сторінку, убік - крутить модель */
+    .tour-stage > .tour-item { inset: 10px 16px auto; height: 58%; }
+    .tour-stage .viewer canvas { touch-action: pan-y; }
+    .tour-item.shot .phone { padding: 5px; border-radius: 22px; }
+    .tour-item.shot .phone > img { border-radius: 18px; }
+    .tour-item.shot.pair .phone { height: 70%; }
+    .tour-shots .tour-head { padding-top: 56px; }   /* свайп угору-вниз гортає сторінку, убік - крутить модель */
     .tour-dots { right: 28px; top: 22px; }
     .tour-stage { --scan-top: 10px; --scan-bot: calc(10px + 58%); }
     .tour-scan { left: 16px; right: 16px; }
@@ -436,7 +453,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .step { min-height: 70svh; visibility: hidden; }
     /* керування на телефоні - тонке, щоб не закривати модель: панелі без заголовка,
        габарити сховані (вони є в тексті кроку), кнопки дрібніші */
-    .tour-stage .viewer { height: 62%; }
+    .tour-stage > .tour-item { height: 62%; }
     .tour-stage { --scan-bot: calc(10px + 62%); }
     .tour-caption { top: calc(62% + 22px); gap: 6px; }
     .tour-caption h2 { font-size: 20px; }
@@ -498,7 +515,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .wrap { padding: 0 16px; }
     .reel-grid { margin: 0 -16px; padding-inline: 16px; scroll-padding-inline: 16px; }
     .tour-stage { margin: 0 -16px; }
-    .tour-stage .viewer { inset: 8px 10px auto; }
+    .tour-stage > .tour-item { inset: 8px 10px auto; }
     .tour-caption { left: 14px; right: 14px; }
     /* герой: заголовок має бути видно з першого екрана, телефон — менший */
     .hero .phone { max-width: 170px; padding: 7px; border-radius: 28px; }
@@ -565,7 +582,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
             <div class="tour-dots" aria-hidden="true"><span class="on"></span><span></span><span></span><span></span></div>
             <div class="tour-caption" aria-live="polite"></div>
             <div class="tour-scan" aria-hidden="true"></div>
-            <div class="viewer on" id="viewer">
+            <div class="viewer tour-item on" id="viewer">
                     <div class="loading" data-i18n="lv_loading">LOADING…</div>
                     <div class="v-modes" role="group" aria-label="Display mode" data-i18n-aria="lv_modes_aria">
                         <button class="on" data-mode="rendered">Rendered</button>
@@ -577,7 +594,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                         <span class="chip v-hint" data-i18n="lv_hint">drag to rotate</span>
                     </div>
                 </div>
-            <div class="viewer" id="sec-viewer">
+            <div class="viewer tour-item" id="sec-viewer">
                     <div class="loading" data-i18n="lv_loading">LOADING…</div>
                     <div class="v-tl">
                         <span class="chip">BASE DE POLEA.stp · <span id="sc-dims">—</span></span>
@@ -599,7 +616,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                         </div>
                     </div>
                 </div>
-            <div class="viewer" id="ex-viewer">
+            <div class="viewer tour-item" id="ex-viewer">
                 <div class="loading" data-i18n="lv_loading">LOADING…</div>
                 <div class="v-tl">
                     <span class="chip">Full Assy.3mf · <span id="ex-dims">—</span></span>
@@ -615,7 +632,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                     </div>
                 </div>
             </div>
-            <div class="viewer" id="ring-viewer">
+            <div class="viewer tour-item" id="ring-viewer">
                     <div class="loading" data-i18n="lv_loading">LOADING…</div>
                     <div class="v-modes" role="group" aria-label="Material" data-i18n-aria="rm_modes_aria">
                         <button class="on" data-mat="gold" data-i18n="rm_gold">Gold</button>
@@ -659,49 +676,46 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     </div>
 </section>
 
-<section class="section closeup">
-    <div class="wrap">
+<section class="tour tour-shots" aria-label="Up close" data-i18n-aria="cu_eyebrow_aria">
+    <div class="wrap tour-head">
         <div class="section-head">
-            <div class="eyebrow" data-i18n="cu_eyebrow">UP CLOSE</div>
-            <h2 data-i18n="cu_h2">One ring, three questions a jeweler asks</h2>
-            <p data-i18n="cu_p">Real screenshots: ring.stl, 356 thousand triangles, a phone with no internet. Every number was computed by the app.</p>
+        <div class="eyebrow" data-i18n="cu_eyebrow">UP CLOSE</div>
+        <h2 data-i18n="cu_h2">One ring, three questions a jeweler asks</h2>
+        <p data-i18n="cu_p">Real screenshots: ring.stl, 356 thousand triangles, a phone with no internet. Every number was computed by the app.</p>
         </div>
-
-        <div class="spot">
-            <div class="spot-media">
-                <div class="phone"><img src="assets/shot-measure.jpg" alt="Ring cut along X with the wall measured: 1.32 mm" data-i18n-alt="cu1_alt" loading="lazy" width="600" height="1224"></div>
-            </div>
-            <div class="spot-copy">
+    </div>
+    <div class="wrap tour-grid">
+        <div class="tour-stage">
+            <div class="tour-dots" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
+            <div class="tour-caption" aria-live="polite"></div>
+            <div class="tour-scan" aria-hidden="true"></div>
+            <div class="tour-item shot on"><div class="phone"><img src="assets/shot-measure.jpg" alt="Ring cut along X with the wall measured: 1.32 mm" data-i18n-alt="cu1_alt" width="600" height="1224"></div></div>
+            <div class="tour-item shot"><div class="phone"><img src="assets/shot-map.jpg" alt="Thickness map: red is thin, blue is thick; thinnest wall 0.351 mm" data-i18n-alt="cu2_alt" width="600" height="1224"></div></div>
+            <div class="tour-item shot pair"><div class="phone"><img src="assets/shot-gold.jpg" alt="The ring rendered in gold with a diamond" data-i18n-alt="cu3_alt1" width="600" height="1224"></div><div class="phone"><img src="assets/shot-weight.jpg" alt="Weight table: 18K gold — 2.95 g, hidden part not included" data-i18n-alt="cu3_alt2" loading="lazy" width="600" height="1224"></div></div>
+        </div>
+        <div class="tour-steps">
+            <div class="tour-rail" aria-hidden="true"><i></i></div>
+            <article class="step on">
+                <div class="step-n">01 <i>/ 03</i></div>
                 <div class="eyebrow" data-i18n="cu1_eyebrow">SECTION + MEASURE</div>
-                <h3 data-i18n="cu1_h">Cut it open, measure the wall</h3>
+                <h2 data-i18n="cu1_h">Cut it open, measure the wall</h2>
                 <p data-i18n="cu1_p">A section plane along X, Y or Z, hatched on the cut. Two taps on the edges and the shank thickness is in — snapped to vertices, kept in the measurement history.</p>
                 <div class="proof"><b>1.32&nbsp;mm</b><span class="draw"></span><small data-i18n="cu1_proof">shank wall on the cut</small></div>
-            </div>
-        </div>
-
-        <div class="spot flip">
-            <div class="spot-media">
-                <div class="phone"><img src="assets/shot-map.jpg" alt="Thickness map: red is thin, blue is thick; thinnest wall 0.351 mm" data-i18n-alt="cu2_alt" loading="lazy" width="600" height="1224"></div>
-            </div>
-            <div class="spot-copy">
+            </article>
+            <article class="step">
+                <div class="step-n">02 <i>/ 03</i></div>
                 <div class="eyebrow" data-i18n="cu2_eyebrow">THICKNESS MAP</div>
-                <h3 data-i18n="cu2_h">It finds the weak spot for you</h3>
+                <h2 data-i18n="cu2_h">It finds the weak spot for you</h2>
                 <p data-i18n="cu2_p">The whole part is colored by thickness: red is thin, blue is thick. The thinnest wall is labelled, and with a threshold only the spots you need to fix before casting or printing stay colored.</p>
                 <div class="proof"><b>0.351&nbsp;mm</b><span class="draw"></span><small data-i18n="cu2_proof">thinnest wall</small></div>
-            </div>
-        </div>
-
-        <div class="spot">
-            <div class="spot-media pair">
-                <div class="phone"><img src="assets/shot-gold.jpg" alt="The ring rendered in gold with a diamond" data-i18n-alt="cu3_alt1" loading="lazy" width="600" height="1224"></div>
-                <div class="phone"><img src="assets/shot-weight.jpg" alt="Weight table: 18K gold — 2.95 g, hidden part not included" data-i18n-alt="cu3_alt2" loading="lazy" width="600" height="1224"></div>
-            </div>
-            <div class="spot-copy">
+            </article>
+            <article class="step">
+                <div class="step-n">03 <i>/ 03</i></div>
                 <div class="eyebrow" data-i18n="cu3_eyebrow">MATERIALS + WEIGHT</div>
-                <h3 data-i18n="cu3_h">Gold, a diamond — and what it weighs</h3>
+                <h2 data-i18n="cu3_h">Gold, a diamond — and what it weighs</h2>
                 <p data-i18n="cu3_p">A raw STL turns into gold with a stone. Hide the stone with a tap and the table weighs the setting alone — from PLA to 14K/18K gold, with surface area and cost.</p>
                 <div class="proof"><b>2.95&nbsp;g</b><span class="draw"></span><small data-i18n="cu3_proof">18K gold, stone excluded</small></div>
-            </div>
+            </article>
         </div>
     </div>
 </section>
@@ -919,6 +933,7 @@ const i18n = {
         rm_chrome: "Хром",
         rm_stone: "діамант",
         cu_eyebrow: "КРУПНИМ ПЛАНОМ",
+        cu_eyebrow_aria: "Крупним планом",
         cu_h2: "Одна каблучка, три питання ювеліра",
         cu_p: "Справжні знімки екрана: ring.stl, 356 тисяч трикутників, телефон без інтернету. Кожне число порахував застосунок.",
         cu1_eyebrow: "ПЕРЕРІЗ + ВИМІР",
@@ -1036,6 +1051,7 @@ const i18n = {
         rm_chrome: "Chrome",
         rm_stone: "diamond",
         cu_eyebrow: "UP CLOSE",
+        cu_eyebrow_aria: "Up close",
         cu_h2: "One ring, three questions a jeweler asks",
         cu_p: "Real screenshots: ring.stl, 356 thousand triangles, a phone with no internet. Every number was computed by the app.",
         cu1_eyebrow: "SECTION + MEASURE",
@@ -1964,14 +1980,17 @@ async function initExplodeViewer(box, calm) {
             io.observe(el);
         }));
     }
-    document.querySelectorAll('.proof').forEach(el => calm ? el.classList.add('in') : io.observe(el));
+    document.querySelectorAll('.proof').forEach(el => calm || el.closest('.tour') ? el.classList.add('in') : io.observe(el));
 
     // Число-доказ набігає від нуля до справжнього значення
     function countUp(b) {
-        const m = b.textContent.match(/^([\d.]+)([\s\S]*)$/);
+        if (!b.dataset.v) b.dataset.v = b.textContent;
+        const m = b.dataset.v.match(/^([\d.]+)([\s\S]*)$/);
         if (!m) return;
         const end = parseFloat(m[1]), dec = (m[1].split('.')[1] || '').length, t0 = performance.now();
+        const run = b.__run = {};
         (function step(t) {
+            if (b.__run !== run) return;               // уже почався новий відлік
             const k = Math.min(1, Math.max(0, t - t0) / 1100), e = 1 - Math.pow(1 - k, 3);
             b.textContent = (end * e).toFixed(dec) + m[2];
             if (k < 1) requestAnimationFrame(step);
@@ -2063,10 +2082,9 @@ async function initExplodeViewer(box, calm) {
     }
 
     // Тур: крок, що перетинає лінію читання, вмикає свій 3D; смуга ліворуч - прогрес
-    const tourEl = document.querySelector('.tour');
-    if (tourEl) {
+    document.querySelectorAll('.tour').forEach(tourEl => {
         const steps = [...tourEl.querySelectorAll('.step')];
-        const views = [...tourEl.querySelectorAll('.tour-stage .viewer')];
+        const views = [...tourEl.querySelectorAll('.tour-stage > .tour-item')];
         const dots = [...tourEl.querySelectorAll('.tour-dots span')];
         const caption = tourEl.querySelector('.tour-caption');
         const scan = tourEl.querySelector('.tour-scan');
@@ -2088,6 +2106,20 @@ async function initExplodeViewer(box, calm) {
             scan.classList.add(down ? 'up' : 'down');
             wipeT = setTimeout(() => prev.classList.remove('was'), 650);
         }
+        // число-доказ кроку (і його копії в підписі) набігає, коли крок стає активним -
+        // але лише коли тур уже на екрані; перший крок - щойно тур з'явився
+        let entered = false;
+        const recount = n => {
+            const src = steps[n].querySelector('.proof b');
+            if (!src) return;
+            const v = src.dataset.v || src.textContent;
+            [src, caption.querySelector('.proof b')].forEach(b => { if (b) { b.dataset.v = v; countUp(b); } });
+        };
+        new IntersectionObserver((es, o) => {
+            if (!es[0].isIntersecting) return;
+            o.disconnect(); entered = true;
+            if (!calm && cur >= 0) recount(cur);
+        }, { threshold: .3 }).observe(tourEl.querySelector('.tour-stage'));
         let cur = -1;
         const show = n => {
             if (n < 0 || n === cur) return;
@@ -2096,6 +2128,7 @@ async function initExplodeViewer(box, calm) {
             // підпис під 3D на телефоні - копія тексту кроку (мову перемикаємо там же нижче)
             caption.innerHTML = steps[n].innerHTML;
             steps.forEach((s, i) => s.classList.toggle('on', i === n));
+            if (!calm && entered) recount(n);
             wipe(prevN, n);
             dots.forEach((d, i) => d.classList.toggle('on', i === n));
         };
@@ -2189,7 +2222,7 @@ async function initExplodeViewer(box, calm) {
                 prevY = scrollY;
             }, { passive: true });
         }
-    }
+    });
 
     // Reveal-анімація героя: клас на час програвання, потім знімаємо —
     // елементи не залишаються на композитних шарах (артефакти в деяких WebView)
