@@ -1256,6 +1256,30 @@ async function initRingViewer(box, calm) {
         reels.forEach(o => { if (o !== v) o.pause(); });
     }));
 
+    // Наведення мишею — ролик грає без звуку, курсор пішов — пауза.
+    // Без звуку, бо браузер не дає вмикати звук без кліку. Хто ввімкнув звук
+    // чи перемотав — дивиться далі, такий ролик при відведенні курсора не зупиняємо.
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        reels.forEach(v => {
+            v.preload = 'metadata';
+            let engaged = false;
+            const engage = () => { engaged = true; };
+            v.addEventListener('volumechange', () => { if (!v.muted) engage(); });
+            v.addEventListener('seeking', engage);
+            v.addEventListener('ended', () => { engaged = false; });
+            v.addEventListener('pointerenter', e => {
+                if (e.pointerType !== 'mouse' || !v.paused) return;
+                engaged = false;
+                v.muted = true;
+                v.play().catch(() => {});
+            });
+            v.addEventListener('pointerleave', e => {
+                if (e.pointerType !== 'mouse' || engaged) return;
+                v.pause();
+            });
+        });
+    }
+
     // Запис у герої — без автопрограшу для тих, хто просить менше руху
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         const hv = document.querySelector('.hero video');
