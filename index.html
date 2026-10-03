@@ -350,10 +350,12 @@ header {
     border-radius: 26px; border: 1px solid var(--line); overflow: hidden;
     background: radial-gradient(ellipse at 50% 35%, #3a4d57, #2b3a42 55%, #1f2a30);
     display: flex; align-items: center; justify-content: center; gap: 4%;
+    container-type: size;   /* розмір телефонів - і від висоти, і від ширини рамки */
 }
-.tour-item.shot .phone { height: 92%; width: auto; max-width: none; aspect-ratio: 981 / 2000; padding: 8px; border-radius: 32px; }
+/* телефон ~0.49 висоти завширшки: один - не ширший за 90% рамки, пара - разом теж */
+.tour-item.shot .phone { height: min(92cqh, 180cqw); width: auto; max-width: none; aspect-ratio: 981 / 2000; padding: 8px; border-radius: 32px; }
 .tour-item.shot .phone > img { height: 100%; border-radius: 25px; }
-.tour-item.shot.pair .phone { height: 80%; }
+.tour-item.shot.pair .phone { height: min(80cqh, 88cqw); }
 .tour-item.shot.pair .phone:first-child { margin-bottom: 6%; }
 .tour-item.shot.pair .phone:last-child { margin-top: 6%; }
 .tour-shots .tour-head { padding-top: 88px; }
@@ -441,7 +443,6 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .tour-stage .viewer canvas { touch-action: pan-y; }
     .tour-item.shot .phone { padding: 5px; border-radius: 22px; }
     .tour-item.shot .phone > img { border-radius: 18px; }
-    .tour-item.shot.pair .phone { height: 70%; }
     .tour-shots .tour-head { padding-top: 56px; }   /* свайп угору-вниз гортає сторінку, убік - крутить модель */
     .tour-dots { right: 28px; top: 22px; }
     .tour-stage { --scan-top: 10px; --scan-bot: calc(10px + 58%); }
@@ -453,9 +454,11 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .step { min-height: 70svh; visibility: hidden; }
     /* керування на телефоні - тонке, щоб не закривати модель: панелі без заголовка,
        габарити сховані (вони є в тексті кроку), кнопки дрібніші */
-    .tour-stage > .tour-item { height: 62%; }
-    .tour-stage { --scan-bot: calc(10px + 62%); }
-    .tour-caption { top: calc(62% + 22px); gap: 6px; }
+    /* висота підпису - під найдовший крок туру (рахує скрипт у --cap-h), 3D/скрін - решта:
+       з фіксованою часткою екрана довгий текст при більшому шрифті (Samsung) обрізався */
+    .tour-stage { --item-h: calc(100% - var(--cap-h, 38%) - 36px); --scan-bot: calc(10px + var(--item-h)); }
+    .tour-stage > .tour-item { height: var(--item-h); }
+    .tour-caption { top: auto; bottom: 14px; gap: 6px; overflow: visible; }
     .tour-caption h2 { font-size: 20px; }
     .tour-caption p { font-size: 13.5px; line-height: 1.5; }
     .tour-stage .v-info, .tour-stage .v-tl .chip:not(.sc-part) { display: none; }
@@ -2087,6 +2090,16 @@ async function initExplodeViewer(box, calm) {
         const views = [...tourEl.querySelectorAll('.tour-stage > .tour-item')];
         const dots = [...tourEl.querySelectorAll('.tour-dots span')];
         const caption = tourEl.querySelector('.tour-caption');
+        const stageEl = tourEl.querySelector('.tour-stage');
+        // місце під підпис - за найдовшим кроком, щоб 3D не стрибало між кроками
+        const measureCap = () => {
+            if (getComputedStyle(caption).display === 'none') return;
+            const keep = caption.innerHTML;
+            let h = 0;
+            steps.forEach(st => { caption.innerHTML = st.innerHTML; h = Math.max(h, caption.offsetHeight); });
+            caption.innerHTML = keep;
+            stageEl.style.setProperty('--cap-h', Math.ceil(h) + 'px');
+        };
         const scan = tourEl.querySelector('.tour-scan');
         let wipeT;
         function wipe(from, to) {
@@ -2138,9 +2151,12 @@ async function initExplodeViewer(box, calm) {
         }), { rootMargin: '-48% 0px -48% 0px' });
         steps.forEach(s => so.observe(s));
         show(0);
+        measureCap();
+        addEventListener('resize', measureCap);
+        if (document.fonts) document.fonts.ready.then(measureCap);
         // після зміни мови підпис беремо заново
         document.querySelectorAll('.lang-pill button').forEach(b => b.addEventListener('click', () => {
-            const n = cur; cur = -1; show(n);
+            const n = cur; cur = -1; show(n); measureCap();
         }));
         const stepsBox = tourEl.querySelector('.tour-steps'), rail = tourEl.querySelector('.tour-rail');
         const progress = () => {
