@@ -336,6 +336,15 @@ header {
 .tour-caption h2 { font-size: 22px; line-height: 1.2; }
 .tour-caption p { color: var(--muted); font-size: 14.5px; line-height: 1.55; }
 
+.ex-row { display: flex; align-items: center; gap: 12px; }
+.ex-play {
+    flex: none; width: 40px; height: 40px; border-radius: 50%; border: 0; cursor: pointer;
+    background: var(--primary); color: var(--on-primary); font-size: 15px; font-weight: 700;
+    display: grid; place-items: center; padding-left: 2px;
+}
+.ex-play.on { padding-left: 0; }
+.ex-play:focus-visible { outline: 2px solid var(--measure); outline-offset: 2px; }
+
 /* ---------- поява при прокрутці ---------- */
 /* базовий стан видимий: клас .rv ставить скрипт, тож без JS нічого не ховається */
 .rv { opacity: 0; translate: 0 26px; filter: blur(6px);
@@ -528,7 +537,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
 <section class="tour" aria-label="Інтерактив" data-i18n-aria="tour_aria">
     <div class="wrap tour-grid">
         <div class="tour-stage">
-            <div class="tour-dots" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
+            <div class="tour-dots" aria-hidden="true"><span class="on"></span><span></span><span></span><span></span></div>
             <div class="tour-caption" aria-live="polite"></div>
             <div class="tour-scan" aria-hidden="true"></div>
             <div class="viewer on" id="viewer">
@@ -566,6 +575,22 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                         </div>
                     </div>
                 </div>
+            <div class="viewer" id="ex-viewer">
+                <div class="loading" data-i18n="lv_loading">ЗАВАНТАЖЕННЯ…</div>
+                <div class="v-tl">
+                    <span class="chip">Full Assy.3mf · <span id="ex-dims">—</span></span>
+                </div>
+                <div class="sec-panel ex-panel">
+                    <div class="sec-head"><span>✦ <b data-i18n="ex_title">Розліт</b></span><span id="ex-read">0 %</span></div>
+                    <div class="sec-body">
+                        <div class="ex-row">
+                            <button class="ex-play" type="button" aria-label="Відтворити розліт" data-i18n-aria="ex_play_aria">▶</button>
+                            <input class="sec-range ex-range" type="range" min="0" max="1000" value="0" aria-label="Розліт" data-i18n-aria="ex_range_aria">
+                        </div>
+                        <div class="sec-row"><span><b id="ex-parts">394</b> <span data-i18n="ex_parts">деталі</span></span><span data-i18n="ex_hint_row">тягніть або ▶</span></div>
+                    </div>
+                </div>
+            </div>
             <div class="viewer" id="ring-viewer">
                     <div class="loading" data-i18n="lv_loading">ЗАВАНТАЖЕННЯ…</div>
                     <div class="v-modes" role="group" aria-label="Матеріал" data-i18n-aria="rm_modes_aria">
@@ -583,19 +608,25 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
         <div class="tour-steps">
             <div class="tour-rail" aria-hidden="true"><i></i></div>
             <article class="step on" data-step="0">
-                <div class="step-n">01 <i>/ 03</i></div>
+                <div class="step-n">01 <i>/ 04</i></div>
                 <div class="eyebrow" data-i18n="lv_eyebrow">ПОКРУТІТЬ САМІ</div>
                 <h2 data-i18n="lv_h2">Справжня модель, просто на сторінці</h2>
                 <p data-i18n="lv_p">Той самий логотип, який RE:solid відкриває при першому запуску: logo.obj з кольорами з .mtl. Тягніть, щоб обертати, і перемикайте режими — як у застосунку.</p>
             </article>
             <article class="step" data-step="1">
-                <div class="step-n">02 <i>/ 03</i></div>
+                <div class="step-n">02 <i>/ 04</i></div>
                 <div class="eyebrow" data-i18n="sc_eyebrow">РОЗРІЗ</div>
                 <h2 data-i18n="sc_h2">Розріжте збірку самі</h2>
                 <p data-i18n="sc_p">Справжній STEP: кронштейн шківа з двома корпусними підшипниками, 42 тіла. Розібраний тим самим CAD-ядром, що працює всередині застосунку. Тягніть повзунок, міняйте вісь, наведіть на деталь — побачите її назву з файлу.</p>
             </article>
             <article class="step" data-step="2">
-                <div class="step-n">03 <i>/ 03</i></div>
+                <div class="step-n">03 <i>/ 04</i></div>
+                <div class="eyebrow" data-i18n="ex_eyebrow">РОЗЛІТ</div>
+                <h2 data-i18n="ex_h2">Розберіть мотоцикл на деталі</h2>
+                <p data-i18n="ex_p">Справжня збірка: Full Assy.3mf, 394 деталі. Тягніть повзунок або натисніть ▶ — деталі розлітаються від центру, як у режимі розльоту застосунку. Для сторінки сітку спрощено з 1.16 млн до 200 тисяч трикутників; у застосунку вона відкривається повністю.</p>
+            </article>
+            <article class="step" data-step="3">
+                <div class="step-n">04 <i>/ 04</i></div>
                 <div class="eyebrow" data-i18n="rm_eyebrow">ПРИМІРЯЙТЕ МЕТАЛ</div>
                 <h2 data-i18n="rm_h2">Та сама каблучка — у будь-якому металі</h2>
                 <p data-i18n="rm_p">Справжній STL із Rhino: 400 тисяч трикутників, овальний камінь 6×8 мм. Перемикайте метал — як у меню матеріалів застосунку. Камінь лишається діамантом.</p>
@@ -835,6 +866,14 @@ const i18n = {
         lv_failed: "3D НЕДОСТУПНЕ В ЦЬОМУ БРАУЗЕРІ",
         lv_hint: "тягніть, щоб обертати",
         lv_modes_aria: "Режим показу",
+        ex_eyebrow: "РОЗЛІТ",
+        ex_h2: "Розберіть мотоцикл на деталі",
+        ex_p: "Справжня збірка: Full Assy.3mf, 394 деталі. Тягніть повзунок або натисніть ▶ — деталі розлітаються від центру, як у режимі розльоту застосунку. Для сторінки сітку спрощено з 1.16 млн до 200 тисяч трикутників; у застосунку вона відкривається повністю.",
+        ex_title: "Розліт",
+        ex_parts: "деталі",
+        ex_hint_row: "тягніть або ▶",
+        ex_play_aria: "Відтворити розліт",
+        ex_range_aria: "Розліт",
         sc_eyebrow: "РОЗРІЗ",
         sc_h2: "Розріжте збірку самі",
         sc_p: "Справжній STEP: кронштейн шківа з двома корпусними підшипниками, 42 тіла. Розібраний тим самим CAD-ядром, що працює всередині застосунку. Тягніть повзунок, міняйте вісь, наведіть на деталь — побачите її назву з файлу.",
@@ -942,6 +981,14 @@ const i18n = {
         lv_failed: "3D IS NOT AVAILABLE IN THIS BROWSER",
         lv_hint: "drag to rotate",
         lv_modes_aria: "Display mode",
+        ex_eyebrow: "EXPLODED VIEW",
+        ex_h2: "Take the motorcycle apart",
+        ex_p: "A real assembly: Full Assy.3mf, 394 parts. Drag the slider or press ▶ — the parts fly out from the center, just like the app's exploded view. For the page the mesh is reduced from 1.16M to 200 thousand triangles; the app opens it in full.",
+        ex_title: "Exploded View",
+        ex_parts: "parts",
+        ex_hint_row: "drag or ▶",
+        ex_play_aria: "Play the exploded view",
+        ex_range_aria: "Explode",
         sc_eyebrow: "SECTION",
         sc_h2: "Cut the assembly yourself",
         sc_p: "A real STEP file: a pulley bracket with two pillow-block bearings, 42 bodies. Loaded with the same CAD kernel that runs inside the app. Drag the slider, switch the axis, hover a part to see its name from the file.",
@@ -1665,6 +1712,147 @@ async function initSectionViewer(box, calm) {
     });
 }
 
+/* moto.bin - Full Assy (3).3mf: 394 деталі, кожна поділена на шматки за кольором і
+   спрощена квадриками (1.16 млн -> 200 тис. трикутників), межі шматків не зрушені -
+   без щілин. Координати - Uint16 у габариті, усе в gzip: 13.9 МБ -> 1.3 МБ. */
+async function loadMotoBin(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('moto.bin: ' + res.status);
+    const buf = await new Response(res.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+    const len = new DataView(buf).getUint32(0, true);
+    const head = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, len)));
+    const span = head.max.map((v, k) => v - head.min[k]);
+    let off = 4 + len;
+    const parts = head.parts.map(p => ({ c: p.c, pieces: p.pieces.map(pc => {
+        const q = new Uint16Array(buf, off, pc.v * 3); off += pc.v * 6;
+        const pos = new Float32Array(pc.v * 3);
+        for (let j = 0; j < pos.length; j++) { const k = j % 3; pos[j] = head.min[k] + q[j] / 65535 * span[k]; }
+        const n = pc.t * 3, bytes = n * (pc.big ? 4 : 2);
+        const ind = pc.big ? new Uint32Array(buf, off, n) : new Uint16Array(buf, off, n);
+        off += bytes + (bytes % 4 ? 4 - bytes % 4 : 0);
+        return { col: pc.col, pos, ind };
+    }) }));
+    return { head, span, parts };
+}
+
+async function initExplodeViewer(box, calm) {
+    await loadThree();
+    const T = THREE;
+    const renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.outputEncoding = T.sRGBEncoding;
+    renderer.toneMapping = T.ACESFilmicToneMapping;
+    box.prepend(renderer.domElement);
+
+    const { head, span, parts } = await loadMotoBin('assets/moto.bin');
+    const tris = parts.reduce((n, p) => n + p.pieces.reduce((m, pc) => m + pc.ind.length / 3, 0), 0);
+    document.getElementById('ex-dims').innerHTML =
+        span.map((v, a) => 'XYZ'[a] + ':' + v.toFixed(1)).join(' ') + ' mm · <b>' +
+        tris.toLocaleString('uk-UA') + ' Δ</b>';
+    document.getElementById('ex-parts').textContent = parts.length;
+
+    const scene = new T.Scene();
+    scene.environment = studioEnvironment(T, renderer);
+    scene.add(new T.HemisphereLight(0xffffff, 0x2b3a42, .5));
+    const key = new T.DirectionalLight(0xffffff, .8); key.position.set(800, 1400, 900); scene.add(key);
+    const camera = new T.PerspectiveCamera(30, 1, 20, 20000);
+
+    // у файлі Z угору (габарит 702 x 1888 x 961 мм) - кладемо Z на Y three
+    const center = new T.Vector3(...head.min.map((v, k) => v + span[k] / 2));
+    const model = new T.Group(); model.rotation.x = -Math.PI / 2; scene.add(model);
+    const grid = new T.GridHelper(6000, 60, 0x6d8c99, 0x435a65);
+    grid.position.y = -span[2] / 2 - 4; grid.material.transparent = true; grid.material.opacity = .45;
+    scene.add(grid);
+
+    const mats = new Map();
+    const matFor = hex => {
+        if (!mats.has(hex)) {
+            const c = new T.Color('#' + hex).convertSRGBToLinear();
+            const dark = c.r + c.g + c.b < .1;
+            mats.set(hex, new T.MeshStandardMaterial({ color: c, roughness: dark ? .6 : .38, metalness: dark ? .1 : .55, envMapIntensity: .9 }));
+        }
+        return mats.get(hex);
+    };
+    // напрям розльоту - від центру збірки до центру деталі, як у застосунку
+    const groups = parts.map(p => {
+        const g = new T.Group();
+        p.pieces.forEach(pc => {
+            const geo = new T.BufferGeometry();
+            geo.setAttribute('position', new T.BufferAttribute(pc.pos, 3));
+            geo.setIndex(new T.BufferAttribute(pc.ind, 1));
+            geo.translate(-center.x, -center.y, -center.z);
+            geo.computeVertexNormals();
+            g.add(new T.Mesh(geo, matFor(pc.col)));
+        });
+        g.userData.dir = new T.Vector3(p.c[0] - center.x, p.c[1] - center.y, p.c[2] - center.z);
+        model.add(g);
+        return g;
+    });
+
+    let f = 0, playing = !calm, t0 = null;
+    const range = box.querySelector('.ex-range'), read = document.getElementById('ex-read'), play = box.querySelector('.ex-play');
+    // виліт = відстань до центру x K + однаковий запас: інакше деталі біля центру
+    // (двигун, рама) майже не рухаються, і розліт ледь видно
+    const R = Math.hypot(span[0], span[1], span[2]) / 2, K = .85, BASE = R * .22;
+    groups.forEach(g => {
+        const d = g.userData.dir, l = d.length();
+        g.userData.off = l > 1e-6 ? d.clone().multiplyScalar((l * K + BASE) / l) : new T.Vector3(0, 0, BASE);
+    });
+    // підлога - під найнижчою деталлю на піку розльоту, щоб нічого не пролітало крізь сітку
+    grid.position.y = -(span[2] / 2) * (1 + K) - BASE - 10;
+    function apply() {
+        // плавний старт і фініш: деталі не смикаються на краях
+        const e = f * f * (3 - 2 * f);
+        groups.forEach(g => g.position.copy(g.userData.off).multiplyScalar(e));
+        read.textContent = Math.round(f * 100) + ' %';
+        range.value = Math.round(f * 1000);
+    }
+    const setPlay = on => { playing = on; play.textContent = on ? '❚❚' : '▶'; play.classList.toggle('on', on); t0 = null; };
+    play.addEventListener('click', () => setPlay(!playing));
+    range.addEventListener('input', () => { setPlay(false); f = range.value / 1000; apply(); });
+    setPlay(playing);
+
+    const controls = new T.OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = false; controls.enablePan = false; controls.enableDamping = true;
+    controls.autoRotate = !calm; controls.autoRotateSpeed = .7;
+    let resume;
+    controls.addEventListener('start', () => { controls.autoRotate = false; clearTimeout(resume); });
+    controls.addEventListener('end', () => { if (!calm) resume = setTimeout(() => controls.autoRotate = true, 3000); });
+
+    // кадр розрахований на розлетілу збірку - на піку вона ширша за зібрану
+    const radius = R * 1.3;
+    controls.target.set(0, 0, 0);
+    camera.position.set(1.25, .45, .55);   // збоку й трохи згори: мотоцикл видно в профіль
+    function fit() {
+        const w = box.clientWidth, h = box.clientHeight;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        const dir0 = camera.position.clone().sub(controls.target);
+        controls.target.y = -radius * (camera.aspect < .9 ? .3 : .08);
+        const fov = T.MathUtils.degToRad(camera.fov) / 2;
+        const fitH = radius / Math.tan(fov), fitW = radius / Math.tan(Math.atan(Math.tan(fov) * camera.aspect));
+        camera.position.copy(controls.target).addScaledVector(dir0.normalize(), Math.max(fitH, fitW) * .9);
+        camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(fit).observe(box); fit();
+
+    apply();
+    box.classList.add('ready');
+    let last = null;
+    renderer.setAnimationLoop(t => {
+        if (!onScreen(box) || document.hidden) { last = null; return; }
+        // відтворення: розліт - пауза - збирання - пауза, по колу (7 с)
+        if (playing) {
+            if (t0 === null) t0 = t - (f >= 1 ? 2000 : f * 2500);
+            const k = ((t - t0) % 7000) / 7000 * 7;
+            f = k < 2.5 ? k / 2.5 : k < 3.5 ? 1 : k < 6 ? 1 - (k - 3.5) / 2.5 : 0;
+            apply();
+        }
+        controls.update();
+        renderer.render(scene, camera);
+    });
+}
+
 (function () {
     // Мова: збережений вибір, інакше — мова системи
     let lang = 'uk';
@@ -1794,6 +1982,22 @@ async function initSectionViewer(box, calm) {
             });
         }, { rootMargin: '600px 0px' });
         lazyRing.observe(ringBox);
+    }
+
+    // Розліт - так само ліниво
+    const exBox = document.getElementById('ex-viewer');
+    if (exBox) {
+        const lazyEx = new IntersectionObserver(es => {
+            if (!es[0].isIntersecting) return;
+            lazyEx.disconnect();
+            initExplodeViewer(exBox, calm).catch(err => {
+                console.error(err);
+                const l = exBox.querySelector('.loading');
+                l.setAttribute('data-i18n', 'lv_failed');
+                l.textContent = i18n[document.documentElement.lang].lv_failed;
+            });
+        }, { rootMargin: '600px 0px' });
+        lazyEx.observe(exBox);
     }
 
     // Розріз - так само ліниво
