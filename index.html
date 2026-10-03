@@ -224,6 +224,7 @@ header {
     font-family: var(--mono); font-size: 12px; letter-spacing: .02em;
     border: 0; border-radius: 11px; padding: 8px 12px; cursor: pointer;
     background: transparent; color: var(--muted); transition: background .2s, color .2s;
+    white-space: nowrap;
 }
 .v-modes button.on { background: var(--primary); color: var(--on-primary); font-weight: 700; }
 .v-modes button:focus-visible { outline: 2px solid var(--measure); outline-offset: 1px; }
@@ -279,6 +280,44 @@ header {
 .sc-part { opacity: 0; translate: 0 -4px; transition: opacity .2s, translate .2s; color: var(--text) !important; }
 .sc-part.on { opacity: 1; translate: 0 0; }
 .sc-part small { display: block; color: var(--muted); font-size: 11px; }
+
+/* ---------- тур: сцена прикріплена, кроки гортаються ---------- */
+.tour { border-bottom: 1px solid var(--line); }
+.tour-grid { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); grid-template-areas: "steps stage"; gap: 56px; }
+.tour-stage {
+    grid-area: stage; position: sticky; top: 78px; align-self: start;
+    height: calc(100vh - 110px); max-height: 760px; margin: 16px 0;
+}
+.tour-stage .viewer {
+    position: absolute; inset: 0; height: auto;
+    opacity: 0; transform: scale(.94) translateY(18px); filter: blur(10px); pointer-events: none;
+    transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1), filter .7s;
+}
+.tour-stage .viewer.on { opacity: 1; transform: none; filter: none; pointer-events: auto; }
+.tour-dots { position: absolute; z-index: 5; right: 16px; top: 16px; display: flex; gap: 6px; pointer-events: none; }
+.tour-dots span { width: 8px; height: 8px; border-radius: 4px; background: rgba(232,228,239,.28); transition: width .4s, background .4s; }
+.tour-dots span.on { width: 24px; background: var(--primary); }
+.tour-steps { grid-area: steps; position: relative; padding-left: 28px; }
+.tour-rail { position: absolute; left: 0; top: 18vh; bottom: 18vh; width: 2px; background: var(--line); border-radius: 1px; }
+.tour-rail i { position: absolute; inset: 0 0 auto; height: calc(var(--p, 0) * 100%); background: linear-gradient(var(--measure), var(--primary)); border-radius: 1px; }
+.step {
+    min-height: 92vh; display: flex; flex-direction: column; justify-content: center; gap: 12px;
+    opacity: .28; transform: translateX(-8px); transition: opacity .5s, transform .5s;
+}
+.step.on { opacity: 1; transform: none; }
+.step h2 { font-size: clamp(26px, 3.4vw, 36px); line-height: 1.15; }
+.step p { color: var(--muted); max-width: 44ch; }
+.step-n { font-family: var(--mono); font-size: 13px; color: var(--primary); letter-spacing: .1em; }
+.step-n i { font-style: normal; color: var(--muted); }
+.tour-caption {
+    display: none; position: absolute; left: 20px; right: 20px; top: calc(58% + 26px); bottom: 12px;
+    flex-direction: column; gap: 8px; overflow: hidden;
+}
+.tour-caption > * { animation: capIn .5s cubic-bezier(.2,.7,.2,1) both; }
+.tour-caption > :nth-child(2) { animation-delay: .04s; } .tour-caption > :nth-child(3) { animation-delay: .08s; } .tour-caption > :nth-child(4) { animation-delay: .12s; }
+@keyframes capIn { from { opacity: 0; translate: 0 14px; } }
+.tour-caption h2 { font-size: 22px; line-height: 1.2; }
+.tour-caption p { color: var(--muted); font-size: 14.5px; line-height: 1.55; }
 
 /* ---------- поява при прокрутці ---------- */
 /* базовий стан видимий: клас .rv ставить скрипт, тож без JS нічого не ховається */
@@ -354,6 +393,18 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
 .foot a:hover { color: var(--primary); }
 
 @media (max-width: 860px) {
+    /* тур на телефоні: сцена на весь екран під шапкою - 3D угорі, текст кроку під ним.
+       Самі кроки - невидимі відрізки прокрутки позаду сцени: текст, що їхав би під
+       прикріпленою сценою, на телефоні просто не встигали б прочитати. */
+    .tour-grid { grid-template-columns: 1fr; grid-template-areas: "stage" "steps"; gap: 0; }
+    .tour-stage { top: 62px; height: calc(100svh - 62px); min-height: 560px; max-height: none; margin: 0 -24px; z-index: 3; background: var(--bg); }
+    .tour-stage .viewer { inset: 10px 16px auto; height: 58%; }
+    .tour-stage .viewer canvas { touch-action: pan-y; }   /* свайп угору-вниз гортає сторінку, убік - крутить модель */
+    .tour-dots { right: 28px; top: 22px; }
+    .tour-caption { display: flex; }
+    .tour-steps { padding-left: 0; margin-top: -60svh; }
+    .tour-rail { display: none; }
+    .step { min-height: 70svh; visibility: hidden; }
     .v-modes button { padding: 7px 9px; font-size: 11px; white-space: nowrap; }
     .viewer { height: 440px; }
     .v-hint { display: none; }
@@ -393,6 +444,9 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .logo em { display: none; }
     .wrap { padding: 0 16px; }
     .reel-grid { margin: 0 -16px; padding-inline: 16px; scroll-padding-inline: 16px; }
+    .tour-stage { margin: 0 -16px; }
+    .tour-stage .viewer { inset: 8px 10px auto; }
+    .tour-caption { left: 14px; right: 14px; }
     /* герой: заголовок має бути видно з першого екрана, телефон — менший */
     .hero .phone { max-width: 170px; padding: 7px; border-radius: 28px; }
     .hero .phone > video { border-radius: 22px; }
@@ -452,25 +506,80 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     </div>
 </section>
 
-<section class="section live">
-    <div class="wrap">
-        <div class="section-head">
-            <div class="eyebrow" data-i18n="lv_eyebrow">ПОКРУТІТЬ САМІ</div>
-            <h2 data-i18n="lv_h2">Справжня модель, просто на сторінці</h2>
-            <p data-i18n="lv_p">Той самий логотип, який RE:solid відкриває при першому запуску: logo.obj з кольорами з .mtl. Тягніть, щоб обертати, і перемикайте режими — як у застосунку.</p>
+<section class="tour" aria-label="Інтерактив" data-i18n-aria="tour_aria">
+    <div class="wrap tour-grid">
+        <div class="tour-stage">
+            <div class="tour-dots" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
+            <div class="tour-caption" aria-live="polite"></div>
+            <div class="viewer on" id="viewer">
+                    <div class="loading" data-i18n="lv_loading">ЗАВАНТАЖЕННЯ…</div>
+                    <div class="v-modes" role="group" aria-label="Режим показу" data-i18n-aria="lv_modes_aria">
+                        <button class="on" data-mode="rendered">Rendered</button>
+                        <button data-mode="wire">Wireframe</button>
+                        <button data-mode="xray">X-ray</button>
+                        <button data-mode="section">Section</button>
+                    </div>
+                    <div class="v-info">
+                        <span class="chip">logo.obj · <span id="v-dims">—</span></span>
+                        <span class="chip v-hint" data-i18n="lv_hint">тягніть, щоб обертати</span>
+                    </div>
+                </div>
+            <div class="viewer" id="sec-viewer">
+                    <div class="loading" data-i18n="lv_loading">ЗАВАНТАЖЕННЯ…</div>
+                    <div class="v-tl">
+                        <span class="chip">BASE DE POLEA.stp · <span id="sc-dims">—</span></span>
+                        <span class="chip sc-part" id="sc-part"></span>
+                    </div>
+                    <div class="sec-panel">
+                        <div class="sec-head"><span>✂ <b data-i18n="sc_title">Секційний аналіз</b></span><span id="sc-axis-read">X · — / — mm</span></div>
+                        <div class="sec-body">
+                            <div class="sec-axes" role="group" aria-label="Вісь перерізу" data-i18n-aria="sc_axes_aria">
+                                <button class="on" data-axis="0">X</button>
+                                <button data-axis="1">Y</button>
+                                <button data-axis="2">Z</button>
+                            </div>
+                            <input class="sec-range" type="range" min="0" max="1000" value="500" aria-label="Положення перерізу" data-i18n-aria="sc_range_aria">
+                            <div class="sec-row">
+                                <button class="sec-flip" type="button">⇄ <span data-i18n="sc_side">Сторона</span></button>
+                                <span><span data-i18n="sc_cut">Зріз</span>: <b id="sc-cut">—</b> mm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div class="viewer" id="ring-viewer">
+                    <div class="loading" data-i18n="lv_loading">ЗАВАНТАЖЕННЯ…</div>
+                    <div class="v-modes" role="group" aria-label="Матеріал" data-i18n-aria="rm_modes_aria">
+                        <button class="on" data-mat="gold" data-i18n="rm_gold">Золото</button>
+                        <button data-mat="rose" data-i18n="rm_rose">Рожеве</button>
+                        <button data-mat="silver" data-i18n="rm_silver">Срібло</button>
+                        <button data-mat="chrome" data-i18n="rm_chrome">Хром</button>
+                    </div>
+                    <div class="v-info">
+                        <span class="chip">ring.stl · <span id="r-dims">—</span></span>
+                        <span class="chip v-hint" data-i18n="lv_hint">тягніть, щоб обертати</span>
+                    </div>
+                </div>
         </div>
-        <div class="viewer" id="viewer">
-            <div class="loading" data-i18n="lv_loading">ЗАВАНТАЖЕННЯ…</div>
-            <div class="v-modes" role="group" aria-label="Режим показу" data-i18n-aria="lv_modes_aria">
-                <button class="on" data-mode="rendered">Rendered</button>
-                <button data-mode="wire">Wireframe</button>
-                <button data-mode="xray">X-ray</button>
-                <button data-mode="section">Section</button>
-            </div>
-            <div class="v-info">
-                <span class="chip">logo.obj · <span id="v-dims">—</span></span>
-                <span class="chip v-hint" data-i18n="lv_hint">тягніть, щоб обертати</span>
-            </div>
+        <div class="tour-steps">
+            <div class="tour-rail" aria-hidden="true"><i></i></div>
+            <article class="step on" data-step="0">
+                <div class="step-n">01 <i>/ 03</i></div>
+                <div class="eyebrow" data-i18n="lv_eyebrow">ПОКРУТІТЬ САМІ</div>
+                <h2 data-i18n="lv_h2">Справжня модель, просто на сторінці</h2>
+                <p data-i18n="lv_p">Той самий логотип, який RE:solid відкриває при першому запуску: logo.obj з кольорами з .mtl. Тягніть, щоб обертати, і перемикайте режими — як у застосунку.</p>
+            </article>
+            <article class="step" data-step="1">
+                <div class="step-n">02 <i>/ 03</i></div>
+                <div class="eyebrow" data-i18n="sc_eyebrow">РОЗРІЗ</div>
+                <h2 data-i18n="sc_h2">Розріжте збірку самі</h2>
+                <p data-i18n="sc_p">Справжній STEP: кронштейн шківа з двома корпусними підшипниками, 42 тіла. Розібраний тим самим CAD-ядром, що працює всередині застосунку. Тягніть повзунок, міняйте вісь, наведіть на деталь — побачите її назву з файлу.</p>
+            </article>
+            <article class="step" data-step="2">
+                <div class="step-n">03 <i>/ 03</i></div>
+                <div class="eyebrow" data-i18n="rm_eyebrow">ПРИМІРЯЙТЕ МЕТАЛ</div>
+                <h2 data-i18n="rm_h2">Та сама каблучка — у будь-якому металі</h2>
+                <p data-i18n="rm_p">Справжній STL із Rhino: 400 тисяч трикутників, овальний камінь 6×8 мм. Перемикайте метал — як у меню матеріалів застосунку. Камінь лишається діамантом.</p>
+            </article>
         </div>
     </div>
 </section>
@@ -517,61 +626,6 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <h3 data-i18n="cu3_h">Золото, діамант — і скільки це важить</h3>
                 <p data-i18n="cu3_p">Сирий STL стає золотом із каменем. Камінь ховається одним тапом, і таблиця рахує вагу самої оправи — від PLA до золота 14K/18K, з площею поверхні й вартістю.</p>
                 <div class="proof"><b>2.95&nbsp;g</b><span class="draw"></span><small data-i18n="cu3_proof">золото 18K, без каменя</small></div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="section live">
-    <div class="wrap">
-        <div class="section-head">
-            <div class="eyebrow" data-i18n="rm_eyebrow">ПРИМІРЯЙТЕ МЕТАЛ</div>
-            <h2 data-i18n="rm_h2">Та сама каблучка — у будь-якому металі</h2>
-            <p data-i18n="rm_p">Справжній STL із Rhino: 400 тисяч трикутників, овальний камінь 6×8 мм. Перемикайте метал — як у меню матеріалів застосунку. Камінь лишається діамантом.</p>
-        </div>
-        <div class="viewer" id="ring-viewer">
-            <div class="loading" data-i18n="lv_loading">ЗАВАНТАЖЕННЯ…</div>
-            <div class="v-modes" role="group" aria-label="Матеріал" data-i18n-aria="rm_modes_aria">
-                <button class="on" data-mat="gold" data-i18n="rm_gold">Золото</button>
-                <button data-mat="rose" data-i18n="rm_rose">Рожеве</button>
-                <button data-mat="silver" data-i18n="rm_silver">Срібло</button>
-                <button data-mat="chrome" data-i18n="rm_chrome">Хром</button>
-            </div>
-            <div class="v-info">
-                <span class="chip">ring.stl · <span id="r-dims">—</span></span>
-                <span class="chip v-hint" data-i18n="lv_hint">тягніть, щоб обертати</span>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="section live">
-    <div class="wrap">
-        <div class="section-head">
-            <div class="eyebrow" data-i18n="sc_eyebrow">РОЗРІЗ</div>
-            <h2 data-i18n="sc_h2">Розріжте збірку самі</h2>
-            <p data-i18n="sc_p">Справжній STEP: кронштейн шківа з двома корпусними підшипниками, 42 тіла. Розібраний тим самим CAD-ядром, що працює всередині застосунку. Тягніть повзунок, міняйте вісь, наведіть на деталь — побачите її назву з файлу.</p>
-        </div>
-        <div class="viewer tall" id="sec-viewer">
-            <div class="loading" data-i18n="lv_loading">ЗАВАНТАЖЕННЯ…</div>
-            <div class="v-tl">
-                <span class="chip">BASE DE POLEA.stp · <span id="sc-dims">—</span></span>
-                <span class="chip sc-part" id="sc-part"></span>
-            </div>
-            <div class="sec-panel">
-                <div class="sec-head"><span>✂ <b data-i18n="sc_title">Секційний аналіз</b></span><span id="sc-axis-read">X · — / — mm</span></div>
-                <div class="sec-body">
-                    <div class="sec-axes" role="group" aria-label="Вісь перерізу" data-i18n-aria="sc_axes_aria">
-                        <button class="on" data-axis="0">X</button>
-                        <button data-axis="1">Y</button>
-                        <button data-axis="2">Z</button>
-                    </div>
-                    <input class="sec-range" type="range" min="0" max="1000" value="500" aria-label="Положення перерізу" data-i18n-aria="sc_range_aria">
-                    <div class="sec-row">
-                        <button class="sec-flip" type="button">⇄ <span data-i18n="sc_side">Сторона</span></button>
-                        <span><span data-i18n="sc_cut">Зріз</span>: <b id="sc-cut">—</b> mm</span>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -753,6 +807,7 @@ const i18n = {
         cta: "Завантажити в Google Play",
         cta_note: "Безкоштовно, Pro — за бажанням · Android 7.0+",
         hero_video_aria: "Запис екрана: розліт збірки мотоцикла в RE:solid",
+        tour_aria: "Інтерактив",
         lv_eyebrow: "ПОКРУТІТЬ САМІ",
         lv_h2: "Справжня модель, просто на сторінці",
         lv_p: "Той самий логотип, який RE:solid відкриває при першому запуску: logo.obj з кольорами з .mtl. Тягніть, щоб обертати, і перемикайте режими — як у застосунку.",
@@ -859,6 +914,7 @@ const i18n = {
         cta: "Get it on Google Play",
         cta_note: "Free, Pro optional · Android 7.0+",
         hero_video_aria: "Screen recording: a motorcycle assembly exploding in RE:solid",
+        tour_aria: "Interactive",
         lv_eyebrow: "SPIN IT YOURSELF",
         lv_h2: "A real model, right on the page",
         lv_p: "The same logo RE:solid opens on first launch: logo.obj with its colors from the .mtl. Drag to rotate and switch modes — just like in the app.",
@@ -996,6 +1052,7 @@ function loadScript(src) {
    вантажимо ми заздалегідь, за 600 px), наступна зміна інколи не приходила - цикл
    так і стояв, і модель не крутилась і не міняла метал. */
 function onScreen(el) {
+    if (el.closest('.tour-stage') && !el.classList.contains('on')) return false;   // схований крок туру
     const r = el.getBoundingClientRect();
     return r.bottom > 0 && r.top < innerHeight;
 }
@@ -1647,6 +1704,7 @@ async function initSectionViewer(box, calm) {
     }), { threshold: .14, rootMargin: '0px 0px -40px 0px' });
     if (!calm) {
         groups.forEach(sel => document.querySelectorAll(sel).forEach((el, i) => {
+            if (el.closest('.tour')) return;
             el.classList.add('rv');
             if (sel.includes('>')) el.style.setProperty('--d', (i % 4) * .07 + 's');
             io.observe(el);
@@ -1732,6 +1790,42 @@ async function initSectionViewer(box, calm) {
             });
         }, { rootMargin: '600px 0px' });
         lazySec.observe(secBox);
+    }
+
+    // Тур: крок, що перетинає лінію читання, вмикає свій 3D; смуга ліворуч - прогрес
+    const tourEl = document.querySelector('.tour');
+    if (tourEl) {
+        const steps = [...tourEl.querySelectorAll('.step')];
+        const views = [...tourEl.querySelectorAll('.tour-stage .viewer')];
+        const dots = [...tourEl.querySelectorAll('.tour-dots span')];
+        const caption = tourEl.querySelector('.tour-caption');
+        let cur = -1;
+        const show = n => {
+            if (n < 0 || n === cur) return;
+            cur = n;
+            // підпис під 3D на телефоні - копія тексту кроку (мову перемикаємо там же нижче)
+            caption.innerHTML = steps[n].innerHTML;
+            steps.forEach((s, i) => s.classList.toggle('on', i === n));
+            views.forEach((v, i) => v.classList.toggle('on', i === n));
+            dots.forEach((d, i) => d.classList.toggle('on', i === n));
+        };
+        // на телефоні верх екрана зайнятий сценою - лінія читання нижче
+        const so = new IntersectionObserver(es => es.forEach(e => {
+            if (e.isIntersecting) show(steps.indexOf(e.target));
+        }), { rootMargin: '-48% 0px -48% 0px' });
+        steps.forEach(s => so.observe(s));
+        show(0);
+        // після зміни мови підпис беремо заново
+        document.querySelectorAll('.lang-pill button').forEach(b => b.addEventListener('click', () => {
+            const n = cur; cur = -1; show(n);
+        }));
+        const stepsBox = tourEl.querySelector('.tour-steps'), rail = tourEl.querySelector('.tour-rail');
+        const progress = () => {
+            const r = stepsBox.getBoundingClientRect(), mid = innerHeight * .5;
+            const p = Math.min(1, Math.max(0, (mid - r.top) / r.height));
+            rail.style.setProperty('--p', p.toFixed(4));
+        };
+        addEventListener('scroll', progress, { passive: true }); progress();
     }
 
     // Reveal-анімація героя: клас на час програвання, потім знімаємо —
