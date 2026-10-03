@@ -1391,12 +1391,32 @@ async function initSectionViewer(box, calm) {
     scene.add(grid);
 
     const plane = new T.Plane(new T.Vector3(-1, 0, 0), 0);
-    // штриховка зрізу, як у CAD: діагональні смуги в екранних пікселях
-    const hatch = m => {
+    /* Штриховка зрізу, як у CAD: діагональ 45° у площині перерізу, крок у міліметрах.
+       Рахуємо від світових координат точки на зрізі, а не від пікселів екрана - тоді
+       смуги лежать на деталі й обертаються разом із нею. uU/uV - дві осі в площині.
+       Видно не саму площину, а внутрішні задні грані за нею, тож точку беремо там, де
+       промінь від камери перетинає площину зрізу - інакше штриховка пливла б з глибиною. */
+    const hatchU = { uU: { value: new T.Vector3(0, 0, 1) }, uV: { value: new T.Vector3(0, 1, 0) }, uStep: { value: 5.0 },
+                     uN: { value: new T.Vector3(-1, 0, 0) }, uC: { value: 0 },
+                     uCam: { value: new T.Vector3() } };   // своя: cameraPosition r128 дає лише освітлюваним матеріалам
+    // dir: +1 або -1 - нахил смуг; сусідні деталі штрихуються в різні боки, як на кресленні
+    const hatch = (m, dir) => {
+        m.extensions = { derivatives: true };
         m.onBeforeCompile = sh => {
-            sh.fragmentShader = sh.fragmentShader.replace('#include <dithering_fragment>',
-                '#include <dithering_fragment>\n float hh = mod(gl_FragCoord.x + gl_FragCoord.y, ' + (9 * renderer.getPixelRatio()).toFixed(1) +
-                ');\n if (hh < ' + (1.7 * renderer.getPixelRatio()).toFixed(1) + ') gl_FragColor.rgb *= 0.45;');
+            Object.assign(sh.uniforms, hatchU, { uDir: { value: dir } });
+            sh.vertexShader = "varying vec3 vWPos;\n" + sh.vertexShader.replace("#include <project_vertex>",
+                "#include <project_vertex>\n vWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+            sh.fragmentShader = "uniform vec3 uU; uniform vec3 uV; uniform float uStep; uniform vec3 uN; uniform float uC; uniform vec3 uCam; uniform float uDir; varying vec3 vWPos;\n" +
+                sh.fragmentShader.replace("#include <dithering_fragment>", [
+                "#include <dithering_fragment>",
+                " vec3 rd = vWPos - uCam;",
+                " float den = dot(uN, rd);",
+                " vec3 hp = abs(den) > 1e-5 ? uCam - rd * (dot(uN, uCam) + uC) / den : vWPos;",
+                " float hs = (dot(hp, uU) + uDir * dot(hp, uV)) / uStep;",
+                " float hd = abs(fract(hs) - 0.5);",
+                " float hw = fwidth(hs);",
+                " float hl = smoothstep(0.5 - 0.16 - hw, 0.5 - 0.16 + hw, hd);",   // лінія ~третина кроку, згладжена
+                " gl_FragColor.rgb *= mix(1.0, 0.42, hl);"].join("\n"));
         };
         return m;
     };
@@ -1407,7 +1427,7 @@ async function initSectionViewer(box, calm) {
     model.updateMatrixWorld(true);
     const local = new T.Plane();
     const meshes = [];
-    parts.forEach(p => {
+    parts.forEach((p, pi) => {
         const g = new T.BufferGeometry();
         g.setAttribute('position', new T.BufferAttribute(p.pos, 3));
         g.setIndex(new T.BufferAttribute(p.ind, 1));
@@ -1423,7 +1443,7 @@ async function initSectionViewer(box, calm) {
         model.add(m); meshes.push(m);
         // зріз: задні грані за площиною - світліший тон деталі зі штриховкою
         const capCol = col.clone().lerp(new T.Color(0xffffff), .35);
-        model.add(new T.Mesh(g, hatch(new T.MeshBasicMaterial({ color: capCol, side: T.BackSide, clippingPlanes: [plane] }))));
+        model.add(new T.Mesh(g, hatch(new T.MeshBasicMaterial({ color: capCol, side: T.BackSide, clippingPlanes: [plane] }), pi % 2 ? -1 : 1)));
     });
 
     // площина перерізу: ледь видима плівка з рамкою
@@ -1442,6 +1462,7 @@ async function initSectionViewer(box, calm) {
         // площина в координатах файлу (лишається x < c, перевернуто - x > c), обрізають - у світових
         local.normal.copy(n); local.constant = -n.getComponent(axis) * c;
         plane.copy(local).applyMatrix4(model.matrixWorld);
+        hatchU.uN.value.copy(plane.normal); hatchU.uC.value = plane.constant;
         sheet.position.set(0, 0, 0); sheet.position.setComponent(axis, c);
         sheet.rotation.set(0, 0, 0);
         // PlaneGeometry лежить у XY: повертаємо до потрібної осі, розмір - за двома іншими
@@ -1450,6 +1471,10 @@ async function initSectionViewer(box, calm) {
         const [sw, sh] = axis === 0 ? [span[2], span[1]] : axis === 1 ? [span[0], span[2]] : [span[0], span[1]];
         sheet.scale.set(sw * 1.12, sh * 1.12, 1);
         const mm = (u * span[axis]).toFixed(1);
+        // осі штриховки - дві інші осі моделі, переведені у світові
+        const [ia, ib] = [0, 1, 2].filter(a => a !== axis);
+        hatchU.uU.value.set(0, 0, 0).setComponent(ia, 1).transformDirection(model.matrixWorld);
+        hatchU.uV.value.set(0, 0, 0).setComponent(ib, 1).transformDirection(model.matrixWorld);
         readAxis.textContent = 'XYZ'[axis] + ' · ' + mm + ' / ' + span[axis].toFixed(1) + ' mm';
         readCut.textContent = mm;
     }
@@ -1531,6 +1556,7 @@ async function initSectionViewer(box, calm) {
             if (k >= 1) intro = null;
         }
         controls.update();
+        hatchU.uCam.value.copy(camera.position);
         renderer.render(scene, camera);
     });
 }
