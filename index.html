@@ -108,37 +108,35 @@ header {
 .hero-copy.reveal > :nth-child(4) { animation-delay: .24s; }
 @keyframes rise { to { opacity: 1; transform: none; } }
 
-/* ---------- wireframe cube ---------- */
-.stage { display: flex; flex-direction: column; align-items: center; gap: 34px; }
-.scene { width: 240px; height: 240px; perspective: 900px; position: relative; }
-/* сяйво — окремим шаром: filter на .cube сплющив би preserve-3d і зламав куб */
-.scene::before {
-    content: ""; position: absolute; inset: -40px;
-    background: radial-gradient(circle, rgba(92,232,200,.14), transparent 68%);
+/* ---------- телефон із живим записом екрана ---------- */
+.stage { display: flex; flex-direction: column; align-items: center; gap: 30px; position: relative; }
+/* сяйво під телефоном */
+.stage::before {
+    content: ""; position: absolute; inset: 4% -10% 18%;
+    background: radial-gradient(ellipse at center, rgba(92,232,200,.16), transparent 66%);
+    pointer-events: none;
 }
-.cube {
-    position: relative; width: 100%; height: 100%;
-    transform-style: preserve-3d;
-    animation: spin 26s linear infinite;
+/* рамка телефона: знімки й записи — 1080×2200 після обрізання статус-бару (≈0.49) */
+.phone {
+    position: relative; width: 100%; max-width: 290px;
+    padding: 9px; border-radius: 38px;
+    background: linear-gradient(160deg, #2a2833, #15141a);
+    border: 1px solid rgba(208,188,255,.22);
+    box-shadow: 0 30px 80px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.04);
 }
-@keyframes spin {
-    from { transform: rotateX(-20deg) rotateY(0deg); }
-    to   { transform: rotateX(-20deg) rotateY(360deg); }
+.phone > img, .phone > video {
+    width: 100%; height: auto; aspect-ratio: 981 / 2000; object-fit: cover;
+    border-radius: 30px; background: #2b3a42;
 }
-.face {
-    position: absolute; inset: 0;
-    border: 1px solid rgba(208,188,255,.55);
-    background: rgba(208,188,255,.045);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-size: 12px; letter-spacing: .24em;
-    color: rgba(208,188,255,.8);
+.hero .phone { max-width: 300px; transform: rotate(2.5deg); }
+.hero .phone-tag {
+    position: absolute; left: -64px; top: 30%;
+    font-family: var(--mono); font-size: 12px; line-height: 1.45;
+    background: rgba(28,27,34,.92); border: 1px solid var(--line); border-radius: 12px;
+    padding: 9px 12px; color: var(--muted); transform: rotate(-2.5deg);
+    box-shadow: 0 10px 30px rgba(0,0,0,.4);
 }
-.f1 { transform: translateZ(120px); }
-.f2 { transform: rotateY(180deg) translateZ(120px); }
-.f3 { transform: rotateY(90deg) translateZ(120px); }
-.f4 { transform: rotateY(-90deg) translateZ(120px); }
-.f5 { transform: rotateX(90deg) translateZ(120px); }
-.f6 { transform: rotateX(-90deg) translateZ(120px); }
+.hero .phone-tag b { color: var(--measure); font-weight: 600; }
 
 .dim { display: flex; align-items: center; gap: 12px; width: 300px; color: var(--measure); }
 .dim-line { flex: 1; height: 1px; background: var(--measure); position: relative; opacity: .8; }
@@ -150,31 +148,42 @@ header {
 .dim b { font-family: var(--mono); font-weight: 500; font-size: 13px; white-space: nowrap; }
 
 @media (prefers-reduced-motion: reduce) {
-    .cube { animation: none; transform: rotateX(-20deg) rotateY(-32deg); }
-    .coin { animation: none; transform: rotateX(-20deg) rotateY(18deg); }
     .hero-copy.reveal > * { animation: none; opacity: 1; transform: none; }
 }
 
-/* емблема застосунку — «монета» всередині каркасного куба: обертається
-   незалежно, у протилежний бік; дві копії спина до спини, щоб напис
-   не віддзеркалювався при обертанні */
-.coin {
-    position: absolute; inset: 0;
-    transform-style: preserve-3d;
-    animation: spin 18s linear infinite reverse;
-}
-.emblem {
-    position: absolute; inset: 0; margin: auto;
-    width: 60%; height: 60%;
-    background: var(--logo) center/contain no-repeat;
-    border-radius: 16%;
-    box-shadow: 0 12px 44px rgba(0,0,0,.5);
-    backface-visibility: hidden; -webkit-backface-visibility: hidden;
-}
-.e-back { transform: rotateY(180deg) translateZ(2px); }
-.e-front { transform: translateZ(2px); }
-
 .logo-mark { width: 26px; height: 26px; border-radius: 7px; background: var(--logo) center/contain no-repeat; align-self: center; }
+
+/* ---------- крупним планом: справжні знімки екрана ---------- */
+.closeup { border-bottom: 1px solid var(--line); }
+.spot {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center;
+    padding: 36px 0;
+}
+.spot + .spot { border-top: 1px dashed var(--line); }
+.spot.flip .spot-media { order: 2; }
+.spot-media { display: flex; justify-content: center; gap: 18px; }
+.spot-media .phone { max-width: 260px; }
+.spot-media.pair .phone { max-width: 220px; }
+.spot-media.pair .phone:last-child { margin-top: 48px; }
+.spot-copy { display: flex; flex-direction: column; gap: 14px; }
+.spot-copy h3 { font-family: var(--mono); font-size: clamp(22px, 3vw, 28px); line-height: 1.2; letter-spacing: -.02em; text-wrap: balance; }
+.spot-copy p { color: var(--muted); max-width: 44ch; }
+/* «число-доказ» — та сама розмірна лінія, що була під кубом */
+.proof { display: flex; align-items: center; gap: 12px; color: var(--measure); max-width: 320px; margin-top: 6px; }
+.proof b { font-family: var(--mono); font-size: clamp(28px, 4vw, 38px); font-weight: 600; letter-spacing: -.02em; white-space: nowrap; }
+.proof small { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+/* ---------- ролики ---------- */
+.reels { border-top: 1px solid var(--line); }
+.reel-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.reel { display: flex; flex-direction: column; gap: 12px; }
+.reel video {
+    width: 100%; aspect-ratio: 9 / 16; border-radius: 18px;
+    background: #162026; border: 1px solid var(--line); display: block;
+    box-shadow: 0 14px 40px rgba(0,0,0,.4);
+}
+.reel h3 { font-family: var(--mono); font-size: 14.5px; letter-spacing: -.01em; line-height: 1.3; }
+.reel p { font-size: 13px; color: var(--muted); line-height: 1.5; }
 
 /* ---------- formats ---------- */
 .formats { border-bottom: 1px solid var(--line); }
@@ -232,11 +241,21 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
 @media (max-width: 860px) {
     .hero-grid { grid-template-columns: 1fr; padding-block: 64px 72px; gap: 56px; }
     .stage { order: -1; }
-    .scene { width: 190px; height: 190px; }
-    .f1 { transform: translateZ(95px); } .f2 { transform: rotateY(180deg) translateZ(95px); }
-    .f3 { transform: rotateY(90deg) translateZ(95px); } .f4 { transform: rotateY(-90deg) translateZ(95px); }
-    .f5 { transform: rotateX(90deg) translateZ(95px); } .f6 { transform: rotateX(-90deg) translateZ(95px); }
+    .hero .phone { max-width: 230px; }
+    .hero .phone-tag { left: -34px; font-size: 11px; }
     .dim { width: 240px; }
+    .spot { grid-template-columns: 1fr; gap: 28px; padding: 28px 0; }
+    .spot.flip .spot-media { order: 0; }
+    .spot-media .phone { max-width: 230px; }
+    .spot-media.pair .phone { max-width: 46%; }
+    .spot-media.pair .phone:last-child { margin-top: 32px; }
+    /* ролики на телефоні — стрічкою з прокруткою вбік, як у Reels */
+    .reel-grid {
+        grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 62%;
+        overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px;
+        margin: 0 -24px; padding-inline: 24px; scroll-padding-inline: 24px;
+    }
+    .reel { scroll-snap-align: start; }
     .offline .band { grid-template-columns: 1fr; gap: 26px; padding: 38px 30px; }
     .section { padding: 64px 0; }
     .nav .btn.small span { display: none; } /* лише іконка Play на вузьких */
@@ -248,6 +267,11 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
 @media (max-width: 420px) {
     .logo em { display: none; }
     .wrap { padding: 0 16px; }
+    .reel-grid { margin: 0 -16px; padding-inline: 16px; scroll-padding-inline: 16px; }
+    /* герой: заголовок має бути видно з першого екрана, телефон — менший */
+    .hero .phone { max-width: 170px; padding: 7px; border-radius: 28px; }
+    .hero .phone > video { border-radius: 22px; }
+    .hero-grid { gap: 36px; padding-block: 40px 64px; }
 }
 </style>
 </head>
@@ -286,25 +310,65 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <span class="cta-note" data-i18n="cta_note">Безкоштовно, Pro — за бажанням · Android 7.0+</span>
             </div>
         </div>
-        <div class="stage" aria-hidden="true">
-            <div class="scene">
-                <div class="cube">
-                    <div class="face f1" data-i18n="face_front">ПЕРЕД</div>
-                    <div class="face f2"></div>
-                    <div class="face f3" data-i18n="face_right">ПРАВО</div>
-                    <div class="face f4"></div>
-                    <div class="face f5" data-i18n="face_top">ВЕРХ</div>
-                    <div class="face f6"></div>
-                </div>
-                <div class="coin">
-                    <div class="emblem e-front"></div>
-                    <div class="emblem e-back"></div>
-                </div>
+        <div class="stage">
+            <!-- справжній запис екрана: розліт збірки мотоцикла (1.16 млн трикутників), туди й назад -->
+            <div class="phone">
+                <video src="assets/hero-explode.mp4" poster="assets/hero-explode.jpg"
+                       autoplay muted loop playsinline preload="metadata"
+                       aria-label="Запис екрана: розліт збірки мотоцикла в RE:solid" data-i18n-aria="hero_video_aria"></video>
+                <div class="phone-tag" aria-hidden="true">Full Assy.3mf<br><b>1.16 MΔ</b></div>
             </div>
-            <div class="dim">
+            <div class="dim" aria-hidden="true">
                 <span class="dim-line l"></span>
-                <b>X:120.0&nbsp;mm</b>
+                <b>Z:1887.0&nbsp;mm</b>
                 <span class="dim-line r"></span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section closeup">
+    <div class="wrap">
+        <div class="section-head">
+            <div class="eyebrow" data-i18n="cu_eyebrow">КРУПНИМ ПЛАНОМ</div>
+            <h2 data-i18n="cu_h2">Одна каблучка, три питання ювеліра</h2>
+            <p data-i18n="cu_p">Справжні знімки екрана: ring.stl, 356 тисяч трикутників, телефон без інтернету. Кожне число порахував застосунок.</p>
+        </div>
+
+        <div class="spot">
+            <div class="spot-media">
+                <div class="phone"><img src="assets/shot-measure.jpg" alt="Переріз каблучки по осі X і вимір стінки: 1.32 мм" data-i18n-alt="cu1_alt" loading="lazy" width="600" height="1224"></div>
+            </div>
+            <div class="spot-copy">
+                <div class="eyebrow" data-i18n="cu1_eyebrow">ПЕРЕРІЗ + ВИМІР</div>
+                <h3 data-i18n="cu1_h">Розріжте і зміряйте стінку</h3>
+                <p data-i18n="cu1_p">Площина перерізу по X, Y чи Z, штриховка на зрізі. Два тапи по краях — і товщина шинки готова, з прив'язкою до вершин та історією вимірів.</p>
+                <div class="proof"><b>1.32&nbsp;mm</b><small data-i18n="cu1_proof">стінка шинки на зрізі</small></div>
+            </div>
+        </div>
+
+        <div class="spot flip">
+            <div class="spot-media">
+                <div class="phone"><img src="assets/shot-map.jpg" alt="Карта товщин: червоне — тонко, синє — товсто; найтонша стінка 0.351 мм" data-i18n-alt="cu2_alt" loading="lazy" width="600" height="1224"></div>
+            </div>
+            <div class="spot-copy">
+                <div class="eyebrow" data-i18n="cu2_eyebrow">КАРТА ТОВЩИН</div>
+                <h3 data-i18n="cu2_h">Слабке місце знаходиться саме</h3>
+                <p data-i18n="cu2_p">Уся деталь розфарбована за товщиною: червоне — тонко, синє — товсто. Найтонша стінка підписана, а з порогом лишаються кольоровими тільки місця, які треба виправити до лиття чи друку.</p>
+                <div class="proof"><b>0.351&nbsp;mm</b><small data-i18n="cu2_proof">найтонша стінка</small></div>
+            </div>
+        </div>
+
+        <div class="spot">
+            <div class="spot-media pair">
+                <div class="phone"><img src="assets/shot-gold.jpg" alt="Каблучка в матеріалі «золото» з діамантом" data-i18n-alt="cu3_alt1" loading="lazy" width="600" height="1224"></div>
+                <div class="phone"><img src="assets/shot-weight.jpg" alt="Таблиця ваги: золото 18K — 2.95 г, приховану деталь не враховано" data-i18n-alt="cu3_alt2" loading="lazy" width="600" height="1224"></div>
+            </div>
+            <div class="spot-copy">
+                <div class="eyebrow" data-i18n="cu3_eyebrow">МАТЕРІАЛИ + ВАГА</div>
+                <h3 data-i18n="cu3_h">Золото, діамант — і скільки це важить</h3>
+                <p data-i18n="cu3_p">Сирий STL стає золотом із каменем. Камінь ховається одним тапом, і таблиця рахує вагу самої оправи — від PLA до золота 14K/18K, з площею поверхні й вартістю.</p>
+                <div class="proof"><b>2.95&nbsp;g</b><small data-i18n="cu3_proof">золото 18K, без каменя</small></div>
             </div>
         </div>
     </div>
@@ -404,6 +468,43 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     </div>
 </section>
 
+<section class="section reels">
+    <div class="wrap">
+        <div class="section-head">
+            <div class="eyebrow" data-i18n="rl_eyebrow">У ДІЇ</div>
+            <h2 data-i18n="rl_h2">П'ять коротких роликів</h2>
+            <p data-i18n="rl_p">Записи з екрана телефона — прискорені, але без підмін. Одна можливість — один ролик.</p>
+        </div>
+        <div class="reel-grid">
+            <div class="reel">
+                <video src="assets/short-cast.mp4" poster="assets/short-cast.jpg" controls playsinline preload="none"></video>
+                <h3>Will it cast?</h3>
+                <p data-i18n="rl1">Ювелірка: розріз, карта товщин, вага в золоті.</p>
+            </div>
+            <div class="reel">
+                <video src="assets/short-step.mp4" poster="assets/short-step.jpg" controls playsinline preload="none"></video>
+                <h3>A STEP file. No PC.</h3>
+                <p data-i18n="rl2">Двигун на 29 деталей, кожна з назвою. STEP → STL.</p>
+            </div>
+            <div class="reel">
+                <video src="assets/short-print.mp4" poster="assets/short-print.jpg" controls playsinline preload="none"></video>
+                <h3>Will it print?</h3>
+                <p data-i18n="rl3">Поріг 0.8 мм — і два місця, які треба виправити.</p>
+            </div>
+            <div class="reel">
+                <video src="assets/short-explode.mp4" poster="assets/short-explode.jpg" controls playsinline preload="none"></video>
+                <h3>How does it come apart?</h3>
+                <p data-i18n="rl4">Розліт мотоцикла, кроки руками, запис у MP4.</p>
+            </div>
+            <div class="reel">
+                <video src="assets/short-measure.mp4" poster="assets/short-measure.jpg" controls playsinline preload="none"></video>
+                <h3>One, two, three taps</h3>
+                <p data-i18n="rl5">Товщина 3.84 мм, кут 69.2°, отвір ⌀ 6.50 мм.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="section offline">
     <div class="wrap">
         <div class="band">
@@ -448,7 +549,34 @@ const i18n = {
         lead: 'Перегляд, вимірювання та аналіз 3D-моделей просто на телефоні: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Повністю офлайн — файли не залишають пристрій.',
         cta: "Завантажити в Google Play",
         cta_note: "Безкоштовно, Pro — за бажанням · Android 7.0+",
-        face_front: "ПЕРЕД", face_right: "ПРАВО", face_top: "ВЕРХ",
+        hero_video_aria: "Запис екрана: розліт збірки мотоцикла в RE:solid",
+        cu_eyebrow: "КРУПНИМ ПЛАНОМ",
+        cu_h2: "Одна каблучка, три питання ювеліра",
+        cu_p: "Справжні знімки екрана: ring.stl, 356 тисяч трикутників, телефон без інтернету. Кожне число порахував застосунок.",
+        cu1_eyebrow: "ПЕРЕРІЗ + ВИМІР",
+        cu1_h: "Розріжте і зміряйте стінку",
+        cu1_p: "Площина перерізу по X, Y чи Z, штриховка на зрізі. Два тапи по краях — і товщина шинки готова, з прив'язкою до вершин та історією вимірів.",
+        cu1_proof: "стінка шинки на зрізі",
+        cu1_alt: "Переріз каблучки по осі X і вимір стінки: 1.32 мм",
+        cu2_eyebrow: "КАРТА ТОВЩИН",
+        cu2_h: "Слабке місце знаходиться саме",
+        cu2_p: "Уся деталь розфарбована за товщиною: червоне — тонко, синє — товсто. Найтонша стінка підписана, а з порогом лишаються кольоровими тільки місця, які треба виправити до лиття чи друку.",
+        cu2_proof: "найтонша стінка",
+        cu2_alt: "Карта товщин: червоне — тонко, синє — товсто; найтонша стінка 0.351 мм",
+        cu3_eyebrow: "МАТЕРІАЛИ + ВАГА",
+        cu3_h: "Золото, діамант — і скільки це важить",
+        cu3_p: "Сирий STL стає золотом із каменем. Камінь ховається одним тапом, і таблиця рахує вагу самої оправи — від PLA до золота 14K/18K, з площею поверхні й вартістю.",
+        cu3_proof: "золото 18K, без каменя",
+        cu3_alt1: "Каблучка в матеріалі «золото» з діамантом",
+        cu3_alt2: "Таблиця ваги: золото 18K — 2.95 г, приховану деталь не враховано",
+        rl_eyebrow: "У ДІЇ",
+        rl_h2: "П'ять коротких роликів",
+        rl_p: "Записи з екрана телефона — прискорені, але без підмін. Одна можливість — один ролик.",
+        rl1: "Ювелірка: розріз, карта товщин, вага в золоті.",
+        rl2: "Двигун на 29 деталей, кожна з назвою. STEP → STL.",
+        rl3: "Поріг 0.8 мм — і два місця, які треба виправити.",
+        rl4: "Розліт мотоцикла, кроки руками, запис у MP4.",
+        rl5: "Товщина 3.84 мм, кут 69.2°, отвір ⌀ 6.50 мм.",
         fmt_eyebrow: "ФОРМАТИ",
         fmt_h2: "Галузеві стандарти, відкриваються напряму",
         fmt_stl: "Бінарний і текстовий. Стандарт 3D-друку.",
@@ -502,7 +630,34 @@ const i18n = {
         lead: 'View, measure, and analyze 3D models right on your phone: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Fully offline — your files never leave the device.',
         cta: "Get it on Google Play",
         cta_note: "Free, Pro optional · Android 7.0+",
-        face_front: "FRONT", face_right: "RIGHT", face_top: "TOP",
+        hero_video_aria: "Screen recording: a motorcycle assembly exploding in RE:solid",
+        cu_eyebrow: "UP CLOSE",
+        cu_h2: "One ring, three questions a jeweler asks",
+        cu_p: "Real screenshots: ring.stl, 356 thousand triangles, a phone with no internet. Every number was computed by the app.",
+        cu1_eyebrow: "SECTION + MEASURE",
+        cu1_h: "Cut it open, measure the wall",
+        cu1_p: "A section plane along X, Y or Z, hatched on the cut. Two taps on the edges and the shank thickness is in — snapped to vertices, kept in the measurement history.",
+        cu1_proof: "shank wall on the cut",
+        cu1_alt: "Ring cut along X with the wall measured: 1.32 mm",
+        cu2_eyebrow: "THICKNESS MAP",
+        cu2_h: "It finds the weak spot for you",
+        cu2_p: "The whole part is colored by thickness: red is thin, blue is thick. The thinnest wall is labelled, and with a threshold only the spots you need to fix before casting or printing stay colored.",
+        cu2_proof: "thinnest wall",
+        cu2_alt: "Thickness map: red is thin, blue is thick; thinnest wall 0.351 mm",
+        cu3_eyebrow: "MATERIALS + WEIGHT",
+        cu3_h: "Gold, a diamond — and what it weighs",
+        cu3_p: "A raw STL turns into gold with a stone. Hide the stone with a tap and the table weighs the setting alone — from PLA to 14K/18K gold, with surface area and cost.",
+        cu3_proof: "18K gold, stone excluded",
+        cu3_alt1: "The ring rendered in gold with a diamond",
+        cu3_alt2: "Weight table: 18K gold — 2.95 g, hidden part not included",
+        rl_eyebrow: "IN ACTION",
+        rl_h2: "Five short clips",
+        rl_p: "Phone screen recordings — sped up, nothing faked. One feature per clip.",
+        rl1: "Jewelry: section cut, thickness map, weight in gold.",
+        rl2: "A 29-part engine, every part by name. STEP → STL.",
+        rl3: "A 0.8 mm threshold — and two spots to fix.",
+        rl4: "A motorcycle exploded, steps by hand, recorded to MP4.",
+        rl5: "Wall 3.84 mm, angle 69.2°, hole ⌀ 6.50 mm.",
         fmt_eyebrow: "FORMATS",
         fmt_h2: "Industry standards, opened directly",
         fmt_stl: "Binary and ASCII. The 3D-printing standard.",
@@ -562,6 +717,14 @@ function setLang(lang) {
         const key = el.getAttribute('data-i18n-html');
         if (d[key] !== undefined) el.innerHTML = d[key];
     });
+    document.querySelectorAll('[data-i18n-alt]').forEach(el => {
+        const key = el.getAttribute('data-i18n-alt');
+        if (d[key] !== undefined) el.alt = d[key];
+    });
+    document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+        const key = el.getAttribute('data-i18n-aria');
+        if (d[key] !== undefined) el.setAttribute('aria-label', d[key]);
+    });
     document.getElementById('lang-uk').classList.toggle('on', lang === 'uk');
     document.getElementById('lang-en').classList.toggle('on', lang === 'en');
     try { localStorage.setItem('site_lang', lang); } catch (e) {}
@@ -576,6 +739,18 @@ function setLang(lang) {
         else lang = (navigator.language || 'uk').toLowerCase().startsWith('uk') ? 'uk' : 'en';
     } catch (e) {}
     if (lang !== 'uk') setLang(lang);
+
+    // Ролики: грає тільки один — запуск наступного ставить на паузу попередній
+    const reels = document.querySelectorAll('.reel video');
+    reels.forEach(v => v.addEventListener('play', () => {
+        reels.forEach(o => { if (o !== v) o.pause(); });
+    }));
+
+    // Запис у герої — без автопрограшу для тих, хто просить менше руху
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const hv = document.querySelector('.hero video');
+        if (hv) { hv.removeAttribute('autoplay'); hv.pause(); hv.controls = true; }
+    }
 
     // Reveal-анімація героя: клас на час програвання, потім знімаємо —
     // елементи не залишаються на композитних шарах (артефакти в деяких WebView)
