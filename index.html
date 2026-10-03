@@ -430,9 +430,37 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .tour-stage { --scan-top: 10px; --scan-bot: calc(10px + 58%); }
     .tour-scan { left: 16px; right: 16px; }
     .tour-caption { display: flex; }
-    .tour-steps { padding-left: 0; margin-top: -60svh; }
+    /* знизу - запас, щоб на останньому кроці сцена ще стояла на місці, а не їхала вгору */
+    .tour-steps { padding-left: 0; margin-top: -60svh; padding-bottom: calc(30svh - 62px); }
     .tour-rail { display: none; }
     .step { min-height: 70svh; visibility: hidden; }
+    /* один свайп - один крок: інерція більше не пролітає кілька 3D-сцен разом */
+    html { scroll-snap-type: y proximity; scroll-padding-top: 62px; }
+    .step { scroll-snap-align: start; scroll-snap-stop: always; }
+    /* керування на телефоні - тонке, щоб не закривати модель: панелі без заголовка,
+       габарити сховані (вони є в тексті кроку), кнопки дрібніші */
+    .tour-stage .viewer { height: 62%; }
+    .tour-stage { --scan-bot: calc(10px + 62%); }
+    .tour-caption { top: calc(62% + 22px); gap: 6px; }
+    .tour-caption h2 { font-size: 20px; }
+    .tour-caption p { font-size: 13.5px; line-height: 1.5; }
+    .tour-stage .v-info, .tour-stage .v-tl .chip:not(.sc-part) { display: none; }
+    .tour-stage .v-tl { top: 50px; left: 10px; }
+    .tour-stage .v-modes { top: 8px; padding: 4px; gap: 2px; border-radius: 12px; }
+    .tour-stage .v-modes button { padding: 5px 8px; font-size: 10.5px; border-radius: 9px; }
+    .tour-dots { top: 16px; }
+    .tour-stage .sec-panel { left: 8px; right: 8px; bottom: 8px; width: auto; translate: none; border-radius: 14px; background: rgba(28,27,34,.78); }
+    .tour-stage .sec-head { display: none; }
+    .tour-stage .sec-body { padding: 7px 9px; gap: 6px; display: grid; grid-template-columns: auto 1fr; align-items: center; }
+    .tour-stage .sec-axes { display: flex; gap: 3px; }
+    .tour-stage .sec-axes button { width: 28px; padding: 4px 0; font-size: 11px; border-radius: 8px; }
+    .tour-stage .sec-row { grid-column: 1 / -1; font-size: 11px; }
+    .tour-stage .sec-flip { padding: 3px 9px; font-size: 11px; border-radius: 8px; }
+    .tour-stage .sec-range { height: 18px; }
+    .tour-stage .ex-panel .sec-body { display: block; }
+    .tour-stage .ex-panel .sec-row { display: none; }
+    .tour-stage .ex-row { gap: 10px; }
+    .tour-stage .ex-play { width: 30px; height: 30px; font-size: 12px; }
     .v-modes button { padding: 7px 9px; font-size: 11px; white-space: nowrap; }
     .viewer { height: 440px; }
     .v-hint { display: none; }
@@ -1111,6 +1139,28 @@ function setLang(lang) {
     try { localStorage.setItem('site_lang', lang); } catch (e) {}
 }
 
+/* Телефон: OrbitControls на дотик гасить прокрутку сторінки (preventDefault у touchstart),
+   і зі свайпом по 3D сторінка стояла. Тому на сенсорних екранах його вимикаємо, а модель
+   крутимо самі: горизонтальний рух пальця - поворот, вертикальний браузер віддає прокрутці
+   (на canvas стоїть touch-action: pan-y). */
+function touchOrbit(dom, camera, controls) {
+    if (!matchMedia("(pointer: coarse)").matches || matchMedia("(any-pointer: fine)").matches) return;
+    controls.enabled = false;
+    const wasAuto = controls.autoRotate;
+    let x0 = null, resume;
+    dom.addEventListener("pointerdown", e => { if (e.pointerType === "touch") x0 = e.clientX; });
+    dom.addEventListener("pointermove", e => {
+        if (x0 === null || e.pointerType !== "touch") return;
+        const dx = e.clientX - x0; x0 = e.clientX;
+        const off = camera.position.clone().sub(controls.target).applyAxisAngle(camera.up, -dx * .012);
+        camera.position.copy(controls.target).add(off);
+        controls.autoRotate = false; clearTimeout(resume);
+        resume = setTimeout(() => { controls.autoRotate = wasAuto; }, 3000);
+    });
+    const end = () => { x0 = null; };
+    dom.addEventListener("pointerup", end); dom.addEventListener("pointercancel", end);
+}
+
 function loadScript(src) {
     return new Promise((ok, fail) => {
         const el = document.createElement('script');
@@ -1205,6 +1255,7 @@ async function initViewer(box, calm) {
     box.querySelectorAll('.v-modes button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
 
     const controls = new T.OrbitControls(camera, renderer.domElement);
+    touchOrbit(renderer.domElement, camera, controls);
     controls.enableZoom = false; controls.enablePan = false; controls.enableDamping = true;
     controls.autoRotate = !calm; controls.autoRotateSpeed = 2.4;
     let resume;
@@ -1426,6 +1477,7 @@ async function initRingViewer(box, calm) {
     box.querySelectorAll('.v-modes button').forEach(b => b.addEventListener('click', () => setMetal(b.dataset.mat)));
 
     const controls = new T.OrbitControls(camera, renderer.domElement);
+    touchOrbit(renderer.domElement, camera, controls);
     controls.enableZoom = false; controls.enablePan = false; controls.enableDamping = true;
     controls.autoRotate = !calm; controls.autoRotateSpeed = 1.6;
     let resume;
@@ -1655,6 +1707,7 @@ async function initSectionViewer(box, calm) {
     });
 
     const controls = new T.OrbitControls(camera, renderer.domElement);
+    touchOrbit(renderer.domElement, camera, controls);
     controls.enableZoom = false; controls.enablePan = false; controls.enableDamping = true;
     controls.autoRotate = !calm; controls.autoRotateSpeed = .9;
     let resume;
@@ -1809,6 +1862,7 @@ async function initExplodeViewer(box, calm) {
     setPlay(playing);
 
     const controls = new T.OrbitControls(camera, renderer.domElement);
+    touchOrbit(renderer.domElement, camera, controls);
     controls.enableZoom = false; controls.enablePan = false; controls.enableDamping = true;
     controls.autoRotate = !calm; controls.autoRotateSpeed = .7;
     let resume;
