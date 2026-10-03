@@ -474,6 +474,29 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     </div>
 </section>
 
+<section class="section live">
+    <div class="wrap">
+        <div class="section-head">
+            <div class="eyebrow" data-i18n="rm_eyebrow">ПРИМІРЯЙТЕ МЕТАЛ</div>
+            <h2 data-i18n="rm_h2">Та сама каблучка — у будь-якому металі</h2>
+            <p data-i18n="rm_p">Справжній STL із Rhino: 400 тисяч трикутників, овальний камінь 6×8 мм. Перемикайте метал — як у меню матеріалів застосунку. Камінь лишається діамантом.</p>
+        </div>
+        <div class="viewer" id="ring-viewer">
+            <div class="loading" data-i18n="lv_loading">ЗАВАНТАЖЕННЯ…</div>
+            <div class="v-modes" role="group" aria-label="Матеріал" data-i18n-aria="rm_modes_aria">
+                <button class="on" data-mat="gold" data-i18n="rm_gold">Золото</button>
+                <button data-mat="rose" data-i18n="rm_rose">Рожеве</button>
+                <button data-mat="silver" data-i18n="rm_silver">Срібло</button>
+                <button data-mat="chrome" data-i18n="rm_chrome">Хром</button>
+            </div>
+            <div class="v-info">
+                <span class="chip">ring.stl · <span id="r-dims">—</span></span>
+                <span class="chip v-hint" data-i18n="lv_hint">тягніть, щоб обертати</span>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="section formats">
     <div class="wrap">
         <div class="section-head">
@@ -657,6 +680,15 @@ const i18n = {
         lv_failed: "3D НЕДОСТУПНЕ В ЦЬОМУ БРАУЗЕРІ",
         lv_hint: "тягніть, щоб обертати",
         lv_modes_aria: "Режим показу",
+        rm_eyebrow: "ПРИМІРЯЙТЕ МЕТАЛ",
+        rm_h2: "Та сама каблучка — у будь-якому металі",
+        rm_p: "Справжній STL із Rhino: 400 тисяч трикутників, овальний камінь 6×8 мм. Перемикайте метал — як у меню матеріалів застосунку. Камінь лишається діамантом.",
+        rm_modes_aria: "Матеріал",
+        rm_gold: "Золото",
+        rm_rose: "Рожеве",
+        rm_silver: "Срібло",
+        rm_chrome: "Хром",
+        rm_stone: "діамант",
         cu_eyebrow: "КРУПНИМ ПЛАНОМ",
         cu_h2: "Одна каблучка, три питання ювеліра",
         cu_p: "Справжні знімки екрана: ring.stl, 356 тисяч трикутників, телефон без інтернету. Кожне число порахував застосунок.",
@@ -745,6 +777,15 @@ const i18n = {
         lv_failed: "3D IS NOT AVAILABLE IN THIS BROWSER",
         lv_hint: "drag to rotate",
         lv_modes_aria: "Display mode",
+        rm_eyebrow: "TRY ON A METAL",
+        rm_h2: "The same ring, in any metal",
+        rm_p: "A real STL from Rhino: 400 thousand triangles, a 6×8 mm oval stone. Switch the metal, just like the app's material menu. The stone stays a diamond.",
+        rm_modes_aria: "Material",
+        rm_gold: "Gold",
+        rm_rose: "Rose",
+        rm_silver: "Silver",
+        rm_chrome: "Chrome",
+        rm_stone: "diamond",
         cu_eyebrow: "UP CLOSE",
         cu_h2: "One ring, three questions a jeweler asks",
         cu_p: "Real screenshots: ring.stl, 356 thousand triangles, a phone with no internet. Every number was computed by the app.",
@@ -852,14 +893,32 @@ function loadScript(src) {
     });
 }
 
-// r128 — та сама версія three.js, що й у застосунку
+/* Чи видно блок. Питаємо щокадру, а не IntersectionObserver: той віддає перший
+   стан у мить створення, і коли переглядач доготувався ще за межами екрана (а
+   вантажимо ми заздалегідь, за 600 px), наступна зміна інколи не приходила - цикл
+   так і стояв, і модель не крутилась і не міняла метал. */
+function onScreen(el) {
+    const r = el.getBoundingClientRect();
+    return r.bottom > 0 && r.top < innerHeight;
+}
+
+// r128 — та сама версія three.js, що й у застосунку. Один раз на сторінку:
+// переглядачів два, а скрипт, вставлений двічі, перевизначив би THREE посеред роботи.
+let threeReady = null;
+function loadThree() {
+    if (!threeReady) threeReady = (async () => {
+        const CDN = 'https://cdn.jsdelivr.net/npm/three@0.128.0/';
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
+        await Promise.all([
+            loadScript(CDN + 'examples/js/loaders/OBJLoader.js'),
+            loadScript(CDN + 'examples/js/controls/OrbitControls.js')
+        ]);
+    })();
+    return threeReady;
+}
+
 async function initViewer(box, calm) {
-    const CDN = 'https://cdn.jsdelivr.net/npm/three@0.128.0/';
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
-    await Promise.all([
-        loadScript(CDN + 'examples/js/loaders/OBJLoader.js'),
-        loadScript(CDN + 'examples/js/controls/OrbitControls.js')
-    ]);
+    await loadThree();
     const T = THREE;
     const renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -948,12 +1007,11 @@ async function initViewer(box, calm) {
     }
     new ResizeObserver(fit).observe(box); fit();
 
-    let visible = true, t0 = null;
-    new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(box);
+    let t0 = null;
     model.scale.setScalar(calm ? 1 : .01);
     box.classList.add('ready');
     renderer.setAnimationLoop(t => {
-        if (!visible || document.hidden) return;
+        if (!onScreen(box) || document.hidden) return;
         if (t0 === null) t0 = t;
         const k = Math.min(1, (t - t0) / 1200);
         if (!calm && k <= 1) {   // поява: виростає з пружинкою й доворотом
@@ -965,6 +1023,218 @@ async function initViewer(box, calm) {
             plane.constant = calm ? 0 : Math.sin(t / 1300) * 17;
             sheet.position.x = plane.constant;
         }
+        controls.update();
+        renderer.render(scene, camera);
+    });
+}
+
+/* Студія для відблисків — та сама, що в застосунку (initEnvironment): яскраві
+   смуги на темній оболонці. Метал виглядає металом лише тоді, коли йому є що
+   відбивати; рівна сіра коробка дає пластик. */
+function studioEnvironment(T, renderer) {
+    const pmrem = new T.PMREMGenerator(renderer);
+    const env = new T.Scene();
+    const shell = new T.MeshBasicMaterial({ side: T.BackSide });
+    shell.color.setHex(0x26282d).convertSRGBToLinear();
+    env.add(new T.Mesh(new T.SphereGeometry(80, 32, 32), shell));
+    const panel = (x, y, z, w, h, hex, k) => {
+        const m = new T.MeshBasicMaterial({ side: T.DoubleSide });
+        m.color.setHex(hex).convertSRGBToLinear().multiplyScalar(k);   // >1 - HDR-джерело
+        const p = new T.Mesh(new T.PlaneGeometry(w, h), m);
+        p.position.set(x, y, z); p.lookAt(0, 0, 0); env.add(p);
+    };
+    panel(0, 16, 3, 20, 2.2, 0xffffff, 4.0);
+    panel(0, 16, -6, 26, 2.4, 0xffffff, 6.5);
+    panel(-16, 5, 0, 4, 10, 0xffe9d0, 1.3);
+    panel(16, 5, 0, 4, 10, 0xdbe8ff, 1.3);
+    panel(0, 6, -16, 18, 2.0, 0xffffff, 8.0);
+    panel(0, 1, 19, 26, 10, 0x585f6a, 1.6);
+    panel(0, 1, -19, 26, 10, 0x4c525b, 1.4);
+    panel(0, -11, 0, 60, 60, 0x596069, 1.6);
+    const tex = pmrem.fromScene(env, 0.04).texture;
+    pmrem.dispose();
+    return tex;
+}
+
+/* ring.bin - STL, ужатий для сторінки: 20 МБ -> 1.3 МБ. Тіла окремо, вершини
+   зварені, координати - Uint16 у габариті моделі (крок 0.0003 мм), індекси
+   дельтою, усе в gzip. Розпаковує сам браузер (DecompressionStream). */
+async function loadRingBin(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('ring.bin: ' + res.status);
+    let buf = new Uint8Array(await res.arrayBuffer());
+    // Сервер міг уже розпакувати сам (Content-Encoding) - тоді gzip-підпису немає
+    if (buf[0] === 0x1f && buf[1] === 0x8b) {
+        if (!window.DecompressionStream) throw new Error('DecompressionStream');
+        const stream = new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'));
+        buf = new Uint8Array(await new Response(stream).arrayBuffer());
+    }
+    const dv = new DataView(buf.buffer);
+    const hl = dv.getUint32(0, true);
+    const head = JSON.parse(new TextDecoder().decode(buf.subarray(4, 4 + hl)));
+    let at = 4 + hl; at += (4 - at % 4) % 4;
+    const bodies = head.bodies.map(b => {
+        const q = new Uint16Array(buf.buffer, at, b.v * 3);
+        at += b.v * 6; at += (4 - at % 4) % 4;
+        const d = new Int32Array(buf.buffer, at, b.t * 3);
+        at += b.t * 12;
+        const pos = new Float32Array(b.v * 3);
+        for (let i = 0; i < pos.length; i++) {
+            const a = i % 3;
+            pos[i] = head.min[a] + q[i] / 65535 * (head.max[a] - head.min[a]);
+        }
+        const ind = new Uint32Array(d.length);
+        let prev = 0;
+        for (let i = 0; i < d.length; i++) { prev += d[i]; ind[i] = prev; }
+        return { pos, ind };
+    });
+    return { head, bodies };
+}
+
+/* Нормалі з кутом згину. Зварені вершини дають гладку тінь і там, де в моделі
+   ребро (бокова грань шинки, край оправи), - метал там «пливе». Тож нормаль
+   вершини збираємо лише з граней, що відхиляються від своєї менше ніж на 35°. */
+function creasedGeometry(T, pos, ind, deg) {
+    const nt = ind.length / 3, cos = Math.cos(deg * Math.PI / 180);
+    const fn = new Float32Array(nt * 3);   // нормаль грані, зважена площею
+    for (let t = 0; t < nt; t++) {
+        const a = ind[t * 3] * 3, b = ind[t * 3 + 1] * 3, c = ind[t * 3 + 2] * 3;
+        const ux = pos[b] - pos[a], uy = pos[b + 1] - pos[a + 1], uz = pos[b + 2] - pos[a + 2];
+        const vx = pos[c] - pos[a], vy = pos[c + 1] - pos[a + 1], vz = pos[c + 2] - pos[a + 2];
+        fn[t * 3] = uy * vz - uz * vy; fn[t * 3 + 1] = uz * vx - ux * vz; fn[t * 3 + 2] = ux * vy - uy * vx;
+    }
+    // вершина -> її грані (CSR)
+    const nv = pos.length / 3, start = new Uint32Array(nv + 1);
+    for (let i = 0; i < ind.length; i++) start[ind[i] + 1]++;
+    for (let v = 0; v < nv; v++) start[v + 1] += start[v];
+    const fill = start.slice(0, nv), faces = new Uint32Array(ind.length);
+    for (let i = 0; i < ind.length; i++) faces[fill[ind[i]]++] = (i / 3) | 0;
+    const len = t => Math.hypot(fn[t * 3], fn[t * 3 + 1], fn[t * 3 + 2]) || 1;
+    const P = new Float32Array(ind.length * 3), N = new Float32Array(ind.length * 3);
+    for (let i = 0; i < ind.length; i++) {
+        const v = ind[i], t = (i / 3) | 0, lt = len(t);
+        let x = 0, y = 0, z = 0;
+        for (let k = start[v]; k < start[v + 1]; k++) {
+            const f = faces[k];
+            const d = (fn[f * 3] * fn[t * 3] + fn[f * 3 + 1] * fn[t * 3 + 1] + fn[f * 3 + 2] * fn[t * 3 + 2]) / (len(f) * lt);
+            if (d >= cos) { x += fn[f * 3]; y += fn[f * 3 + 1]; z += fn[f * 3 + 2]; }
+        }
+        const l = Math.hypot(x, y, z) || 1;
+        P[i * 3] = pos[v * 3]; P[i * 3 + 1] = pos[v * 3 + 1]; P[i * 3 + 2] = pos[v * 3 + 2];
+        N[i * 3] = x / l; N[i * 3 + 1] = y / l; N[i * 3 + 2] = z / l;
+    }
+    const g = new T.BufferGeometry();
+    g.setAttribute('position', new T.BufferAttribute(P, 3));
+    g.setAttribute('normal', new T.BufferAttribute(N, 3));
+    return g;
+}
+
+/* Каблучка з перемиканням металу. Матеріали - ті самі числа, що в застосунку
+   (applyMaterialToWrapper): виміряні PBR-альбедо металів, без лаку. Рожевого
+   золота в застосунку немає - воно тут як ювелірна класика, за тим самим
+   рецептом, що й жовте. */
+const RING_METALS = {
+    gold:   { color: 0xFFC94D, roughness: .22, env: 1.15 },
+    rose:   { color: 0xF7C6AC, roughness: .22, env: 1.1 },
+    silver: { color: 0xFAF9F5, roughness: .13, env: 1.0 },
+    chrome: { color: 0xC4C5C5, roughness: .04, env: 1.2 },
+};
+
+async function initRingViewer(box, calm) {
+    await loadThree();
+    const T = THREE;
+    const renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.outputEncoding = T.sRGBEncoding;
+    renderer.toneMapping = T.ACESFilmicToneMapping;
+    box.prepend(renderer.domElement);
+
+    const scene = new T.Scene();
+    scene.environment = studioEnvironment(T, renderer);
+    const camera = new T.PerspectiveCamera(30, 1, 1, 500);
+    camera.position.set(18, 22, 46);
+    scene.add(new T.HemisphereLight(0xffffff, 0x2b3a42, .35));
+
+    const { head, bodies } = await loadRingBin('assets/ring.bin');
+    const size = [0, 1, 2].map(a => head.max[a] - head.min[a]);
+    const tris = head.bodies.reduce((n, b) => n + b.t, 0);
+
+    // Модель із Rhino - Z угору; у three угору Y
+    const model = new T.Group(); model.rotation.x = -Math.PI / 2;
+    const center = new T.Vector3(...[0, 1, 2].map(a => (head.min[a] + head.max[a]) / 2));
+    // трохи нижче центру: угорі кадру лежить панель металів
+    const spin = new T.Group(); spin.add(model); spin.position.y = -1.6; scene.add(spin);
+
+    const metal = new T.MeshPhysicalMaterial({ color: 0xFFC94D, metalness: 1, roughness: .22,
+        envMapIntensity: 1.15, side: T.DoubleSide });
+    /* Діамант - як у застосунку: не прозоре скло (r128 не вміє внутрішніх
+       відбиттів, і будь-який прозорий камінь читається склом), а гранене дзеркало
+       з лаком і ледь прозоре - крізь нього видно власні задні грані, звідси глибина. */
+    const diamond = new T.MeshPhysicalMaterial({ color: 0xffffff, metalness: .9, roughness: 0,
+        clearcoat: 1, clearcoatRoughness: 0, flatShading: true, transparent: true, opacity: .85,
+        envMapIntensity: 2.0, side: T.DoubleSide });
+
+    bodies.forEach((b, i) => {
+        const stone = i === head.stone;
+        const g = stone ? new T.BufferGeometry() : creasedGeometry(T, b.pos, b.ind, 35);
+        if (stone) {
+            g.setAttribute('position', new T.BufferAttribute(b.pos, 3));
+            g.setIndex(new T.BufferAttribute(b.ind, 1));
+            g.computeVertexNormals();
+        }
+        g.translate(-center.x, -center.y, -center.z);
+        const m = new T.Mesh(g, stone ? diamond : metal);
+        if (stone) m.renderOrder = 1;   // прозоре - після металу, інакше оправа зникає за каменем
+        model.add(m);
+    });
+
+    document.getElementById('r-dims').innerHTML =
+        size.map((v, a) => 'XYZ'[a] + ':' + v.toFixed(1)).join(' ') + ' mm · <b>' +
+        tris.toLocaleString('uk-UA') + ' Δ</b> · <span data-i18n="rm_stone">' +
+        i18n[document.documentElement.lang].rm_stone + '</span> 6×8';
+
+    // Перемикання - плавне: колір і шорсткість перетікають за чверть секунди
+    let from = null, to = RING_METALS.gold, k0 = 0;
+    function setMetal(name) {
+        const m = RING_METALS[name];
+        if (!m) return;
+        from = { color: metal.color.clone(), roughness: metal.roughness, env: metal.envMapIntensity };
+        to = m; k0 = performance.now();
+        box.querySelectorAll('.v-modes button').forEach(b => b.classList.toggle('on', b.dataset.mat === name));
+    }
+    const target = new T.Color();
+    function stepMetal(now) {
+        if (!from) return;
+        const k = calm ? 1 : Math.min(1, (now - k0) / 260), e = 1 - Math.pow(1 - k, 3);
+        target.setHex(to.color).convertSRGBToLinear();
+        metal.color.copy(from.color).lerp(target, e);
+        metal.roughness = from.roughness + (to.roughness - from.roughness) * e;
+        metal.envMapIntensity = from.env + (to.env - from.env) * e;
+        if (k >= 1) from = null;
+    }
+    metal.color.setHex(RING_METALS.gold.color).convertSRGBToLinear();
+    box.querySelectorAll('.v-modes button').forEach(b => b.addEventListener('click', () => setMetal(b.dataset.mat)));
+
+    const controls = new T.OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = false; controls.enablePan = false; controls.enableDamping = true;
+    controls.autoRotate = !calm; controls.autoRotateSpeed = 1.6;
+    let resume;
+    controls.addEventListener('start', () => { controls.autoRotate = false; clearTimeout(resume); });
+    controls.addEventListener('end', () => { if (!calm) resume = setTimeout(() => controls.autoRotate = true, 2500); });
+
+    function fit() {
+        const w = box.clientWidth, h = box.clientHeight;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.position.setLength(w / h < .9 ? 92 : 66);
+        camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(fit).observe(box); fit();
+
+    box.classList.add('ready');
+    renderer.setAnimationLoop(t => {
+        if (!onScreen(box) || document.hidden) return;
+        stepMetal(t);
         controls.update();
         renderer.render(scene, camera);
     });
@@ -1059,6 +1329,21 @@ async function initViewer(box, calm) {
             });
         }, { rootMargin: '600px 0px' });
         lazy.observe(viewer);
+    }
+    // Каблучка - так само ліниво: 1.3 МБ моделі вантажимо, лише коли до неї догортали
+    const ringBox = document.getElementById('ring-viewer');
+    if (ringBox) {
+        const lazyRing = new IntersectionObserver(es => {
+            if (!es[0].isIntersecting) return;
+            lazyRing.disconnect();
+            initRingViewer(ringBox, calm).catch(err => {
+                console.error(err);
+                const l = ringBox.querySelector('.loading');
+                l.setAttribute('data-i18n', 'lv_failed');
+                l.textContent = i18n[document.documentElement.lang].lv_failed;
+            });
+        }, { rootMargin: '600px 0px' });
+        lazyRing.observe(ringBox);
     }
 
     // Reveal-анімація героя: клас на час програвання, потім знімаємо —
