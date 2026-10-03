@@ -239,6 +239,47 @@ header {
 }
 .v-hint { opacity: .8; }
 
+/* ---------- розріз збірки ---------- */
+.viewer.tall { height: clamp(460px, 62vw, 640px); }
+.sec-panel {
+    position: absolute; left: 50%; bottom: 14px; translate: -50% 0;
+    width: min(380px, calc(100% - 28px));
+    border-radius: 18px; overflow: hidden;
+    background: rgba(28,27,34,.86); backdrop-filter: blur(12px);
+    border: 1px solid rgba(208,188,255,.2);
+    box-shadow: 0 16px 40px rgba(0,0,0,.4);
+}
+.sec-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: var(--primary); color: var(--on-primary);
+    font-family: var(--mono); font-size: 12.5px; font-weight: 700; padding: 9px 14px;
+}
+.sec-head b { font-weight: 700; }
+.sec-body { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 12px; }
+.sec-axes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.sec-axes button, .sec-flip {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    border: 1px solid rgba(208,188,255,.16); border-radius: 11px; padding: 7px 0; cursor: pointer;
+    background: rgba(208,188,255,.06); color: var(--muted); transition: background .2s, color .2s;
+}
+.sec-axes button.on { background: var(--primary); color: var(--on-primary); border-color: transparent; }
+.sec-flip { padding: 6px 12px; font-size: 12px; font-weight: 500; }
+.sec-flip.on { color: var(--primary); border-color: rgba(208,188,255,.45); }
+.sec-axes button:focus-visible, .sec-flip:focus-visible, .sec-range:focus-visible { outline: 2px solid var(--measure); outline-offset: 2px; }
+.sec-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.sec-row b { color: var(--measure); font-weight: 600; }
+.sec-range { width: 100%; accent-color: var(--primary); height: 22px; cursor: pointer; }
+.v-tl { position: absolute; top: 14px; left: 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none;
+        font-family: var(--mono); font-size: 12px; color: rgba(232,228,239,.75); }
+.v-tl .chip { background: rgba(28,27,34,.72); backdrop-filter: blur(8px); border: 1px solid rgba(208,188,255,.14); border-radius: 12px; padding: 8px 12px; }
+.v-tl .chip b { color: var(--measure); font-weight: 600; }
+@media (min-width: 861px) {
+    .sec-panel { left: auto; right: 16px; bottom: 16px; translate: none; width: 340px; }
+}
+.sc-part { opacity: 0; translate: 0 -4px; transition: opacity .2s, translate .2s; color: var(--text) !important; }
+.sc-part.on { opacity: 1; translate: 0 0; }
+.sc-part small { display: block; color: var(--muted); font-size: 11px; }
+
 /* ---------- поява при прокрутці ---------- */
 /* базовий стан видимий: клас .rv ставить скрипт, тож без JS нічого не ховається */
 .rv { opacity: 0; translate: 0 26px; filter: blur(6px);
@@ -316,6 +357,13 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .v-modes button { padding: 7px 9px; font-size: 11px; white-space: nowrap; }
     .viewer { height: 440px; }
     .v-hint { display: none; }
+    .viewer.tall { height: 560px; }
+    /* панель на телефоні - компактна: положення зрізу вже є в нижньому рядку */
+    #sc-axis-read { display: none; }
+    .sec-head { padding: 7px 12px; font-size: 12px; }
+    .sec-body { gap: 8px; padding: 10px 12px; }
+    .sec-axes button { padding: 6px 0; }
+    .v-tl { font-size: 11px; }
     .hero-grid { grid-template-columns: 1fr; padding-block: 64px 72px; gap: 56px; }
     .stage { order: -1; }
     .hero .phone { max-width: 230px; }
@@ -492,6 +540,38 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
             <div class="v-info">
                 <span class="chip">ring.stl · <span id="r-dims">—</span></span>
                 <span class="chip v-hint" data-i18n="lv_hint">тягніть, щоб обертати</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section live">
+    <div class="wrap">
+        <div class="section-head">
+            <div class="eyebrow" data-i18n="sc_eyebrow">РОЗРІЗ</div>
+            <h2 data-i18n="sc_h2">Розріжте збірку самі</h2>
+            <p data-i18n="sc_p">Справжній STEP: кронштейн шківа з двома корпусними підшипниками, 42 тіла. Розібраний тим самим CAD-ядром, що працює всередині застосунку. Тягніть повзунок, міняйте вісь, наведіть на деталь — побачите її назву з файлу.</p>
+        </div>
+        <div class="viewer tall" id="sec-viewer">
+            <div class="loading" data-i18n="lv_loading">ЗАВАНТАЖЕННЯ…</div>
+            <div class="v-tl">
+                <span class="chip">BASE DE POLEA.stp · <span id="sc-dims">—</span></span>
+                <span class="chip sc-part" id="sc-part"></span>
+            </div>
+            <div class="sec-panel">
+                <div class="sec-head"><span>✂ <b data-i18n="sc_title">Секційний аналіз</b></span><span id="sc-axis-read">X · — / — mm</span></div>
+                <div class="sec-body">
+                    <div class="sec-axes" role="group" aria-label="Вісь перерізу" data-i18n-aria="sc_axes_aria">
+                        <button class="on" data-axis="0">X</button>
+                        <button data-axis="1">Y</button>
+                        <button data-axis="2">Z</button>
+                    </div>
+                    <input class="sec-range" type="range" min="0" max="1000" value="500" aria-label="Положення перерізу" data-i18n-aria="sc_range_aria">
+                    <div class="sec-row">
+                        <button class="sec-flip" type="button">⇄ <span data-i18n="sc_side">Сторона</span></button>
+                        <span><span data-i18n="sc_cut">Зріз</span>: <b id="sc-cut">—</b> mm</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -680,6 +760,15 @@ const i18n = {
         lv_failed: "3D НЕДОСТУПНЕ В ЦЬОМУ БРАУЗЕРІ",
         lv_hint: "тягніть, щоб обертати",
         lv_modes_aria: "Режим показу",
+        sc_eyebrow: "РОЗРІЗ",
+        sc_h2: "Розріжте збірку самі",
+        sc_p: "Справжній STEP: кронштейн шківа з двома корпусними підшипниками, 42 тіла. Розібраний тим самим CAD-ядром, що працює всередині застосунку. Тягніть повзунок, міняйте вісь, наведіть на деталь — побачите її назву з файлу.",
+        sc_title: "Секційний аналіз",
+        sc_side: "Сторона",
+        sc_cut: "Зріз",
+        sc_axes_aria: "Вісь перерізу",
+        sc_range_aria: "Положення перерізу",
+        sc_bodies: "тіл",
         rm_eyebrow: "ПРИМІРЯЙТЕ МЕТАЛ",
         rm_h2: "Та сама каблучка — у будь-якому металі",
         rm_p: "Справжній STL із Rhino: 400 тисяч трикутників, овальний камінь 6×8 мм. Перемикайте метал — як у меню матеріалів застосунку. Камінь лишається діамантом.",
@@ -777,6 +866,15 @@ const i18n = {
         lv_failed: "3D IS NOT AVAILABLE IN THIS BROWSER",
         lv_hint: "drag to rotate",
         lv_modes_aria: "Display mode",
+        sc_eyebrow: "SECTION",
+        sc_h2: "Cut the assembly yourself",
+        sc_p: "A real STEP file: a pulley bracket with two pillow-block bearings, 42 bodies. Loaded with the same CAD kernel that runs inside the app. Drag the slider, switch the axis, hover a part to see its name from the file.",
+        sc_title: "Section Analysis",
+        sc_side: "Side",
+        sc_cut: "Cut",
+        sc_axes_aria: "Section axis",
+        sc_range_aria: "Section position",
+        sc_bodies: "bodies",
         rm_eyebrow: "TRY ON A METAL",
         rm_h2: "The same ring, in any metal",
         rm_p: "A real STL from Rhino: 400 thousand triangles, a 6×8 mm oval stone. Switch the metal, just like the app's material menu. The stone stays a diamond.",
@@ -1240,6 +1338,203 @@ async function initRingViewer(box, calm) {
     });
 }
 
+/* pulley.bin - STEP, розібраний occt-import-js (те саме ядро, що в застосунку):
+   тіла окремо з назвами деталей і кольорами з файлу, координати - Uint16 у
+   габариті (крок ~0.004 мм), усе в gzip. 815 КБ STEP -> 183 КБ. */
+async function loadPulleyBin(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('pulley.bin: ' + res.status);
+    const buf = await new Response(res.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+    const len = new DataView(buf).getUint32(0, true);
+    const head = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, len)));
+    const span = head.max.map((v, k) => v - head.min[k]);
+    let off = 4 + len;
+    const parts = head.parts.map(p => {
+        const q = new Uint16Array(buf, off, p.v * 3); off += p.v * 6;
+        const pos = new Float32Array(p.v * 3);
+        for (let j = 0; j < pos.length; j++) { const k = j % 3; pos[j] = head.min[k] + q[j] / 65535 * span[k]; }
+        const n = p.t * 3, bytes = n * (p.big ? 4 : 2);
+        const ind = p.big ? new Uint32Array(buf, off, n) : new Uint16Array(buf, off, n);
+        off += bytes + (bytes % 4 ? 4 - bytes % 4 : 0);
+        return { ...p, pos, ind };
+    });
+    return { head, span, parts };
+}
+
+// деталі без кольору у файлі: корпуси підшипників і шків
+const PULLEY_FALLBACK = { 'CHUMACERA': 0x4f6f96, 'POLEA': 0xc2c7ce };
+
+async function initSectionViewer(box, calm) {
+    await loadThree();
+    const T = THREE;
+    const renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.outputEncoding = T.sRGBEncoding;
+    renderer.localClippingEnabled = true;
+    box.prepend(renderer.domElement);
+
+    const { head, span, parts } = await loadPulleyBin('assets/pulley.bin');
+    const center = new T.Vector3(...head.min.map((v, k) => v + span[k] / 2));
+    const tris = parts.reduce((n, p) => n + p.t, 0);
+    document.getElementById('sc-dims').innerHTML =
+        span.map((v, a) => 'XYZ'[a] + ':' + v.toFixed(1)).join(' ') + ' mm · <b>' +
+        tris.toLocaleString('uk-UA') + ' Δ</b>';
+
+    const scene = new T.Scene();
+    const camera = new T.PerspectiveCamera(30, 1, 10, 5000);
+    scene.add(new T.HemisphereLight(0xffffff, 0x2b3a42, .8));
+    const key = new T.DirectionalLight(0xffffff, .95); key.position.set(300, 500, 400); scene.add(key);
+    const fill = new T.DirectionalLight(0xD0BCFF, .45); fill.position.set(-400, 150, -300); scene.add(fill);
+
+    const grid = new T.GridHelper(900, 36, 0x6d8c99, 0x435a65);
+    grid.position.y = -span[1] / 2 - 2; grid.material.transparent = true; grid.material.opacity = .5;
+    scene.add(grid);
+
+    const plane = new T.Plane(new T.Vector3(-1, 0, 0), 0);
+    // штриховка зрізу, як у CAD: діагональні смуги в екранних пікселях
+    const hatch = m => {
+        m.onBeforeCompile = sh => {
+            sh.fragmentShader = sh.fragmentShader.replace('#include <dithering_fragment>',
+                '#include <dithering_fragment>\n float hh = mod(gl_FragCoord.x + gl_FragCoord.y, ' + (9 * renderer.getPixelRatio()).toFixed(1) +
+                ');\n if (hh < ' + (1.7 * renderer.getPixelRatio()).toFixed(1) + ') gl_FragColor.rgb *= 0.45;');
+        };
+        return m;
+    };
+    // у файлі Y угору, як і в three: шків стоїть, вал горизонтальний (перевірено обидва варіанти).
+    // Площину все одно рахуємо в координатах моделі й переводимо у світові - щоб поворот моделі
+    // колись потім не зламав переріз.
+    const model = new T.Group(); scene.add(model);
+    model.updateMatrixWorld(true);
+    const local = new T.Plane();
+    const meshes = [];
+    parts.forEach(p => {
+        const g = new T.BufferGeometry();
+        g.setAttribute('position', new T.BufferAttribute(p.pos, 3));
+        g.setIndex(new T.BufferAttribute(p.ind, 1));
+        g.translate(-center.x, -center.y, -center.z);
+        g.computeVertexNormals();
+        const col = new T.Color();
+        if (p.color) col.setRGB(p.color[0], p.color[1], p.color[2]);
+        else col.setHex(PULLEY_FALLBACK[Object.keys(PULLEY_FALLBACK).find(k => p.name.includes(k))] || 0xb8bec6);
+        col.convertSRGBToLinear();
+        const mat = new T.MeshStandardMaterial({ color: col, roughness: .45, metalness: .25, clippingPlanes: [plane] });
+        const m = new T.Mesh(g, mat);
+        m.userData = { name: p.name || '—', base: col.clone() };
+        model.add(m); meshes.push(m);
+        // зріз: задні грані за площиною - світліший тон деталі зі штриховкою
+        const capCol = col.clone().lerp(new T.Color(0xffffff), .35);
+        model.add(new T.Mesh(g, hatch(new T.MeshBasicMaterial({ color: capCol, side: T.BackSide, clippingPlanes: [plane] }))));
+    });
+
+    // площина перерізу: ледь видима плівка з рамкою
+    const sheetMat = new T.MeshBasicMaterial({ color: 0xD0BCFF, transparent: true, opacity: .06, side: T.DoubleSide, depthWrite: false });
+    const sheet = new T.Mesh(new T.PlaneGeometry(1, 1), sheetMat);
+    sheet.add(new T.LineSegments(new T.EdgesGeometry(sheet.geometry),
+        new T.LineBasicMaterial({ color: 0xD0BCFF, transparent: true, opacity: .55 })));
+    model.add(sheet);
+
+    let axis = 0, u = .5, flip = false;
+    const readAxis = document.getElementById('sc-axis-read'), readCut = document.getElementById('sc-cut');
+    const range = box.querySelector('.sec-range');
+    function apply() {
+        const half = span[axis] / 2, c = -half + u * span[axis];     // у центрованих координатах
+        const n = new T.Vector3(); n.setComponent(axis, flip ? 1 : -1);
+        // площина в координатах файлу (лишається x < c, перевернуто - x > c), обрізають - у світових
+        local.normal.copy(n); local.constant = -n.getComponent(axis) * c;
+        plane.copy(local).applyMatrix4(model.matrixWorld);
+        sheet.position.set(0, 0, 0); sheet.position.setComponent(axis, c);
+        sheet.rotation.set(0, 0, 0);
+        // PlaneGeometry лежить у XY: повертаємо до потрібної осі, розмір - за двома іншими
+        if (axis === 0) sheet.rotation.y = Math.PI / 2;
+        if (axis === 1) sheet.rotation.x = Math.PI / 2;
+        const [sw, sh] = axis === 0 ? [span[2], span[1]] : axis === 1 ? [span[0], span[2]] : [span[0], span[1]];
+        sheet.scale.set(sw * 1.12, sh * 1.12, 1);
+        const mm = (u * span[axis]).toFixed(1);
+        readAxis.textContent = 'XYZ'[axis] + ' · ' + mm + ' / ' + span[axis].toFixed(1) + ' mm';
+        readCut.textContent = mm;
+    }
+    range.addEventListener('input', () => { u = range.value / 1000; intro = null; apply(); });
+    box.querySelectorAll('.sec-axes button').forEach(b => b.addEventListener('click', () => {
+        axis = +b.dataset.axis; intro = null;
+        box.querySelectorAll('.sec-axes button').forEach(x => x.classList.toggle('on', x === b));
+        apply();
+    }));
+    const flipBtn = box.querySelector('.sec-flip');
+    flipBtn.addEventListener('click', () => { flip = !flip; flipBtn.classList.toggle('on', flip); apply(); });
+
+    // назва деталі під курсором (на дотик - під пальцем); зрізане не рахується
+    const ray = new T.Raycaster(), ptr = new T.Vector2();
+    const partChip = document.getElementById('sc-part');
+    let hovered = null;
+    function pick(e) {
+        const r = renderer.domElement.getBoundingClientRect();
+        ptr.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+        ray.setFromCamera(ptr, camera);
+        const hit = ray.intersectObjects(meshes, false).find(h => plane.distanceToPoint(h.point) >= 0);
+        const m = hit ? hit.object : null;
+        if (m === hovered) return;
+        if (hovered) hovered.material.emissive.setHex(0);
+        hovered = m;
+        if (m) {
+            m.material.emissive.setHex(0x3a2a66);
+            partChip.textContent = m.userData.name;
+            partChip.classList.add('on');
+        } else partChip.classList.remove('on');
+    }
+    let downAt = null;
+    renderer.domElement.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && e.buttons === 0) pick(e); });
+    renderer.domElement.addEventListener('pointerleave', () => { if (hovered) { hovered.material.emissive.setHex(0); hovered = null; } partChip.classList.remove('on'); });
+    renderer.domElement.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; });
+    renderer.domElement.addEventListener('pointerup', e => {
+        if (downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) < 6) pick(e);
+        downAt = null;
+    });
+
+    const controls = new T.OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = false; controls.enablePan = false; controls.enableDamping = true;
+    controls.autoRotate = !calm; controls.autoRotateSpeed = .9;
+    let resume;
+    controls.addEventListener('start', () => { controls.autoRotate = false; clearTimeout(resume); });
+    controls.addEventListener('end', () => { if (!calm) resume = setTimeout(() => controls.autoRotate = true, 3000); });
+
+    const radius = Math.hypot(span[0], span[1], span[2]) / 2;
+    // модель трохи вище центру кадру: унизу лежить панель перерізу
+    controls.target.set(0, -radius * .1, 0);
+    // ракурс 3/4 згори, ~20°; далі напрям бере той, що є (користувач міг повернути)
+    camera.position.copy(controls.target).add(new T.Vector3(.9, .55, 1.25));
+    function fit() {
+        const w = box.clientWidth, h = box.clientHeight;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        // на вузькому екрані панель займає низ - модель піднімаємо вище
+        const dir0 = camera.position.clone().sub(controls.target);
+        controls.target.y = -radius * (camera.aspect < .9 ? .42 : .1);
+        camera.position.copy(controls.target).add(dir0);
+        const fov = T.MathUtils.degToRad(camera.fov) / 2;
+        const fitH = radius / Math.tan(fov), fitW = radius / Math.tan(Math.atan(Math.tan(fov) * camera.aspect));
+        const dir = camera.position.clone().sub(controls.target).normalize();
+        camera.position.copy(controls.target).addScaledVector(dir, Math.max(fitH, fitW) * .95);
+        camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(fit).observe(box); fit();
+
+    // поява: площина заїжджає з краю до середини
+    let intro = calm ? null : { t0: null };
+    u = calm ? .5 : 1; apply();
+    box.classList.add('ready');
+    renderer.setAnimationLoop(t => {
+        if (!onScreen(box) || document.hidden) return;
+        if (intro) {
+            if (intro.t0 === null) intro.t0 = t;
+            const k = Math.min(1, (t - intro.t0) / 1800), e = 1 - Math.pow(1 - k, 3);
+            u = 1 - .5 * e; range.value = Math.round(u * 1000); apply();
+            if (k >= 1) intro = null;
+        }
+        controls.update();
+        renderer.render(scene, camera);
+    });
+}
+
 (function () {
     // Мова: збережений вибір, інакше — мова системи
     let lang = 'uk';
@@ -1368,6 +1663,22 @@ async function initRingViewer(box, calm) {
             });
         }, { rootMargin: '600px 0px' });
         lazyRing.observe(ringBox);
+    }
+
+    // Розріз - так само ліниво
+    const secBox = document.getElementById('sec-viewer');
+    if (secBox) {
+        const lazySec = new IntersectionObserver(es => {
+            if (!es[0].isIntersecting) return;
+            lazySec.disconnect();
+            initSectionViewer(secBox, calm).catch(err => {
+                console.error(err);
+                const l = secBox.querySelector('.loading');
+                l.setAttribute('data-i18n', 'lv_failed');
+                l.textContent = i18n[document.documentElement.lang].lv_failed;
+            });
+        }, { rootMargin: '600px 0px' });
+        lazySec.observe(secBox);
     }
 
     // Reveal-анімація героя: клас на час програвання, потім знімаємо —
