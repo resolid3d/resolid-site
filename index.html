@@ -380,9 +380,8 @@ header {
 .proof .draw { flex: 1; height: 1px; background: var(--measure); opacity: .7; transform-origin: left; transform: scaleX(0); transition: transform 1.2s cubic-bezier(.2,.7,.2,1) .2s; min-width: 40px; }
 .proof.in .draw { transform: scaleX(1); }
 
-/* ---------- інструменти: карусель ----------
-   Режим вмикає скрипт класом .tx-on (без JS - звичайна сітка). Стрічка гортається вбік
-   сама по собі (scroll-snap по осі X), сторінку вниз не тримає: секція - один екран. */
+/* ---------- лічильник і стрілки каруселі (ролики) ----------
+   Режим вмикає скрипт класом .tx-on. */
 .tx-meta { display: none; }
 .tx-on .tx-meta {
     display: flex; align-items: center; gap: 10px; margin-bottom: 22px;
@@ -400,39 +399,7 @@ header {
 }
 .tx-arrow:hover { background: rgba(208,188,255,.16); border-color: rgba(208,188,255,.55); }
 .tx-arrow:focus-visible { outline: 2px solid var(--measure); outline-offset: 2px; }
-.tools.tx-on { overflow-x: clip; }   /* 100vw включає смугу прокрутки - без цього сторінка гуляла б убік */
-.tools.tx-on .tools-grid {
-    --cw: 400px; position: relative;   /* offsetLeft карток - від стрічки */
-    display: flex; gap: 20px; overflow-x: auto; overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory; scrollbar-width: none;
-    /* на всю ширину вікна, а перша й остання картки можуть стати по центру */
-    margin-inline: calc(50% - 50vw); padding: 14px calc(50vw - var(--cw) / 2) 30px;
-    cursor: grab;
-}
-.tools.tx-on .tools-grid::-webkit-scrollbar { display: none; }
-.tools.tx-on .tools-grid.drag { scroll-snap-type: none; cursor: grabbing; user-select: none; }
-.tools.tx-on .tool {
-    flex: none; width: var(--cw); min-height: 320px; scroll-snap-align: center;
-    padding: 32px; gap: 14px;
-    opacity: .4; transform: scale(.93);
-    transition: opacity .6s, transform .75s cubic-bezier(.2,.7,.2,1), border-color .6s, box-shadow .6s;
-}
-.tools.tx-on .tool:hover { transform: scale(.93); }
-.tools.tx-on .tool.on, .tools.tx-on .tool.on:hover {
-    opacity: 1; transform: none; border-color: rgba(208,188,255,.5);
-    box-shadow: 0 24px 60px rgba(0,0,0,.35), 0 0 0 1px rgba(208,188,255,.18);
-}
-.tools.tx-on .tool .icon { width: 52px; height: 52px; border-radius: 15px; }
-.tools.tx-on .tool .icon svg { width: 27px; height: 27px; }
-.tools.tx-on .tool.on .icon { background: rgba(208,188,255,.16); border-color: rgba(208,188,255,.4); }
-.tools.tx-on .tool h3 { font-size: 20px; }
-.tools.tx-on .tool p { font-size: 15px; line-height: 1.6; }
-/* іконка активної картки малюється лінією (pathLength=1 ставить скрипт) */
-.tools.tx-on .tool .icon svg * { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1) .15s; }
-.tools.tx-on .tool.on .icon svg * { stroke-dashoffset: 0; }
-@media (prefers-reduced-motion: reduce) {
-    .tools.tx-on .tool, .tools.tx-on .tool .icon svg *, .tx-bar i { transition: none; }
-}
+@media (prefers-reduced-motion: reduce) { .tx-bar i { transition: none; } }
 
 /* ---------- ролики: coverflow ----------
    Активний - по центру, грає сам без звуку; сусіди менші, приглушені й повернуті до
@@ -467,7 +434,7 @@ header {
 /* ---------- формати: перемикач ----------
    Будує скрипт із карток .fmt (без JS - звичайна сітка). Розширення в панелі
    «дешифрується», опис випливає; вкладки змінюються самі, смужка під активною - час. */
-.formats.fx-on .fmt-grid { display: none; }
+.fx-on .fmt-grid, .fx-on .tools-grid { display: none; }
 .fx { display: grid; grid-template-columns: 250px 1fr; gap: 36px; align-items: stretch; }
 .fx-list { position: relative; display: flex; flex-direction: column; gap: 6px; }
 .fx-tab {
@@ -506,6 +473,21 @@ header {
 .fx-sub.in, .fx-desc.in { animation: fxIn .7s cubic-bezier(.2,.7,.2,1) both; }
 .fx-desc.in { animation-delay: .12s; }
 @keyframes fxIn { from { opacity: 0; translate: 0 12px; } }
+/* інструменти: вкладок 13 - дрібніші; у панелі велика іконка, що малюється лінією */
+.fx.fx-tools { grid-template-columns: 290px 1fr; }
+.fx-tools .fx-list { gap: 2px; }
+.fx-tools .fx-tab { font-size: 14px; padding: 9px 16px; border-radius: 11px; font-weight: 600; }
+.fx-icon {
+    position: relative; width: 78px; height: 78px; border-radius: 22px; margin-bottom: 6px;
+    background: rgba(208,188,255,.1); border: 1px solid rgba(208,188,255,.32);
+    display: flex; align-items: center; justify-content: center;
+}
+.fx-icon svg { width: 40px; height: 40px; stroke: var(--primary); fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.fx-icon.in svg * { stroke-dasharray: 1; animation: fxDraw 1.4s cubic-bezier(.4,0,.2,1) .1s both; }
+@keyframes fxDraw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.fx-title { position: relative; font: 700 clamp(26px, 3.2vw, 38px)/1.15 var(--mono); letter-spacing: -.02em; color: var(--text); }
+.fx-title .scr { color: var(--measure); opacity: .7; }
+@media (prefers-reduced-motion: reduce) { .fx-icon.in svg * { animation: none; } }
 @media (prefers-reduced-motion: reduce) { .fx-sub.in, .fx-desc.in { animation: none; } }
 
 /* ---------- formats ---------- */
@@ -617,10 +599,11 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .fx-tab i { display: none; }
     .fx-panel { padding: 30px 26px; min-height: 240px; }
     .fx-desc { font-size: 16px; }
-    .tools.tx-on .tools-grid { --cw: min(78vw, 320px); gap: 14px; cursor: auto; }
-    .tools.tx-on .tool { min-height: 0; padding: 24px; }
-    .tools.tx-on .tool h3 { font-size: 17px; }
-    .tools.tx-on .tool p { font-size: 14.5px; }
+    .fx.fx-tools { grid-template-columns: 1fr; }
+    .fx-tools .fx-tab { font-size: 13.5px; padding: 9px 13px; }
+    .fx-icon { width: 60px; height: 60px; border-radius: 17px; }
+    .fx-icon svg { width: 31px; height: 31px; }
+    .fx-title { font-size: 24px; }
     .tx-arrow { display: none; }   /* на телефоні - свайп */
     .reels.tx-on .reel-grid { --cw: min(60vw, calc((100svh - 390px) * .5625)); cursor: auto; }
     .reels.tx-on { padding: 44px 0; }
@@ -891,7 +874,6 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
             <div class="eyebrow" data-i18n="tools_eyebrow">TOOLS</div>
             <h2 data-i18n="tools_h2">Big-CAD tools — pocket sized</h2>
         </div>
-        <div class="tx-meta"><b class="tx-n" aria-hidden="true">01</b> <i aria-hidden="true">/ 13</i><span class="tx-bar" aria-hidden="true"><i></i></span><button class="tx-arrow tx-prev" type="button" aria-label="Previous tool" data-i18n-aria="tx_prev">←</button><button class="tx-arrow tx-next" type="button" aria-label="Next tool" data-i18n-aria="tx_next">→</button></div>
         <div class="tools-grid">
             <div class="tool">
                 <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/></svg></div>
@@ -2164,59 +2146,55 @@ async function initExplodeViewer(box, calm) {
         return { goTo, hold, get active() { return active; }, get visible() { return visible; } };
     }
 
-    // Формати: вкладки з карток .fmt; панель із «дешифруванням» розширення
-    const fmtSec = document.querySelector('.formats');
-    if (fmtSec) {
-        const src = [...fmtSec.querySelectorAll('.fmt')];
-        const fx = document.createElement('div'); fx.className = 'fx';
+    /* Перемикач (формати, інструменти): вкладки + панель. Будується з карток секції
+       (без JS лишається сітка). Текст у панелі «дешифрується», опис випливає; вкладки
+       змінюються самі (смужка під активною - час), лише коли секцію видно; курсор чи
+       дотик - пауза. items: [{ tab() -> html вкладки, fill(panel, animate) }]. */
+    const SCR = '.abcdefghijklmnopqrstuvwxyz0123456789';
+    function scramble(el, word) {
+        // літери перебираються й по черзі, зліва направо, стають на місце; пробіли - одразу
+        const run = el.__scr = {}, t0 = performance.now(), dur = Math.min(900, 300 + word.length * 25);
+        (function frame(now) {
+            if (el.__scr !== run) return;
+            const k = Math.min(1, (now - t0) / dur), fixed = Math.floor(k * word.length + .0001);
+            let tail = '';
+            for (let i = fixed; i < word.length; i++) tail += word[i] === ' ' ? ' ' : SCR[(Math.random() * SCR.length) | 0];
+            el.textContent = word.slice(0, fixed);
+            if (tail) { const sp = document.createElement('span'); sp.className = 'scr'; sp.textContent = tail; el.appendChild(sp); }
+            if (k < 1) requestAnimationFrame(frame);
+        })(t0);
+    }
+    const replay = el => { el.classList.remove('in'); void el.offsetWidth; el.classList.add('in'); };
+    function switcher(sec, grid, items, { panelHTML, period, cls = '' }) {
+        const fx = document.createElement('div'); fx.className = 'fx ' + cls;
+        fx.style.setProperty('--fx-t', period + 'ms');
         const list = document.createElement('div'); list.className = 'fx-list'; list.setAttribute('role', 'tablist');
         const panel = document.createElement('div'); panel.className = 'fx-panel'; panel.setAttribute('role', 'tabpanel');
-        panel.innerHTML = '<div class="fx-n"></div><div class="fx-ext" aria-hidden="true"></div><div class="fx-sub"></div><p class="fx-desc" aria-live="polite"></p>';
-        const items = src.map((f, i) => {
-            const code = f.querySelector('code'), sub = code.querySelector('i');
-            const main = code.firstChild.textContent.trim();
-            const b = document.createElement('button');
+        panel.innerHTML = '<div class="fx-n"></div>' + panelHTML;
+        items.forEach(it => {
+            const b = it.btn = document.createElement('button');
             b.type = 'button'; b.className = 'fx-tab'; b.setAttribute('role', 'tab');
-            b.innerHTML = main + (sub ? ' <i>' + sub.textContent + '</i>' : '') + '<span class="fx-prog"></span>';
             list.appendChild(b);
-            return { main, sub: sub ? sub.textContent : '', desc: f.querySelector('p'), tab: b };
         });
+        const labels = () => items.forEach(it => { it.btn.innerHTML = it.tab() + '<span class="fx-prog"></span>'; });
+        labels();
         fx.append(list, panel);
-        fmtSec.querySelector('.fmt-grid').after(fx);
-        fmtSec.classList.add('fx-on');
-        const extEl = panel.querySelector('.fx-ext'), subEl = panel.querySelector('.fx-sub'),
-              descEl = panel.querySelector('.fx-desc'), nEl = panel.querySelector('.fx-n');
-        const CH = '.abcdefghijklmnopqrstuvwxyz0123456789';
-        let cur = -1, scr = 0;
-        // «дешифрування»: літери перебираються й по черзі, зліва направо, стають на місце
-        const scramble = word => {
-            const run = ++scr, t0 = performance.now(), dur = 700;
-            (function frame(now) {
-                if (run !== scr) return;
-                const k = Math.min(1, (now - t0) / dur), fixed = Math.floor(k * word.length + .0001);
-                let html = word.slice(0, fixed), tail = '';
-                for (let i = fixed; i < word.length; i++) tail += CH[(Math.random() * CH.length) | 0];
-                extEl.innerHTML = html + (tail ? '<span class="scr">' + tail + '</span>' : '');
-                if (k < 1) requestAnimationFrame(frame);
-            })(t0);
-        };
+        grid.after(fx);
+        sec.classList.add('fx-on');
+        const nEl = panel.querySelector('.fx-n');
+        let cur = -1;
         const show = (i, user) => {
             i = (i + items.length) % items.length;
-            const it = items[i], same = i === cur;
+            const same = i === cur;
             cur = i;
-            items.forEach((x, j) => { x.tab.classList.toggle('on', j === i); x.tab.setAttribute('aria-selected', j === i); });
+            items.forEach((x, j) => { x.btn.classList.toggle('on', j === i); x.btn.setAttribute('aria-selected', j === i); });
             nEl.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(items.length).padStart(2, '0');
-            descEl.textContent = it.desc.textContent;
-            subEl.textContent = it.sub;
-            if (calm || same) { extEl.textContent = it.main; return; }
-            scramble(it.main);
-            [subEl, descEl].forEach(el => { el.classList.remove('in'); void el.offsetWidth; el.classList.add('in'); });
-            // на телефоні активна вкладка - у видиму частину рядка
-            // (лише сам рядок вкладок - scrollIntoView зрушив би й сторінку)
-            if (list.scrollWidth > list.clientWidth) list.scrollTo({ left: it.tab.offsetLeft - list.clientWidth / 2 + it.tab.offsetWidth / 2, behavior: 'smooth' });
+            items[i].fill(panel, !calm && !same);
+            // на телефоні активна вкладка - до центру рядка (лише сам рядок, не сторінку)
+            if (!user && list.scrollWidth > list.clientWidth)
+                list.scrollTo({ left: items[i].btn.offsetLeft - list.clientWidth / 2 + items[i].btn.offsetWidth / 2, behavior: 'smooth' });
         };
-        items.forEach((it, i) => it.tab.addEventListener('click', () => { hold(); show(i, true); }));
-        // автоперемикання: смужка під активною вкладкою дійшла до кінця - наступний формат
+        items.forEach((it, i) => it.btn.addEventListener('click', () => { hold(); show(i, true); }));
         list.addEventListener('animationend', e => { if (e.animationName === 'fxProg') show(cur + 1); });
         let idleUntil = 0, visible = false;
         const sync = () => fx.classList.toggle('paused', calm || !visible || performance.now() < idleUntil);
@@ -2225,19 +2203,55 @@ async function initExplodeViewer(box, calm) {
         fx.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hold(); });
         fx.addEventListener('touchstart', hold, { passive: true });
         new IntersectionObserver(es => { visible = es[0].isIntersecting; sync(); }, { threshold: .4 }).observe(fx);
-        // мова змінилась - опис беремо заново з картки
+        // мова змінилась - вкладки й панель беремо заново з карток
         document.querySelectorAll('.lang-pill button').forEach(b => b.addEventListener('click', () => {
-            if (cur >= 0) descEl.textContent = items[cur].desc.textContent;
+            labels(); items.forEach((x, j) => x.btn.classList.toggle('on', j === cur));
+            if (cur >= 0) items[cur].fill(panel, false);
         }));
         sync();
         show(0, true);
     }
 
-    // Інструменти: автопрогортання кожні 4 с, іконка активної малюється лінією
+    // Формати: розширення «дешифрується», під ним додаткове розширення й опис
+    const fmtSec = document.querySelector('.formats');
+    if (fmtSec) {
+        const P = '<div class="fx-ext" aria-hidden="true"></div><div class="fx-sub"></div><p class="fx-desc" aria-live="polite"></p>';
+        const items = [...fmtSec.querySelectorAll('.fmt')].map(f => {
+            const code = f.querySelector('code'), subEl = code.querySelector('i');
+            const main = code.firstChild.textContent.trim(), sub = subEl ? subEl.textContent : '', desc = f.querySelector('p');
+            return {
+                tab: () => main + (sub ? ' <i>' + sub + '</i>' : ''),
+                fill: (panel, anim) => {
+                    const ext = panel.querySelector('.fx-ext'), su = panel.querySelector('.fx-sub'), de = panel.querySelector('.fx-desc');
+                    su.textContent = sub; de.textContent = desc.textContent;
+                    if (!anim) { ext.__scr = null; ext.textContent = main; return; }
+                    scramble(ext, main); replay(su); replay(de);
+                }
+            };
+        });
+        switcher(fmtSec, fmtSec.querySelector('.fmt-grid'), items, { panelHTML: P, period: 3500 });
+    }
+
+    // Інструменти: велика іконка малюється лінією, назва «дешифрується», опис випливає
     const toolsSec = document.querySelector('.tools');
     if (toolsSec) {
-        toolsSec.querySelectorAll('.tool .icon svg *').forEach(el => el.setAttribute('pathLength', '1'));
-        carousel(toolsSec, toolsSec.querySelector('.tools-grid'), { auto: 4000 });
+        const P = '<div class="fx-icon" aria-hidden="true"></div><h3 class="fx-title"></h3><p class="fx-desc" aria-live="polite"></p>';
+        const items = [...toolsSec.querySelectorAll('.tool')].map(t => {
+            const h = t.querySelector('h3'), p = t.querySelector('p'), svg = t.querySelector('.icon svg');
+            return {
+                tab: () => h.textContent,
+                fill: (panel, anim) => {
+                    const ic = panel.querySelector('.fx-icon'), ti = panel.querySelector('.fx-title'), de = panel.querySelector('.fx-desc');
+                    const copy = svg.cloneNode(true);
+                    copy.querySelectorAll('*').forEach(el => el.setAttribute('pathLength', '1'));
+                    ic.replaceChildren(copy);
+                    de.textContent = p.textContent;
+                    if (!anim) { ti.__scr = null; ti.textContent = h.textContent; ic.classList.remove('in'); return; }
+                    scramble(ti, h.textContent); replay(ic); replay(de);
+                }
+            };
+        });
+        switcher(toolsSec, toolsSec.querySelector('.tools-grid'), items, { panelHTML: P, period: 4000, cls: 'fx-tools' });
     }
 
     // Ролики: активний грає сам без звуку від початку, решта стоять; закінчився - наступний
@@ -2270,7 +2284,7 @@ async function initExplodeViewer(box, calm) {
     }), { threshold: .14, rootMargin: '0px 0px -40px 0px' });
     if (!calm) {
         groups.forEach(sel => document.querySelectorAll(sel).forEach((el, i) => {
-            if (el.closest('.tour') || el.closest('.tx-on .tools-grid, .tx-on .reel-grid')) return;   // у каруселях свої переходи
+            if (el.closest('.tour') || el.closest('.tx-on .reel-grid, .fx-on .fmt-grid, .fx-on .tools-grid')) return;   // у каруселях свої переходи
             el.classList.add('rv');
             if (sel.includes('>')) el.style.setProperty('--d', (i % 4) * .07 + 's');
             io.observe(el);
