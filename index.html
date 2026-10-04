@@ -380,49 +380,59 @@ header {
 .proof .draw { flex: 1; height: 1px; background: var(--measure); opacity: .7; transform-origin: left; transform: scaleX(0); transition: transform 1.2s cubic-bezier(.2,.7,.2,1) .2s; min-width: 40px; }
 .proof.in .draw { transform: scaleX(1); }
 
-/* ---------- інструменти: горизонтальна стрічка на прокрутці ----------
-   Режим вмикає скрипт класом .tx-on (без JS і з prefers-reduced-motion - звичайна сітка).
-   Секція завдовжки --tx-h, усередині прикріплений кадр; прокрутка вниз зсуває стрічку,
-   активна картка - по центру. overflow-x: clip, а не hidden: hidden зламав би sticky. */
+/* ---------- інструменти: карусель ----------
+   Режим вмикає скрипт класом .tx-on (без JS - звичайна сітка). Стрічка гортається вбік
+   сама по собі (scroll-snap по осі X), сторінку вниз не тримає: секція - один екран. */
 .tx-meta { display: none; }
-.tools.tx-on { padding: 0; height: var(--tx-h, auto); overflow-x: clip; }
-.tools.tx-on > .wrap {
-    position: sticky; top: 62px; height: calc(100svh - 62px);
-    display: flex; flex-direction: column; justify-content: center;
-}
-.tools.tx-on .section-head { margin-bottom: 18px; }
 .tools.tx-on .tx-meta {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 26px;
+    display: flex; align-items: center; gap: 10px; margin-bottom: 22px;
     font-family: var(--mono); font-size: 13px; color: var(--muted);
 }
 .tx-meta b { color: var(--primary); font-weight: 700; min-width: 2ch; }
 .tx-meta i { font-style: normal; }
-.tx-bar { position: relative; width: 160px; height: 2px; border-radius: 1px; background: var(--line); margin-left: 8px; }
-.tx-bar i { position: absolute; inset: 0 auto 0 0; width: calc(var(--tp, 0) * 100%); background: linear-gradient(90deg, var(--measure), var(--primary)); border-radius: 1px; }
-.tools.tx-on .tools-grid {
-    display: flex; gap: 20px; width: max-content;
-    transform: translate3d(calc(var(--tx, 0) * -1px), 0, 0); will-change: transform;
+.tx-bar { position: relative; width: 160px; height: 2px; border-radius: 1px; background: var(--line); margin: 0 8px; }
+.tx-bar i { position: absolute; inset: 0 auto 0 0; width: calc(var(--tp, 0) * 100%); background: linear-gradient(90deg, var(--measure), var(--primary)); border-radius: 1px; transition: width .6s cubic-bezier(.2,.7,.2,1); }
+.tx-arrow {
+    width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
+    border: 1px solid rgba(208,188,255,.3); background: rgba(208,188,255,.06); color: var(--primary);
+    font: 700 16px/1 var(--mono); display: grid; place-items: center;
+    transition: background .2s, border-color .2s;
 }
+.tx-arrow:hover { background: rgba(208,188,255,.16); border-color: rgba(208,188,255,.55); }
+.tx-arrow:focus-visible { outline: 2px solid var(--measure); outline-offset: 2px; }
+.tools.tx-on { overflow-x: clip; }   /* 100vw включає смугу прокрутки - без цього сторінка гуляла б убік */
+.tools.tx-on .tools-grid {
+    --cw: 400px; position: relative;   /* offsetLeft карток - від стрічки */
+    display: flex; gap: 20px; overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scrollbar-width: none;
+    /* на всю ширину вікна, а перша й остання картки можуть стати по центру */
+    margin-inline: calc(50% - 50vw); padding: 14px calc(50vw - var(--cw) / 2) 30px;
+    cursor: grab;
+}
+.tools.tx-on .tools-grid::-webkit-scrollbar { display: none; }
+.tools.tx-on .tools-grid.drag { scroll-snap-type: none; cursor: grabbing; user-select: none; }
 .tools.tx-on .tool {
-    flex: none; width: 340px; min-height: 270px;
-    opacity: .38; transform: scale(.93);
+    flex: none; width: var(--cw); min-height: 320px; scroll-snap-align: center;
+    padding: 32px; gap: 14px;
+    opacity: .4; transform: scale(.93);
     transition: opacity .6s, transform .75s cubic-bezier(.2,.7,.2,1), border-color .6s, box-shadow .6s;
 }
-.tools.tx-on .tool.on {
+.tools.tx-on .tool:hover { transform: scale(.93); }
+.tools.tx-on .tool.on, .tools.tx-on .tool.on:hover {
     opacity: 1; transform: none; border-color: rgba(208,188,255,.5);
     box-shadow: 0 24px 60px rgba(0,0,0,.35), 0 0 0 1px rgba(208,188,255,.18);
 }
+.tools.tx-on .tool .icon { width: 52px; height: 52px; border-radius: 15px; }
+.tools.tx-on .tool .icon svg { width: 27px; height: 27px; }
 .tools.tx-on .tool.on .icon { background: rgba(208,188,255,.16); border-color: rgba(208,188,255,.4); }
-@media (min-width: 861px) {
-    .tools.tx-on .tool { width: 400px; min-height: 340px; padding: 34px; gap: 16px; }
-    .tools.tx-on .tool .icon { width: 54px; height: 54px; border-radius: 15px; }
-    .tools.tx-on .tool .icon svg { width: 28px; height: 28px; }
-    .tools.tx-on .tool h3 { font-size: 21px; }
-    .tools.tx-on .tool p { font-size: 15.5px; line-height: 1.6; }
-}
+.tools.tx-on .tool h3 { font-size: 20px; }
+.tools.tx-on .tool p { font-size: 15px; line-height: 1.6; }
 /* іконка активної картки малюється лінією (pathLength=1 ставить скрипт) */
 .tools.tx-on .tool .icon svg * { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1) .15s; }
 .tools.tx-on .tool.on .icon svg * { stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: reduce) {
+    .tools.tx-on .tool, .tools.tx-on .tool .icon svg *, .tx-bar i { transition: none; }
+}
 
 /* ---------- formats ---------- */
 .formats { border-bottom: 1px solid var(--line); }
@@ -525,10 +535,11 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .v-modes button { padding: 7px 9px; font-size: 11px; white-space: nowrap; }
     .viewer { height: 440px; }
     .v-hint { display: none; }
-    .tools.tx-on .tool { width: min(78vw, 320px); min-height: 0; }
-    .tools.tx-on .tools-grid { gap: 14px; }
-    .tools.tx-on .section-head { margin-bottom: 12px; }
-    .tools.tx-on .tx-meta { margin-bottom: 18px; }
+    .tools.tx-on .tools-grid { --cw: min(78vw, 320px); gap: 14px; cursor: auto; }
+    .tools.tx-on .tool { min-height: 0; padding: 24px; }
+    .tools.tx-on .tool h3 { font-size: 17px; }
+    .tools.tx-on .tool p { font-size: 14.5px; }
+    .tx-arrow { display: none; }   /* на телефоні - свайп */
     .viewer.tall { height: 560px; }
     /* панель на телефоні - компактна: положення зрізу вже є в нижньому рядку */
     #sc-axis-read { display: none; }
@@ -795,7 +806,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
             <div class="eyebrow" data-i18n="tools_eyebrow">TOOLS</div>
             <h2 data-i18n="tools_h2">Big-CAD tools — pocket sized</h2>
         </div>
-        <div class="tx-meta" aria-hidden="true"><b class="tx-n">01</b> <i>/ 13</i><span class="tx-bar"><i></i></span></div>
+        <div class="tx-meta"><b class="tx-n" aria-hidden="true">01</b> <i aria-hidden="true">/ 13</i><span class="tx-bar" aria-hidden="true"><i></i></span><button class="tx-arrow tx-prev" type="button" aria-label="Previous tool" data-i18n-aria="tx_prev">←</button><button class="tx-arrow tx-next" type="button" aria-label="Next tool" data-i18n-aria="tx_next">→</button></div>
         <div class="tools-grid">
             <div class="tool">
                 <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/></svg></div>
@@ -1023,6 +1034,7 @@ const i18n = {
         fmt_zip: "Розпаковується сам. Кілька моделей усередині — виберіть потрібну або відкрийте всі разом.",
         tools_eyebrow: "ІНСТРУМЕНТИ",
         tools_h2: "Як у великих CAD — тільки в кишені",
+        tx_prev: "Попередній інструмент", tx_next: "Наступний інструмент",
         t1_h: "Вимір Smart Snap",
         t1_p: "Відстані, кути між гранями, радіус і діаметр по трьох точках, товщина стінки одним тапом. Прив'язка до вершин.",
         t2_h: "Вага, площа, вартість",
@@ -1141,6 +1153,7 @@ const i18n = {
         fmt_zip: "Unpacks itself. Multiple models inside — pick one or open them all together.",
         tools_eyebrow: "TOOLS",
         tools_h2: "Big-CAD tools — pocket sized",
+        tx_prev: "Previous tool", tx_next: "Next tool",
         t1_h: "Smart Snap measuring",
         t1_p: "Distances, face angles, radius and diameter from three points, wall thickness in one tap. Snaps to vertices.",
         t2_h: "Weight, area, cost",
@@ -2015,103 +2028,66 @@ async function initExplodeViewer(box, calm) {
 
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Інструменти: прокрутка вниз веде картки стрічкою вбік
+    // Інструменти: карусель на один екран - свайп, стрілки, перетягування мишею,
+    // автопрогортання, поки секція на екрані й її ніхто не чіпає
     const toolsSec = document.querySelector('.tools');
-    if (toolsSec && !calm) {
+    if (toolsSec) {
         toolsSec.classList.add('tx-on');
-        const wrap = toolsSec.querySelector('.wrap'), track = toolsSec.querySelector('.tools-grid');
-        const cards = [...track.children], nEl = toolsSec.querySelector('.tx-n');
-        cards.forEach(c => c.querySelectorAll('.icon svg *').forEach(el => el.setAttribute('pathLength', '1')));
+        const track = toolsSec.querySelector('.tools-grid');
+        const cards = [...track.children], nEl = toolsSec.querySelector('.tx-n'), last = cards.length - 1;
         toolsSec.querySelector('.tx-meta i').textContent = '/ ' + String(cards.length).padStart(2, '0');
-        let centers = [], maxX = 0, view = 0, active = -1;
-        const layout = () => {
-            // довжина секції: на кожну картку - півекрана прокрутки, плюс сам кадр
-            const per = innerHeight * (innerWidth < 861 ? .42 : .5);
-            toolsSec.style.setProperty('--tx-h', Math.round(per * (cards.length - 1) + innerHeight) + 'px');
-            view = wrap.clientWidth;
-            const pad = parseFloat(getComputedStyle(wrap).paddingLeft) || 0;
-            centers = cards.map(c => c.offsetLeft + c.offsetWidth / 2);
-            maxX = Math.max(0, track.scrollWidth - (view - pad * 2));
-            update();
+        cards.forEach(c => c.querySelectorAll('.icon svg *').forEach(el => el.setAttribute('pathLength', '1')));
+        let active = -1;
+        const centerOf = c => c.offsetLeft + c.offsetWidth / 2 - track.clientWidth / 2;
+        const pick = () => {
+            const mid = track.scrollLeft;
+            let best = 0, d = Infinity;
+            cards.forEach((c, i) => { const x = Math.abs(centerOf(c) - mid); if (x < d) { d = x; best = i; } });
+            if (best === active) return;
+            active = best;
+            cards.forEach((c, i) => c.classList.toggle('on', i === best));
+            nEl.textContent = String(best + 1).padStart(2, '0');
+            toolsSec.style.setProperty('--tp', (best / last).toFixed(4));
         };
-        const update = () => {
-            const r = toolsSec.getBoundingClientRect(), total = toolsSec.offsetHeight - innerHeight;
-            const p = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
-            // дробовий індекс: активна картка - по центру кадру (на краях стрічка впирається)
-            const f = p * (cards.length - 1), i = Math.floor(f), k = f - i;
-            const c = centers[i] + ((centers[i + 1] ?? centers[i]) - centers[i]) * k;
-            // offsetLeft - від краю кадру (wrap прикріплений, тобто позиціонований)
-            const x = Math.min(maxX, Math.max(0, c - view / 2));
-            toolsSec.style.setProperty('--tx', x.toFixed(1));
-            toolsSec.style.setProperty('--tp', p.toFixed(4));
-            const a = Math.round(f);
-            if (a !== active) {
-                active = a;
-                cards.forEach((el, j) => el.classList.toggle('on', j === a));
-                nEl.textContent = String(a + 1).padStart(2, '0');
-            }
+        let raf = 0;
+        track.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; pick(); }); }, { passive: true });
+        const goTo = i => {
+            i = (i + cards.length) % cards.length;
+            track.scrollTo({ left: centerOf(cards[i]), behavior: calm ? 'instant' : 'smooth' });
         };
-        addEventListener('scroll', update, { passive: true });
-        addEventListener('resize', layout);
-
-        // телефон: одна картка за свайп, як у турах (інерція інакше пролітає кілька)
-        if (matchMedia('(max-width: 860px)').matches && matchMedia('(pointer: coarse)').matches) {
-            const last = cards.length - 1, HEAD = 62;
-            const posOf = k => toolsSec.getBoundingClientRect().top + scrollY + (toolsSec.offsetHeight - innerHeight) * k / last;
-            let anim = null, t = null, touchEndAt = -1e9, prevY = scrollY;
-            const go = k => {
-                k = Math.max(0, Math.min(last, k));
-                const from = scrollY, to = posOf(k), t0 = performance.now(), run = anim = {};
-                (function frame(now) {
-                    if (anim !== run) return;
-                    const q = Math.min(1, (now - t0) / 700), e = q < .5 ? 4 * q * q * q : 1 - Math.pow(-2 * q + 2, 3) / 2;
-                    scrollTo({ top: from + (to - from) * e, behavior: 'instant' });
-                    if (q < 1) requestAnimationFrame(frame); else anim = null;
-                })(t0);
-            };
-            const pinned = () => Math.abs(wrap.getBoundingClientRect().top - HEAD) < 3;
-            wrap.addEventListener('touchstart', e => {
-                t = null;
-                if (!pinned() || e.touches.length !== 1) return;
-                t = { x: e.touches[0].clientX, y: e.touches[0].clientY, axis: null };
-            }, { passive: true });
-            wrap.addEventListener('touchmove', e => {
-                if (!t) return;
-                const dx = e.touches[0].clientX - t.x, dy = e.touches[0].clientY - t.y;
-                if (!t.axis && Math.hypot(dx, dy) > 8) {
-                    t.axis = 'v';   // і горизонтальний свайп гортає стрічку - так природніше
-                    const dir = Math.abs(dy) > Math.abs(dx) ? -Math.sign(dy) : -Math.sign(dx);
-                    if ((dir < 0 && active === 0) || (dir > 0 && active === last)) t.axis = 'out';
-                }
-                if (t.axis === 'v' && e.cancelable) e.preventDefault();
-            }, { passive: false });
-            wrap.addEventListener('touchend', e => {
-                touchEndAt = performance.now();
-                if (!t || t.axis !== 'v') { t = null; return; }
-                const dx = e.changedTouches[0].clientX - t.x, dy = e.changedTouches[0].clientY - t.y;
-                t = null;
-                const big = Math.abs(dy) > Math.abs(dx) ? -dy : -dx;
-                if (Math.abs(big) > 30) go(active + Math.sign(big));
-            });
-            addEventListener('touchend', () => { touchEndAt = performance.now(); }, { passive: true });
-            // розгін ззовні - стоп на першій/останній картці (мить overflow: hidden гасить інерцію)
-            const root = document.documentElement;
-            const stopAt = y => {
-                root.style.overflow = 'hidden'; scrollTo({ top: y, behavior: 'instant' }); touchEndAt = -1e9;
-                setTimeout(() => { root.style.overflow = ''; scrollTo({ top: y, behavior: 'instant' }); prevY = y; }, 60);
-            };
-            addEventListener('scroll', () => {
-                const y = scrollY, a0 = posOf(0), b0 = posOf(last);
-                if (!anim && !t && performance.now() - touchEndAt < 3000) {
-                    if (prevY < a0 - 2 && y > a0 + 2) stopAt(a0);
-                    else if (prevY > b0 + 2 && y < b0 - 2) stopAt(b0);
-                }
-                prevY = scrollY;
-            }, { passive: true });
-        }
-        document.querySelectorAll('.lang-pill button').forEach(b => b.addEventListener('click', () => setTimeout(layout, 0)));
-        if (document.fonts) document.fonts.ready.then(layout);
-        layout();
+        // автопрогортання: кожні 4 с, лише коли секцію видно; будь-який дотик чи курсор - пауза на 10 с
+        let visible = false, idleUntil = 0;
+        const hold = () => { idleUntil = performance.now() + 10000; };
+        new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: .5 }).observe(track);
+        if (!calm) setInterval(() => {
+            if (visible && !document.hidden && performance.now() > idleUntil && !track.classList.contains('drag')) goTo(active + 1);
+        }, 4000);
+        ['pointerdown', 'wheel', 'touchstart', 'focusin'].forEach(ev => track.addEventListener(ev, hold, { passive: true }));
+        track.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') idleUntil = Infinity; });
+        track.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hold(); });
+        toolsSec.querySelector('.tx-prev').addEventListener('click', () => { hold(); goTo(active - 1); });
+        toolsSec.querySelector('.tx-next').addEventListener('click', () => { hold(); goTo(active + 1); });
+        // перетягування мишею (на дотик стрічка гортається сама)
+        let drag = null;
+        track.addEventListener('pointerdown', e => {
+            if (e.pointerType !== 'mouse' || e.button !== 0) return;
+            drag = { x: e.clientX, left: track.scrollLeft, moved: false };
+        });
+        addEventListener('pointermove', e => {
+            if (!drag) return;
+            const dx = e.clientX - drag.x;
+            if (!drag.moved && Math.abs(dx) > 4) { drag.moved = true; track.classList.add('drag'); }
+            if (drag.moved) track.scrollLeft = drag.left - dx;
+        });
+        addEventListener('pointerup', () => {
+            if (!drag) return;
+            const moved = drag.moved; drag = null;
+            if (!moved) return;
+            track.classList.remove('drag');
+            pick(); goTo(active);   // доснапити до найближчої картки
+        });
+        addEventListener('resize', () => { active = -1; pick(); });
+        requestAnimationFrame(() => { track.scrollLeft = centerOf(cards[0]); pick(); });
     }
 
     // Поява блоків при прокрутці; у сітках — зі сходинкою
@@ -2125,7 +2101,7 @@ async function initExplodeViewer(box, calm) {
     }), { threshold: .14, rootMargin: '0px 0px -40px 0px' });
     if (!calm) {
         groups.forEach(sel => document.querySelectorAll(sel).forEach((el, i) => {
-            if (el.closest('.tour') || el.closest('.tx-on .tools-grid')) return;
+            if (el.closest('.tour') || el.closest('.tx-on .tools-grid')) return;   // у каруселі свої переходи
             el.classList.add('rv');
             if (sel.includes('>')) el.style.setProperty('--d', (i % 4) * .07 + 's');
             io.observe(el);
