@@ -1509,7 +1509,7 @@ function creasedGeometry(T, pos, ind, deg) {
    рецептом, що й жовте. */
 const RING_METALS = {
     gold:   { color: 0xFFC94D, roughness: .22, env: 1.15 },
-    rose:   { color: 0xF7C6AC, roughness: .22, env: 1.1 },
+    rose:   { color: 0xF6CDBF, roughness: .22, env: 1.1 },
     silver: { color: 0xFAF9F5, roughness: .13, env: 1.0 },
     chrome: { color: 0xC4C5C5, roughness: .04, env: 1.2 },
 };
@@ -1544,9 +1544,9 @@ async function initRingViewer(box, calm) {
     /* Діамант - як у застосунку: не прозоре скло (r128 не вміє внутрішніх
        відбиттів, і будь-який прозорий камінь читається склом), а гранене дзеркало
        з лаком і ледь прозоре - крізь нього видно власні задні грані, звідси глибина. */
-    const diamond = new T.MeshPhysicalMaterial({ color: 0xffffff, metalness: .9, roughness: 0,
-        clearcoat: 1, clearcoatRoughness: 0, flatShading: true, transparent: true, opacity: .85,
-        envMapIntensity: 2.0, side: T.DoubleSide });
+    const diamond = new T.MeshPhysicalMaterial({ color: 0xffffff, metalness: .95, roughness: 0,
+        clearcoat: 1, clearcoatRoughness: 0, flatShading: true, transparent: true, opacity: .95,
+        envMapIntensity: 3.6, side: T.DoubleSide });
 
     bodies.forEach((b, i) => {
         const stone = i === head.stone;
