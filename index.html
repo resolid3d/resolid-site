@@ -384,7 +384,7 @@ header {
    Режим вмикає скрипт класом .tx-on (без JS - звичайна сітка). Стрічка гортається вбік
    сама по собі (scroll-snap по осі X), сторінку вниз не тримає: секція - один екран. */
 .tx-meta { display: none; }
-.tools.tx-on .tx-meta {
+.tx-on .tx-meta {
     display: flex; align-items: center; gap: 10px; margin-bottom: 22px;
     font-family: var(--mono); font-size: 13px; color: var(--muted);
 }
@@ -433,6 +433,36 @@ header {
 @media (prefers-reduced-motion: reduce) {
     .tools.tx-on .tool, .tools.tx-on .tool .icon svg *, .tx-bar i { transition: none; }
 }
+
+/* ---------- ролики: coverflow ----------
+   Активний - по центру, грає сам без звуку; сусіди менші, приглушені й повернуті до
+   центру. Закінчився - карусель іде до наступного. */
+/* ширина ролика - від висоти вікна, щоб уся секція влазила в один екран */
+.reels.tx-on { overflow-x: clip; padding: 60px 0; }
+.reels.tx-on .section-head { margin-bottom: 22px; }
+.reels.tx-on .reel-grid {
+    --cw: clamp(180px, calc((100svh - 425px) * .5625), 270px); position: relative;
+    display: flex; gap: 0; overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scrollbar-width: none;
+    margin-inline: calc(50% - 50vw); padding: 6px calc(50vw - var(--cw) / 2) 20px;
+    grid-template-columns: none; cursor: grab;
+}
+.reels.tx-on .reel-grid::-webkit-scrollbar { display: none; }
+.reels.tx-on .reel-grid.drag { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+.reels.tx-on .reel {
+    flex: none; width: var(--cw); scroll-snap-align: center;
+    opacity: .42; transform: perspective(1000px) scale(.78);
+    transition: transform .8s cubic-bezier(.2,.7,.2,1), opacity .6s;
+}
+.reels.tx-on .reel.l { transform: perspective(1000px) rotateY(24deg) scale(.78); }
+.reels.tx-on .reel.r { transform: perspective(1000px) rotateY(-24deg) scale(.78); }
+.reels.tx-on .reel.on { opacity: 1; transform: none; }
+.reels.tx-on .reel:not(.on) { cursor: pointer; }
+.reels.tx-on .reel:not(.on) video { pointer-events: none; }
+.reels.tx-on .reel.on video { border-color: rgba(208,188,255,.5); box-shadow: 0 24px 70px rgba(0,0,0,.5), 0 0 0 1px rgba(208,188,255,.2); }
+.reels.tx-on .reel h3, .reels.tx-on .reel p { transition: opacity .5s; }
+.reels.tx-on .reel:not(.on) h3, .reels.tx-on .reel:not(.on) p { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .reels.tx-on .reel { transition: none; } }
 
 /* ---------- formats ---------- */
 .formats { border-bottom: 1px solid var(--line); }
@@ -540,6 +570,8 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .tools.tx-on .tool h3 { font-size: 17px; }
     .tools.tx-on .tool p { font-size: 14.5px; }
     .tx-arrow { display: none; }   /* на телефоні - свайп */
+    .reels.tx-on .reel-grid { --cw: min(60vw, calc((100svh - 390px) * .5625)); cursor: auto; }
+    .reels.tx-on { padding: 44px 0; }
     .viewer.tall { height: 560px; }
     /* панель на телефоні - компактна: положення зрізу вже є в нижньому рядку */
     #sc-axis-read { display: none; }
@@ -884,6 +916,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
             <h2 data-i18n="rl_h2">Five short clips</h2>
             <p data-i18n="rl_p">Phone screen recordings — sped up, nothing faked. One feature per clip.</p>
         </div>
+        <div class="tx-meta"><b class="tx-n" aria-hidden="true">01</b> <i aria-hidden="true">/ 05</i><span class="tx-bar" aria-hidden="true"><i></i></span><button class="tx-arrow tx-prev" type="button" aria-label="Previous clip" data-i18n-aria="rl_prev">←</button><button class="tx-arrow tx-next" type="button" aria-label="Next clip" data-i18n-aria="rl_next">→</button></div>
         <div class="reel-grid">
             <div class="reel">
                 <video src="assets/short-cast.mp4" poster="assets/short-cast.jpg" controls playsinline preload="none"></video>
@@ -1016,6 +1049,7 @@ const i18n = {
         cu3_alt1: "Каблучка в матеріалі «золото» з діамантом",
         cu3_alt2: "Таблиця ваги: золото 18K — 2.95 г, приховану деталь не враховано",
         rl_eyebrow: "У ДІЇ",
+        rl_prev: "Попередній ролик", rl_next: "Наступний ролик",
         rl_h2: "П'ять коротких роликів",
         rl_p: "Записи з екрана телефона — прискорені, але без підмін. Одна можливість — один ролик.",
         rl1: "Ювелірка: розріз, карта товщин, вага в золоті.",
@@ -1135,6 +1169,7 @@ const i18n = {
         cu3_alt1: "The ring rendered in gold with a diamond",
         cu3_alt2: "Weight table: 18K gold — 2.95 g, hidden part not included",
         rl_eyebrow: "IN ACTION",
+        rl_prev: "Previous clip", rl_next: "Next clip",
         rl_h2: "Five short clips",
         rl_p: "Phone screen recordings — sped up, nothing faked. One feature per clip.",
         rl1: "Jewelry: section cut, thickness map, weight in gold.",
@@ -1996,30 +2031,6 @@ async function initExplodeViewer(box, calm) {
         reels.forEach(o => { if (o !== v) o.pause(); });
     }));
 
-    // Наведення мишею — ролик грає без звуку, курсор пішов — пауза.
-    // Без звуку, бо браузер не дає вмикати звук без кліку. Хто ввімкнув звук
-    // чи перемотав — дивиться далі, такий ролик при відведенні курсора не зупиняємо.
-    if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
-        reels.forEach(v => {
-            v.preload = 'metadata';
-            let engaged = false;
-            const engage = () => { engaged = true; };
-            v.addEventListener('volumechange', () => { if (!v.muted) engage(); });
-            v.addEventListener('seeking', engage);
-            v.addEventListener('ended', () => { engaged = false; });
-            v.addEventListener('pointerenter', e => {
-                if (e.pointerType !== 'mouse' || !v.paused) return;
-                engaged = false;
-                v.muted = true;
-                v.play().catch(() => {});
-            });
-            v.addEventListener('pointerleave', e => {
-                if (e.pointerType !== 'mouse' || engaged) return;
-                v.pause();
-            });
-        });
-    }
-
     // Запис у герої — без автопрограшу для тих, хто просить менше руху
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         const hv = document.querySelector('.hero video');
@@ -2028,15 +2039,14 @@ async function initExplodeViewer(box, calm) {
 
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Інструменти: карусель на один екран - свайп, стрілки, перетягування мишею,
-    // автопрогортання, поки секція на екрані й її ніхто не чіпає
-    const toolsSec = document.querySelector('.tools');
-    if (toolsSec) {
-        toolsSec.classList.add('tx-on');
-        const track = toolsSec.querySelector('.tools-grid');
-        const cards = [...track.children], nEl = toolsSec.querySelector('.tx-n'), last = cards.length - 1;
-        toolsSec.querySelector('.tx-meta i').textContent = '/ ' + String(cards.length).padStart(2, '0');
-        cards.forEach(c => c.querySelectorAll('.icon svg *').forEach(el => el.setAttribute('pathLength', '1')));
+    /* Карусель на один екран (інструменти, ролики): стрічка гортається вбік сама
+       (scroll-snap по X) - свайпом, стрілками, перетягуванням мишею, тапом по сусідній
+       картці. Активна - найближча до центру. auto - автопрогортання (мс), поки секцію
+       видно й її ніхто не чіпає; onActive(i) - що робити, коли змінилась активна. */
+    function carousel(sec, track, { auto = 0, onActive = () => {}, onVisible = () => {} } = {}) {
+        sec.classList.add('tx-on');
+        const cards = [...track.children], nEl = sec.querySelector('.tx-n'), last = cards.length - 1;
+        sec.querySelector('.tx-meta i').textContent = '/ ' + String(cards.length).padStart(2, '0');
         let active = -1;
         const centerOf = c => c.offsetLeft + c.offsetWidth / 2 - track.clientWidth / 2;
         const pick = () => {
@@ -2045,9 +2055,14 @@ async function initExplodeViewer(box, calm) {
             cards.forEach((c, i) => { const x = Math.abs(centerOf(c) - mid); if (x < d) { d = x; best = i; } });
             if (best === active) return;
             active = best;
-            cards.forEach((c, i) => c.classList.toggle('on', i === best));
+            cards.forEach((c, i) => {
+                c.classList.toggle('on', i === best);
+                c.classList.toggle('l', i < best);
+                c.classList.toggle('r', i > best);
+            });
             nEl.textContent = String(best + 1).padStart(2, '0');
-            toolsSec.style.setProperty('--tp', (best / last).toFixed(4));
+            sec.style.setProperty('--tp', (best / last).toFixed(4));
+            onActive(best);
         };
         let raf = 0;
         track.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; pick(); }); }, { passive: true });
@@ -2055,20 +2070,19 @@ async function initExplodeViewer(box, calm) {
             i = (i + cards.length) % cards.length;
             track.scrollTo({ left: centerOf(cards[i]), behavior: calm ? 'instant' : 'smooth' });
         };
-        // автопрогортання: кожні 4 с, лише коли секцію видно; будь-який дотик чи курсор - пауза на 10 с
         let visible = false, idleUntil = 0;
         const hold = () => { idleUntil = performance.now() + 10000; };
-        new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: .5 }).observe(track);
-        if (!calm) setInterval(() => {
+        new IntersectionObserver(es => { visible = es[0].isIntersecting; onVisible(visible); }, { threshold: .5 }).observe(track);
+        if (auto && !calm) setInterval(() => {
             if (visible && !document.hidden && performance.now() > idleUntil && !track.classList.contains('drag')) goTo(active + 1);
-        }, 4000);
+        }, auto);
         ['pointerdown', 'wheel', 'touchstart', 'focusin'].forEach(ev => track.addEventListener(ev, hold, { passive: true }));
         track.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') idleUntil = Infinity; });
         track.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hold(); });
-        toolsSec.querySelector('.tx-prev').addEventListener('click', () => { hold(); goTo(active - 1); });
-        toolsSec.querySelector('.tx-next').addEventListener('click', () => { hold(); goTo(active + 1); });
+        sec.querySelector('.tx-prev').addEventListener('click', () => { hold(); goTo(active - 1); });
+        sec.querySelector('.tx-next').addEventListener('click', () => { hold(); goTo(active + 1); });
         // перетягування мишею (на дотик стрічка гортається сама)
-        let drag = null;
+        let drag = null, justDragged = false;
         track.addEventListener('pointerdown', e => {
             if (e.pointerType !== 'mouse' || e.button !== 0) return;
             drag = { x: e.clientX, left: track.scrollLeft, moved: false };
@@ -2083,11 +2097,44 @@ async function initExplodeViewer(box, calm) {
             if (!drag) return;
             const moved = drag.moved; drag = null;
             if (!moved) return;
+            justDragged = true; setTimeout(() => { justDragged = false; }, 0);
             track.classList.remove('drag');
             pick(); goTo(active);   // доснапити до найближчої картки
         });
+        // тап чи клік по сусідній картці - зробити її активною
+        cards.forEach((c, i) => c.addEventListener('click', e => {
+            if (justDragged || i === active) return;
+            e.preventDefault(); hold(); goTo(i);
+        }));
         addEventListener('resize', () => { active = -1; pick(); });
         requestAnimationFrame(() => { track.scrollLeft = centerOf(cards[0]); pick(); });
+        return { goTo, hold, get active() { return active; }, get visible() { return visible; } };
+    }
+
+    // Інструменти: автопрогортання кожні 4 с, іконка активної малюється лінією
+    const toolsSec = document.querySelector('.tools');
+    if (toolsSec) {
+        toolsSec.querySelectorAll('.tool .icon svg *').forEach(el => el.setAttribute('pathLength', '1'));
+        carousel(toolsSec, toolsSec.querySelector('.tools-grid'), { auto: 4000 });
+    }
+
+    // Ролики: активний грає сам без звуку від початку, решта стоять; закінчився - наступний
+    const reelsSec = document.querySelector('.reels');
+    if (reelsSec) {
+        const vids = [...reelsSec.querySelectorAll('.reel video')];
+        let rc = null;
+        const playOnly = i => vids.forEach((v, j) => {
+            v.controls = j === i;
+            if (j !== i) { v.pause(); return; }
+            if (!rc || !rc.visible || calm) return;
+            v.muted = true; v.currentTime = 0;
+            v.play().catch(() => {});
+        });
+        rc = carousel(reelsSec, reelsSec.querySelector('.reel-grid'), {
+            onActive: playOnly,
+            onVisible: on => { if (on) playOnly(rc ? rc.active : 0); else vids.forEach(v => v.pause()); }
+        });
+        vids.forEach((v, j) => v.addEventListener('ended', () => { if (rc.visible && j === rc.active) rc.goTo(j + 1); }));
     }
 
     // Поява блоків при прокрутці; у сітках — зі сходинкою
@@ -2101,7 +2148,7 @@ async function initExplodeViewer(box, calm) {
     }), { threshold: .14, rootMargin: '0px 0px -40px 0px' });
     if (!calm) {
         groups.forEach(sel => document.querySelectorAll(sel).forEach((el, i) => {
-            if (el.closest('.tour') || el.closest('.tx-on .tools-grid')) return;   // у каруселі свої переходи
+            if (el.closest('.tour') || el.closest('.tx-on .tools-grid, .tx-on .reel-grid')) return;   // у каруселях свої переходи
             el.classList.add('rv');
             if (sel.includes('>')) el.style.setProperty('--d', (i % 4) * .07 + 's');
             io.observe(el);
