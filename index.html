@@ -58,7 +58,7 @@ header {
 .lang-pill { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
 .lang-pill button {
     font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
-    background: none; border: none; color: var(--muted); padding: 7px 12px; cursor: pointer;
+    background: none; border: none; color: var(--muted); padding: 10px 13px; cursor: pointer;
 }
 .lang-pill button.on { background: var(--primary); color: var(--on-primary); font-weight: 700; }
 .lang-pill button:focus-visible, .btn:focus-visible { outline: 2px solid var(--measure); outline-offset: 2px; }
@@ -145,6 +145,18 @@ header {
     box-shadow: 0 10px 30px rgba(0,0,0,.4);
 }
 .hero .phone-tag b { color: var(--measure); font-weight: 600; }
+/* пауза запису в героєві: цикл довший за 5 с, тож потрібен елемент керування (WCAG 2.2.2) */
+.vid-toggle, .fx-pause {
+    display: grid; place-items: center; cursor: pointer; color: var(--text);
+    background: rgba(28,27,34,.78); border: 1px solid var(--line); border-radius: 50%;
+}
+.vid-toggle { position: absolute; right: -46px; bottom: 26px; width: 36px; height: 36px; }
+.vid-toggle svg, .fx-pause svg { width: 14px; height: 14px; }
+.vid-toggle .i-play, .fx-pause .i-play { display: none; }
+.vid-toggle[aria-pressed="true"] .i-play, .fx-pause[aria-pressed="true"] .i-play { display: block; }
+.vid-toggle[aria-pressed="true"] .i-pause, .fx-pause[aria-pressed="true"] .i-pause { display: none; }
+.vid-toggle:hover, .fx-pause:hover { border-color: rgba(208,188,255,.45); }
+.vid-toggle:focus-visible, .fx-pause:focus-visible { outline: 2px solid var(--measure); outline-offset: 2px; }
 
 .dim { display: flex; align-items: center; gap: 12px; width: 300px; color: var(--measure); }
 .dim-line { flex: 1; height: 1px; background: var(--measure); position: relative; opacity: .8; }
@@ -164,21 +176,6 @@ header {
 
 .logo-mark { width: 26px; height: 26px; border-radius: 7px; background: var(--logo) center/contain no-repeat; align-self: center; }
 
-/* ---------- крупним планом: справжні знімки екрана ---------- */
-.closeup { border-bottom: 1px solid var(--line); }
-.spot {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center;
-    padding: 36px 0;
-}
-.spot + .spot { border-top: 1px dashed var(--line); }
-.spot.flip .spot-media { order: 2; }
-.spot-media { display: flex; justify-content: center; gap: 18px; }
-.spot-media .phone { max-width: 260px; }
-.spot-media.pair .phone { max-width: 220px; }
-.spot-media.pair .phone:last-child { margin-top: 48px; }
-.spot-copy { display: flex; flex-direction: column; gap: 14px; }
-.spot-copy h3 { font-family: var(--mono); font-size: clamp(22px, 3vw, 28px); line-height: 1.2; letter-spacing: -.02em; text-wrap: balance; }
-.spot-copy p { color: var(--muted); max-width: 44ch; }
 /* «число-доказ» — та сама розмірна лінія, що була під кубом */
 .proof { display: flex; align-items: center; gap: 12px; color: var(--measure); max-width: 440px; margin-top: 6px; }
 .proof b { font-family: var(--mono); font-size: clamp(28px, 4vw, 38px); font-weight: 600; letter-spacing: -.02em; white-space: nowrap; }
@@ -197,7 +194,6 @@ header {
 .reel p { font-size: 13px; color: var(--muted); line-height: 1.5; }
 
 /* ---------- 3D: справжня модель із застосунку ---------- */
-.live { border-bottom: 1px solid var(--line); }
 .viewer {
     position: relative; border-radius: 26px; overflow: hidden;
     border: 1px solid var(--line);
@@ -207,11 +203,33 @@ header {
 }
 .viewer canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
 .viewer canvas:active { cursor: grabbing; }
+.viewer canvas:focus-visible { outline: 2px solid var(--measure); outline-offset: -4px; border-radius: inherit; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* skip-посилання: за межами екрана, поки не отримає фокус з клавіатури (WCAG 2.4.1) */
+.skip {
+    position: fixed; top: 10px; left: 10px; z-index: 100; padding: 12px 18px; border-radius: 12px;
+    background: var(--primary); color: var(--on-primary); font: 700 14px var(--mono); text-decoration: none;
+    transform: translateY(-200%);
+}
+.skip:focus { transform: none; outline: 2px solid var(--measure); outline-offset: 2px; }
+main { scroll-margin-top: 62px; }   /* липка шапка не закриває початок вмісту після переходу */
+main:focus { outline: none; }
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .tour-caption > * { animation: none; }
+}
 .viewer .loading {
-    position: absolute; inset: 0; display: grid; place-items: center;
-    font-family: var(--mono); font-size: 12px; letter-spacing: .2em; color: rgba(232,228,239,.6);
+    position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 16px; padding: 0 24px; text-align: center;
+    font-family: var(--mono); font-size: 12px; letter-spacing: .2em; color: rgba(232,228,239,.85);
     transition: opacity .4s;
 }
+.viewer .loading.fail { letter-spacing: .04em; font-size: 13px; line-height: 1.6; }
+.v-retry {
+    font: 600 12px var(--mono); letter-spacing: .06em; padding: 10px 18px; border-radius: 12px; cursor: pointer;
+    border: 1px solid rgba(208,188,255,.45); background: rgba(208,188,255,.12); color: var(--primary);
+}
+.v-retry:hover { background: rgba(208,188,255,.22); }
+.v-retry:focus-visible { outline: 2px solid var(--measure); outline-offset: 2px; }
 .viewer.ready .loading { opacity: 0; pointer-events: none; }
 /* плашки в стилі застосунку: панель режимів угорі, рядок габаритів унизу */
 .v-modes {
@@ -241,7 +259,6 @@ header {
 .v-hint { opacity: .8; }
 
 /* ---------- розріз збірки ---------- */
-.viewer.tall { height: clamp(460px, 62vw, 640px); }
 .sec-panel {
     position: absolute; left: 50%; bottom: 14px; translate: -50% 0;
     width: min(380px, calc(100% - 28px));
@@ -266,10 +283,15 @@ header {
 .sec-axes button.on { background: var(--primary); color: var(--on-primary); border-color: transparent; }
 .sec-flip { padding: 6px 12px; font-size: 12px; font-weight: 500; }
 .sec-flip.on { color: var(--primary); border-color: rgba(208,188,255,.45); }
+.sec-flip:disabled { opacity: .35; cursor: default; }
+.sec-btns { display: flex; gap: 6px; }
+/* «Cut» - кольору теми, як у застосунку: сіра губилась би поруч із «Бік» */
+.sec-cutbtn { background: var(--primary); color: var(--on-primary); border-color: transparent; font-weight: 700; }
+.sec-cutbtn.on { background: rgba(208,188,255,.14); color: var(--primary); border-color: rgba(208,188,255,.45); }
 .sec-axes button:focus-visible, .sec-flip:focus-visible, .sec-range:focus-visible { outline: 2px solid var(--measure); outline-offset: 2px; }
 .sec-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
 .sec-row b { color: var(--measure); font-weight: 600; }
-.sec-range { width: 100%; accent-color: var(--primary); height: 22px; cursor: pointer; }
+.sec-range { width: 100%; accent-color: var(--primary); height: 24px; cursor: pointer; }
 .v-tl { position: absolute; top: 14px; left: 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none;
         font-family: var(--mono); font-size: 12px; color: rgba(232,228,239,.75); }
 .v-tl .chip { background: rgba(28,27,34,.72); backdrop-filter: blur(8px); border: 1px solid rgba(208,188,255,.14); border-radius: 12px; padding: 8px 12px; }
@@ -312,16 +334,17 @@ header {
 @keyframes scanUp { 0% { top: var(--scan-bot); opacity: 1; } 92% { opacity: 1; } 100% { top: var(--scan-top); opacity: 0; } }
 @keyframes scanDown { 0% { top: var(--scan-top); opacity: 1; } 92% { opacity: 1; } 100% { top: var(--scan-bot); opacity: 0; } }
 .tour-dots { position: absolute; z-index: 5; right: 16px; top: 16px; display: flex; gap: 6px; pointer-events: none; }
-.tour-dots span { width: 8px; height: 8px; border-radius: 4px; background: rgba(232,228,239,.28); transition: width .4s, background .4s; }
+.tour-dots span { width: 8px; height: 8px; border-radius: 4px; background: rgba(232,228,239,.55); transition: width .4s, background .4s; }
 .tour-dots span.on { width: 24px; background: var(--primary); }
 .tour-steps { grid-area: steps; position: relative; padding-left: 28px; }
 .tour-rail { position: absolute; left: 0; top: 18vh; bottom: 18vh; width: 2px; background: var(--line); border-radius: 1px; }
 .tour-rail i { position: absolute; inset: 0 0 auto; height: calc(var(--p, 0) * 100%); background: linear-gradient(var(--measure), var(--primary)); border-radius: 1px; }
 .step {
     min-height: 92vh; display: flex; flex-direction: column; justify-content: center; gap: 12px;
-    opacity: .2; transition: opacity .25s;
+    opacity: .65; transition: opacity .25s;   /* .65 - найнижче, де неактивний текст ще ≥4.5:1 (WCAG 1.4.3) */
 }
 .step.on { opacity: 1; }
+.step:not(.on) p, .step:not(.on) .step-n i { color: var(--text); }   /* muted при .65 дав би лише 3.4:1 */
 .step h2 { font-size: clamp(26px, 3.4vw, 36px); line-height: 1.15; }
 .step p { color: var(--muted); max-width: 44ch; }
 .step-n { font-family: var(--mono); font-size: 13px; color: var(--primary); letter-spacing: .1em; }
@@ -470,6 +493,7 @@ header {
 .fx-sub { position: relative; font: 500 15px var(--mono); color: var(--measure); min-height: 1.2em; }
 .fx-desc { position: relative; color: var(--text); font-size: 18px; max-width: 40ch; line-height: 1.55; }
 .fx-n { position: absolute; right: 26px; top: 22px; font: 500 12px var(--mono); color: var(--muted); letter-spacing: .1em; }
+.fx-pause { position: absolute; right: 22px; bottom: 20px; width: 34px; height: 34px; }
 .fx-sub.in, .fx-desc.in { animation: fxIn .7s cubic-bezier(.2,.7,.2,1) both; }
 .fx-desc.in { animation-delay: .12s; }
 @keyframes fxIn { from { opacity: 0; translate: 0 12px; } }
@@ -540,6 +564,7 @@ header {
 footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
 .foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .foot, .foot a { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+.foot a { display: inline-block; padding-block: 7px; }
 .foot a { text-decoration: none; border-bottom: 1px solid rgba(154,148,168,.4); }
 .foot a:hover { color: var(--primary); }
 
@@ -574,21 +599,21 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .tour-stage .v-info, .tour-stage .v-tl .chip:not(.sc-part) { display: none; }
     .tour-stage .v-tl { top: 50px; left: 10px; }
     .tour-stage .v-modes { top: 8px; padding: 4px; gap: 2px; border-radius: 12px; }
-    .tour-stage .v-modes button { padding: 5px 8px; font-size: 10.5px; border-radius: 9px; }
+    .tour-stage .v-modes button { padding: 8px 10px; font-size: 12px; border-radius: 10px; }   /* ≥24px заввишки (WCAG 2.5.8) */
     .tour-dots { top: 16px; }
     .tour-stage .sec-panel { left: 8px; right: 8px; bottom: 8px; width: auto; translate: none; border-radius: 14px; background: rgba(28,27,34,.78); }
     .tour-stage .sec-head { display: none; }
     .tour-stage .sec-body { padding: 7px 9px; gap: 6px; display: grid; grid-template-columns: auto 1fr; align-items: center; }
     .tour-stage .sec-axes { display: flex; gap: 3px; }
-    .tour-stage .sec-axes button { width: 28px; padding: 4px 0; font-size: 11px; border-radius: 8px; }
+    .tour-stage .sec-axes button { width: 36px; padding: 8px 0; font-size: 12px; border-radius: 9px; }
     .tour-stage .sec-row { grid-column: 1 / -1; font-size: 11px; }
-    .tour-stage .sec-flip { padding: 3px 9px; font-size: 11px; border-radius: 8px; }
-    .tour-stage .sec-range { height: 18px; }
+    .tour-stage .sec-flip { padding: 8px 12px; font-size: 12px; border-radius: 9px; }
+    .tour-stage .sec-range { height: 28px; }
     .tour-stage .ex-panel .sec-body { display: block; }
     .tour-stage .ex-panel .sec-row { display: none; }
     .tour-stage .ex-row { gap: 10px; }
-    .tour-stage .ex-play { width: 30px; height: 30px; font-size: 12px; }
-    .v-modes button { padding: 7px 9px; font-size: 11px; white-space: nowrap; }
+    .tour-stage .ex-play { width: 36px; height: 36px; font-size: 13px; }
+    .v-modes button { padding: 8px 10px; font-size: 12px; white-space: nowrap; }
     .viewer { height: 440px; }
     .v-hint { display: none; }
     /* формати на телефоні: вкладки - рядком зі свайпом над панеллю */
@@ -607,7 +632,6 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .tx-arrow { display: none; }   /* на телефоні - свайп */
     .reels.tx-on .reel-grid { --cw: min(60vw, calc((100svh - 390px) * .5625)); cursor: auto; }
     .reels.tx-on { padding: 44px 0; }
-    .viewer.tall { height: 560px; }
     /* панель на телефоні - компактна: положення зрізу вже є в нижньому рядку */
     #sc-axis-read { display: none; }
     .sec-head { padding: 7px 12px; font-size: 12px; }
@@ -619,11 +643,6 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .hero .phone { max-width: 230px; }
     .hero .phone-tag { left: -34px; font-size: 11px; }
     .dim { width: 240px; }
-    .spot { grid-template-columns: 1fr; gap: 28px; padding: 28px 0; }
-    .spot.flip .spot-media { order: 0; }
-    .spot-media .phone { max-width: 230px; }
-    .spot-media.pair .phone { max-width: 46%; }
-    .spot-media.pair .phone:last-child { margin-top: 32px; }
     /* ролики на телефоні — стрічкою з прокруткою вбік, як у Reels */
     .reel-grid {
         grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 62%;
@@ -633,7 +652,8 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     .reel { scroll-snap-align: start; }
     .offline .band { grid-template-columns: 1fr; gap: 26px; padding: 38px 30px; }
     .section { padding: 64px 0; }
-    .nav .btn.small span { display: none; } /* лише іконка Play на вузьких */
+    /* лише іконка Play на вузьких; текст лишається для скрінрідера (display:none забрав би ім'я посилання) */
+    .nav .btn.small span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 
 /* На телефоні шапка не влазила: логотип із підписом «3D VIEWER», перемикач мови
@@ -656,6 +676,8 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
 </head>
 <body>
 
+<a class="skip" href="#main" data-i18n="skip">Skip to content</a>
+
 <header>
     <div class="wrap nav">
         <a class="logo" href="#">
@@ -675,6 +697,8 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     </div>
 </header>
 
+<main id="main" tabindex="-1">
+
 <section class="hero">
     <div class="wrap hero-grid">
         <div class="hero-copy">
@@ -686,7 +710,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                     <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3.5v17c0 .4.5.7.8.4l9.5-8.1c.2-.2.2-.5 0-.7L4.8 3.1c-.3-.3-.8 0-.8.4zM15.5 9.7l2.6 2.1c.3.2.3.6 0 .8l-2.6 2.1-2.8-2.5 2.8-2.5z"/></svg>
                     <span data-i18n="cta">Get it on Google Play</span>
                 </a>
-                <span class="cta-note" data-i18n="cta_note">Free, Pro optional · Android 7.0+</span>
+                <span class="cta-note" data-i18n="cta_note">Free to view · one-time Pro for STEP, sections, measuring, weight · Android 7.0+</span>
             </div>
         </div>
         <div class="stage">
@@ -695,6 +719,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <video src="assets/hero-explode.mp4" poster="assets/hero-explode.jpg"
                        autoplay muted loop playsinline preload="metadata"
                        aria-label="Screen recording: a motorcycle assembly exploding in RE:solid" data-i18n-aria="hero_video_aria"></video>
+                <button class="vid-toggle" type="button" aria-pressed="false" aria-label="Pause the recording" data-i18n-aria="vid_pause"><svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg><svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg></button>
                 <div class="phone-tag" aria-hidden="true">Full Assy.3mf<br><b>1.16 MΔ</b></div>
             </div></div>
             <div class="dim" aria-hidden="true">
@@ -706,6 +731,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     </div>
 </section>
 
+<span id="v3d-hint" class="sr-only" data-i18n="a11y_hint">Arrow keys rotate the model; hold Shift for finer steps.</span>
 <section class="tour" aria-label="Interactive" data-i18n-aria="tour_aria">
     <div class="wrap tour-grid">
         <div class="tour-stage">
@@ -740,7 +766,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                             </div>
                             <input class="sec-range" type="range" min="0" max="1000" value="500" aria-label="Section position" data-i18n-aria="sc_range_aria">
                             <div class="sec-row">
-                                <button class="sec-flip" type="button">⇄ <span data-i18n="sc_side">Side</span></button>
+                                <span class="sec-btns"><button class="sec-flip" type="button">⇄ <span data-i18n="sc_side">Side</span></button><button class="sec-flip sec-cutbtn" type="button">✂ <span data-i18n="sc_cutbtn">Cut</span></button></span>
                                 <span><span data-i18n="sc_cut">Cut</span>: <b id="sc-cut">—</b> mm</span>
                             </div>
                         </div>
@@ -755,7 +781,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                     <div class="sec-head"><span>✦ <b data-i18n="ex_title">Exploded View</b></span><span id="ex-read">0 %</span></div>
                     <div class="sec-body">
                         <div class="ex-row">
-                            <button class="ex-play" type="button" aria-label="Play the exploded view" data-i18n-aria="ex_play_aria">▶</button>
+                            <button class="ex-play" type="button" aria-label="Play the exploded view">▶</button>
                             <input class="sec-range ex-range" type="range" min="0" max="1000" value="0" aria-label="Explode" data-i18n-aria="ex_range_aria">
                         </div>
                         <div class="sec-row"><span><b id="ex-parts">394</b> <span data-i18n="ex_parts">parts</span></span><span data-i18n="ex_hint_row">drag or ▶</span></div>
@@ -788,7 +814,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <div class="step-n">02 <i>/ 04</i></div>
                 <div class="eyebrow" data-i18n="sc_eyebrow">SECTION</div>
                 <h2 data-i18n="sc_h2">Cut the assembly yourself</h2>
-                <p data-i18n="sc_p">A real STEP file: a pulley bracket with two pillow-block bearings, 42 bodies. Loaded with the same CAD kernel that runs inside the app. Drag the slider, switch the axis, hover a part to see its name from the file.</p>
+                <p data-i18n="sc_p">A real STEP file: a pulley bracket with two pillow-block bearings, 42 bodies. Loaded with the same CAD kernel that runs inside the app. Drag the slider, switch the axis, hover a part to see its name from the file. Press Cut and the assembly splits into two closed halves.</p>
             </article>
             <article class="step" data-step="2">
                 <div class="step-n">03 <i>/ 04</i></div>
@@ -850,11 +876,11 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     </div>
 </section>
 
-<section class="section formats">
+<section class="section formats" aria-labelledby="formats-h">
     <div class="wrap">
         <div class="section-head">
             <div class="eyebrow" data-i18n="fmt_eyebrow">FORMATS</div>
-            <h2 data-i18n="fmt_h2">Industry standards, opened directly</h2>
+            <h2 id="formats-h" data-i18n="fmt_h2">Industry standards, opened directly</h2>
         </div>
         <div class="fmt-grid">
             <div class="fmt"><code>.stl</code><p data-i18n="fmt_stl">Binary and ASCII. The 3D-printing standard.</p></div>
@@ -868,11 +894,11 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     </div>
 </section>
 
-<section class="section tools">
+<section class="section tools" aria-labelledby="tools-h">
     <div class="wrap">
         <div class="section-head">
             <div class="eyebrow" data-i18n="tools_eyebrow">TOOLS</div>
-            <h2 data-i18n="tools_h2">Big-CAD tools — pocket sized</h2>
+            <h2 id="tools-h" data-i18n="tools_h2">Big-CAD tools — pocket sized</h2>
         </div>
         <div class="tools-grid">
             <div class="tool">
@@ -888,7 +914,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
             <div class="tool">
                 <div class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 14 20 6M8 18l4-2"/></svg></div>
                 <h3 data-i18n="t3_h">Section analysis</h3>
-                <p data-i18n="t3_p">Cut along X/Y/Z or perpendicular to your line of sight, with a hatched cross-section, CAD-style. Look inside the part from any angle.</p>
+                <p data-i18n="t3_p">Cut along X/Y/Z or perpendicular to your line of sight, with a hatched cross-section, CAD-style. Look inside the part from any angle. And Cut splits the model into two halves with closed caps — move them apart and save.</p>
             </div>
             <div class="tool">
                 <div class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="8" height="8" rx="1"/><rect x="13" y="4" width="8" height="8" rx="1"/><path d="M11 12 13 10"/></svg></div>
@@ -944,11 +970,11 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     </div>
 </section>
 
-<section class="section reels">
+<section class="section reels" aria-labelledby="reels-h">
     <div class="wrap">
         <div class="section-head">
             <div class="eyebrow" data-i18n="rl_eyebrow">IN ACTION</div>
-            <h2 data-i18n="rl_h2">Six short clips</h2>
+            <h2 id="reels-h" data-i18n="rl_h2">Six short clips</h2>
             <p data-i18n="rl_p">Phone screen recordings — sped up, nothing faked. One feature per clip.</p>
         </div>
         <div class="tx-meta"><b class="tx-n" aria-hidden="true">01</b> <i aria-hidden="true">/ 06</i><span class="tx-bar" aria-hidden="true"><i></i></span><button class="tx-arrow tx-prev" type="button" aria-label="Previous clip" data-i18n-aria="rl_prev">←</button><button class="tx-arrow tx-next" type="button" aria-label="Next clip" data-i18n-aria="rl_next">→</button></div>
@@ -987,7 +1013,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
     </div>
 </section>
 
-<section class="section offline">
+<section class="section offline" aria-labelledby="offline-h">
     <div class="wrap">
         <div class="band">
             <div class="stat">
@@ -995,25 +1021,27 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <span data-i18n="off_stat_l">sent over the network</span>
             </div>
             <div class="offline-copy">
-                <h2 data-i18n="off_h2">Offline means private</h2>
+                <h2 id="offline-h" data-i18n="off_h2">Offline means private</h2>
                 <p data-i18n="off_p">Everything runs on-device: STEP conversion, weight math, measuring. No sign-up, no cloud. Works on a plane, on the shop floor, in a workshop with no signal.</p>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section download">
+<section class="section download" aria-labelledby="download-h">
     <div class="wrap inner">
         <div class="eyebrow" data-i18n="dl_eyebrow">DOWNLOAD</div>
-        <h2 data-i18n="dl_h2">Got a model on your phone already?</h2>
+        <h2 id="download-h" data-i18n="dl_h2">Got a model on your phone already?</h2>
         <p data-i18n="dl_p">Open it in RE:solid — straight from your file manager, messenger, or email.</p>
         <a class="btn" href="https://play.google.com/store/apps/details?id=app.resolid3d.viewer">
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3.5v17c0 .4.5.7.8.4l9.5-8.1c.2-.2.2-.5 0-.7L4.8 3.1c-.3-.3-.8 0-.8.4zM15.5 9.7l2.6 2.1c.3.2.3.6 0 .8l-2.6 2.1-2.8-2.5 2.8-2.5z"/></svg>
             <span data-i18n="cta">Get it on Google Play</span>
         </a>
-        <span class="cta-note" data-i18n="dl_note">v2.6.0 · free, Pro optional · ~10 MB</span>
+        <span class="cta-note" data-i18n="dl_note">v2.6.0 · free to view, one-time Pro for the engineering tools · 3 free trial sessions · ~10 MB</span>
     </div>
 </section>
+
+</main>
 
 <footer>
     <div class="wrap foot">
@@ -1026,20 +1054,27 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
 const i18n = {
     uk: {
         page_title: "RE:solid 3D Viewer — портативний інженерний стіл",
-        page_desc: "RE:solid 3D Viewer — перегляд, вимірювання, аналіз і збереження 3D-моделей на Android. STL, OBJ (+MTL), 3MF, STEP, ZIP. Список деталей із назвами зі збірки. Повністю офлайн.",
+        page_desc: "RE:solid 3D Viewer — перегляд, вимірювання, аналіз і збереження 3D-моделей на Android. STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP. Список деталей із назвами зі збірки. Повністю офлайн.",
         nav_get: "Google Play",
         eyebrow: "ANDROID · ПРАЦЮЄ ОФЛАЙН",
         h1: 'Портативний <span class="accent">інженерний стіл</span>',
         lead: 'Перегляд, вимірювання та аналіз 3D-моделей просто на телефоні: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Повністю офлайн — файли не залишають пристрій.',
         cta: "Завантажити в Google Play",
-        cta_note: "Безкоштовно, Pro — за бажанням · Android 7.0+",
+        cta_note: "Перегляд безкоштовний · Pro разовою покупкою: STEP, розрізи, виміри, вага · Android 7.0+",
         hero_video_aria: "Запис екрана: розліт збірки мотоцикла в RE:solid",
+        vid_pause: "Призупинити запис", fx_pause: "Призупинити автоперемикання", skip: "Перейти до вмісту",
+        a11y_hint: "Стрілки обертають модель; з Shift - дрібніше.",
+        a11y_logo: "Інтерактивна 3D-модель: логотип RE:solid",
+        a11y_sec: "Інтерактивна 3D-модель: збірка кронштейна шківа з рухомою площиною розрізу",
+        a11y_ex: "Інтерактивна 3D-модель: збірка мотоцикла в розльоті",
+        a11y_ring: "Інтерактивна 3D-модель: каблучка з діамантом, метал можна змінювати",
         tour_aria: "Інтерактив",
         lv_eyebrow: "ПОКРУТІТЬ САМІ",
         lv_h2: "Справжня модель, просто на сторінці",
         lv_p: "Той самий логотип, який RE:solid відкриває при першому запуску: logo.obj з кольорами з .mtl. Тягніть, щоб обертати, і перемикайте режими — як у застосунку.",
         lv_loading: "ЗАВАНТАЖЕННЯ…",
         lv_failed: "3D НЕДОСТУПНЕ В ЦЬОМУ БРАУЗЕРІ",
+        lv_net: "Не вдалося завантажити 3D-модель. Перевірте з'єднання й спробуйте ще раз.", lv_retry: "Спробувати ще раз",
         lv_hint: "тягніть, щоб обертати",
         lv_modes_aria: "Режим показу",
         ex_eyebrow: "РОЗЛІТ",
@@ -1048,13 +1083,14 @@ const i18n = {
         ex_title: "Розліт",
         ex_parts: "деталі",
         ex_hint_row: "тягніть або ▶",
-        ex_play_aria: "Відтворити розліт",
+        ex_play_aria: "Відтворити розліт", ex_pause_aria: "Призупинити розліт",
         ex_range_aria: "Розліт",
         sc_eyebrow: "РОЗРІЗ",
         sc_h2: "Розріжте збірку самі",
-        sc_p: "Справжній STEP: кронштейн шківа з двома корпусними підшипниками, 42 тіла. Розібраний тим самим CAD-ядром, що працює всередині застосунку. Тягніть повзунок, міняйте вісь, наведіть на деталь — побачите її назву з файлу.",
+        sc_p: "Справжній STEP: кронштейн шківа з двома корпусними підшипниками, 42 тіла. Розібраний тим самим CAD-ядром, що працює всередині застосунку. Тягніть повзунок, міняйте вісь, наведіть на деталь — побачите її назву з файлу. «Розрізати» ділить збірку на дві половини з закритими зрізами.",
         sc_title: "Секційний аналіз",
         sc_side: "Сторона",
+        sc_cutbtn: "Розрізати", sc_join: "З'єднати",
         sc_cut: "Зріз",
         sc_axes_aria: "Вісь перерізу",
         sc_range_aria: "Положення перерізу",
@@ -1109,13 +1145,12 @@ const i18n = {
         fmt_zip: "Розпаковується сам. Кілька моделей усередині — виберіть потрібну або відкрийте всі разом.",
         tools_eyebrow: "ІНСТРУМЕНТИ",
         tools_h2: "Як у великих CAD — тільки в кишені",
-        tx_prev: "Попередній інструмент", tx_next: "Наступний інструмент",
         t1_h: "Вимір Smart Snap",
         t1_p: "Відстані, кути між гранями, радіус і діаметр по трьох точках, товщина стінки одним тапом. Прив'язка до вершин.",
         t2_h: "Вага, площа, вартість",
         t2_p: "Маса виробу: PLA, PETG, ABS, нейлон — і метали, від сталі до золота 14K/18K. Поруч — площа поверхні та вартість за вашою ціною матеріалу.",
         t3_h: "Секційний аналіз",
-        t3_p: "Переріз по X/Y/Z або перпендикулярно погляду, зі штриховкою зрізу, як у CAD. Погляд усередину деталі під будь-яким кутом.",
+        t3_p: "Переріз по X/Y/Z або перпендикулярно погляду, зі штриховкою зрізу, як у CAD. Погляд усередину деталі під будь-яким кутом. А «Розрізати» ділить модель на дві половини з закритими зрізами - їх можна розсунути й зберегти.",
         t4_h: "Розбір збірок",
         t4_p: "Розсуньте деталі повзунком — навіть якщо модель прийшла одним STL-файлом. Застосунок сам знаходить окремі тіла там, де формат про них нічого не знає.",
         t5_h: "6 режимів показу",
@@ -1142,7 +1177,7 @@ const i18n = {
         dl_eyebrow: "ЗАВАНТАЖИТИ",
         dl_h2: "Модель уже чекає в телефоні?",
         dl_p: "Відкрийте її в RE:solid — прямо з файлового менеджера, месенджера чи пошти.",
-        dl_note: "v2.6.0 · безкоштовно, Pro — за бажанням · ~10 МБ",
+        dl_note: "v2.6.0 · перегляд безкоштовний, Pro — разова покупка для інженерних інструментів · 3 безкоштовні пробні сесії · ~10 МБ",
         privacy: "Політика конфіденційності"
     },
     en: {
@@ -1153,14 +1188,21 @@ const i18n = {
         h1: 'A portable <span class="accent">engineering desk</span>',
         lead: 'View, measure, and analyze 3D models right on your phone: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Fully offline — your files never leave the device.',
         cta: "Get it on Google Play",
-        cta_note: "Free, Pro optional · Android 7.0+",
+        cta_note: "Free to view · one-time Pro for STEP, sections, measuring, weight · Android 7.0+",
         hero_video_aria: "Screen recording: a motorcycle assembly exploding in RE:solid",
+        vid_pause: "Pause the recording", fx_pause: "Pause auto-advance", skip: "Skip to content",
+        a11y_hint: "Arrow keys rotate the model; hold Shift for finer steps.",
+        a11y_logo: "Interactive 3D model: the RE:solid logo",
+        a11y_sec: "Interactive 3D model: a pulley bracket assembly with a movable section plane",
+        a11y_ex: "Interactive 3D model: a motorcycle assembly in exploded view",
+        a11y_ring: "Interactive 3D model: a ring with a diamond, switchable metal",
         tour_aria: "Interactive",
         lv_eyebrow: "SPIN IT YOURSELF",
         lv_h2: "A real model, right on the page",
         lv_p: "The same logo RE:solid opens on first launch: logo.obj with its colors from the .mtl. Drag to rotate and switch modes — just like in the app.",
         lv_loading: "LOADING…",
         lv_failed: "3D IS NOT AVAILABLE IN THIS BROWSER",
+        lv_net: "Couldn't load the 3D model. Check your connection and try again.", lv_retry: "Try again",
         lv_hint: "drag to rotate",
         lv_modes_aria: "Display mode",
         ex_eyebrow: "EXPLODED VIEW",
@@ -1169,13 +1211,14 @@ const i18n = {
         ex_title: "Exploded View",
         ex_parts: "parts",
         ex_hint_row: "drag or ▶",
-        ex_play_aria: "Play the exploded view",
+        ex_play_aria: "Play the exploded view", ex_pause_aria: "Pause the exploded view",
         ex_range_aria: "Explode",
         sc_eyebrow: "SECTION",
         sc_h2: "Cut the assembly yourself",
-        sc_p: "A real STEP file: a pulley bracket with two pillow-block bearings, 42 bodies. Loaded with the same CAD kernel that runs inside the app. Drag the slider, switch the axis, hover a part to see its name from the file.",
+        sc_p: "A real STEP file: a pulley bracket with two pillow-block bearings, 42 bodies. Loaded with the same CAD kernel that runs inside the app. Drag the slider, switch the axis, hover a part to see its name from the file. Press Cut and the assembly splits into two closed halves.",
         sc_title: "Section Analysis",
         sc_side: "Side",
+        sc_cutbtn: "Cut", sc_join: "Join",
         sc_cut: "Cut",
         sc_axes_aria: "Section axis",
         sc_range_aria: "Section position",
@@ -1230,13 +1273,12 @@ const i18n = {
         fmt_zip: "Unpacks itself. Multiple models inside — pick one or open them all together.",
         tools_eyebrow: "TOOLS",
         tools_h2: "Big-CAD tools — pocket sized",
-        tx_prev: "Previous tool", tx_next: "Next tool",
         t1_h: "Smart Snap measuring",
         t1_p: "Distances, face angles, radius and diameter from three points, wall thickness in one tap. Snaps to vertices.",
         t2_h: "Weight, area, cost",
         t2_p: "Part mass: PLA, PETG, ABS, nylon — plus metals from steel to 14K/18K gold. Alongside it, surface area and cost at your own material price.",
         t3_h: "Section analysis",
-        t3_p: "Cut along X/Y/Z or perpendicular to your line of sight, with a hatched cross-section, CAD-style. Look inside the part from any angle.",
+        t3_p: "Cut along X/Y/Z or perpendicular to your line of sight, with a hatched cross-section, CAD-style. Look inside the part from any angle. And Cut splits the model into two halves with closed caps — move them apart and save.",
         t4_h: "Assembly breakdown",
         t4_p: "Pull the parts apart with a slider — even if the model arrived as a single STL. The app finds separate bodies where the format stores none.",
         t5_h: "6 display modes",
@@ -1263,7 +1305,7 @@ const i18n = {
         dl_eyebrow: "DOWNLOAD",
         dl_h2: "Got a model on your phone already?",
         dl_p: "Open it in RE:solid — straight from your file manager, messenger, or email.",
-        dl_note: "v2.6.0 · free, Pro optional · ~10 MB",
+        dl_note: "v2.6.0 · free to view, one-time Pro for the engineering tools · 3 free trial sessions · ~10 MB",
         privacy: "Privacy Policy"
     }
 };
@@ -1292,13 +1334,66 @@ function setLang(lang) {
     document.getElementById('lang-uk').classList.toggle('on', lang === 'uk');
     document.getElementById('lang-en').classList.toggle('on', lang === 'en');
     try { localStorage.setItem('site_lang', lang); } catch (e) {}
+    syncToggles();
+}
+
+/* Перемикачі, стан яких код тримає класом .on, дзеркалимо в aria-pressed - обробники не чіпаємо.
+   Кнопці розрізу Cut/Join aria-pressed не потрібен: вона міняє підпис. Play розльоту міняє мітку. */
+const TOGGLE_SEL = '.lang-pill button, .v-modes button, .sec-axes button, .sec-flip:not(.sec-cutbtn)';
+function syncToggles() {
+    document.querySelectorAll(TOGGLE_SEL).forEach(b => b.setAttribute('aria-pressed', String(b.classList.contains('on'))));
+    const p = document.querySelector('.ex-play');
+    if (p) {
+        const d = i18n[document.documentElement.lang] || i18n.en;
+        p.setAttribute('aria-label', p.classList.contains('on') ? d.ex_pause_aria : d.ex_play_aria);
+    }
+}
+function watchToggles() {
+    syncToggles();
+    const mo = new MutationObserver(syncToggles);
+    document.querySelectorAll(TOGGLE_SEL + ', .ex-play').forEach(b => mo.observe(b, { attributes: true, attributeFilter: ['class'] }));
+}
+
+/* Клавіатура й ім'я для 3D-полотна: Tab ставить фокус на полотно, стрілки обертають камеру
+   навколо цілі (Shift - дрібніше). Зуму немає, бо у сцен він вимкнений і для миші. Підключаємо
+   з touchOrbit, бо кожна сцена викликає його одразу після створення керування. */
+const VIEW_LABEL = { 'viewer': 'a11y_logo', 'sec-viewer': 'a11y_sec', 'ex-viewer': 'a11y_ex', 'ring-viewer': 'a11y_ring' };
+const VIEW_ARROWS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] };
+const calmMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function viewerKeys(dom, camera, controls) {
+    const key = VIEW_LABEL[dom.parentElement && dom.parentElement.id];
+    if (key) {
+        dom.setAttribute('data-i18n-aria', key);   // далі мітку оновлює setLang
+        dom.setAttribute('aria-label', i18n[document.documentElement.lang][key]);
+    }
+    dom.tabIndex = 0;
+    dom.setAttribute('role', 'application');
+    dom.setAttribute('aria-describedby', 'v3d-hint');
+    let resume;
+    dom.addEventListener('keydown', e => {
+        const a = VIEW_ARROWS[e.key];
+        if (!a || !controls.enableRotate || e.ctrlKey || e.metaKey || e.altKey) return;
+        e.preventDefault();
+        const step = e.shiftKey ? .05 : .16;
+        const s = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
+        s.theta -= a[0] * step;
+        s.phi = Math.min(controls.maxPolarAngle, Math.max(controls.minPolarAngle, s.phi - a[1] * step));
+        s.makeSafe();
+        camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(s));
+        controls.update();
+        // як і при перетягуванні: автообертання на мить зупиняємо
+        controls.autoRotate = false; clearTimeout(resume);
+        if (!calmMotion) resume = setTimeout(() => { controls.autoRotate = true; }, 3000);
+    });
 }
 
 /* Телефон: OrbitControls на дотик гасить прокрутку сторінки (preventDefault у touchstart),
    і зі свайпом по 3D сторінка стояла. Тому на сенсорних екранах його вимикаємо, а модель
    крутимо самі: горизонтальний рух пальця - поворот, вертикальний браузер віддає прокрутці
    (на canvas стоїть touch-action: pan-y). */
+
 function touchOrbit(dom, camera, controls) {
+    viewerKeys(dom, camera, controls);
     if (!matchMedia("(pointer: coarse)").matches || matchMedia("(any-pointer: fine)").matches) return;
     controls.enabled = false;
     const wasAuto = controls.autoRotate;
@@ -1316,12 +1411,24 @@ function touchOrbit(dom, camera, controls) {
     dom.addEventListener("pointerup", end); dom.addEventListener("pointercancel", end);
 }
 
+// Вдале завантаження кешуємо, невдале - ні: повтор перезавантажить лише те, що впало,
+// а вже завантажений three.js не вставляється вдруге (інакше THREE перевизначився б посеред роботи).
+const scriptJobs = {};
+// SRI: хеші звірено з тими, що публікують самі CDN (cdnjs API - sha512, jsDelivr data API - sha256)
+const SCRIPT_SRI = {
+    'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js': 'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu',
+    'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js': 'sha384-UWFC8mrevmKCZhKbJ/8/dqLrRAvHArRwJCKjwruJuXyhsebGMFsIK5zrn+R9r+fT',
+    'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js': 'sha384-wagZhIFgY4hD+7awjQjR4e2E294y6J2HSnd8eTNc15ZubTeQeVRZwhQJ+W6hnBsf'
+};
 function loadScript(src) {
-    return new Promise((ok, fail) => {
+    if (!scriptJobs[src]) scriptJobs[src] = new Promise((ok, fail) => {
         const el = document.createElement('script');
-        el.src = src; el.onload = ok; el.onerror = () => fail(new Error('script: ' + src));
+        if (SCRIPT_SRI[src]) { el.integrity = SCRIPT_SRI[src]; el.crossOrigin = 'anonymous'; }
+        el.src = src; el.onload = ok;
+        el.onerror = () => { delete scriptJobs[src]; el.remove(); fail(new Error('script: ' + src)); };
         document.head.appendChild(el);
     });
+    return scriptJobs[src];
 }
 
 /* Чи видно блок. Питаємо щокадру, а не IntersectionObserver: той віддає перший
@@ -1345,7 +1452,7 @@ function loadThree() {
             loadScript(CDN + 'examples/js/loaders/OBJLoader.js'),
             loadScript(CDN + 'examples/js/controls/OrbitControls.js')
         ]);
-    })();
+    })().catch(err => { threeReady = null; throw err; });   // збій не залишається в кеші - «Повторити» спробує знову
     return threeReady;
 }
 
@@ -1709,20 +1816,19 @@ async function initSectionViewer(box, calm) {
     grid.position.y = -span[1] / 2 - 2; grid.material.transparent = true; grid.material.opacity = .5;
     scene.add(grid);
 
-    const plane = new T.Plane(new T.Vector3(-1, 0, 0), 0);
     /* Штриховка зрізу, як у CAD: діагональ 45° у площині перерізу, крок у міліметрах.
        Рахуємо від світових координат точки на зрізі, а не від пікселів екрана - тоді
        смуги лежать на деталі й обертаються разом із нею. uU/uV - дві осі в площині.
        Видно не саму площину, а внутрішні задні грані за нею, тож точку беремо там, де
        промінь від камери перетинає площину зрізу - інакше штриховка пливла б з глибиною. */
     const hatchU = { uU: { value: new T.Vector3(0, 0, 1) }, uV: { value: new T.Vector3(0, 1, 0) }, uStep: { value: 5.0 },
-                     uN: { value: new T.Vector3(-1, 0, 0) }, uC: { value: 0 },
                      uCam: { value: new T.Vector3() } };   // своя: cameraPosition r128 дає лише освітлюваним матеріалам
-    // dir: +1 або -1 - нахил смуг; сусідні деталі штрихуються в різні боки, як на кресленні
-    const hatch = (m, dir) => {
+    // dir: +1 або -1 - нахил смуг; сусідні деталі штрихуються в різні боки, як на кресленні.
+    // pl: { uN, uC } - площина зрізу тієї половини, якій належить кришка
+    const hatch = (m, dir, pl) => {
         m.extensions = { derivatives: true };
         m.onBeforeCompile = sh => {
-            Object.assign(sh.uniforms, hatchU, { uDir: { value: dir } });
+            Object.assign(sh.uniforms, hatchU, pl, { uDir: { value: dir } });
             sh.vertexShader = "varying vec3 vWPos;\n" + sh.vertexShader.replace("#include <project_vertex>",
                 "#include <project_vertex>\n vWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;");
             sh.fragmentShader = "uniform vec3 uU; uniform vec3 uV; uniform float uStep; uniform vec3 uN; uniform float uC; uniform vec3 uCam; uniform float uDir; varying vec3 vWPos;\n" +
@@ -1742,11 +1848,11 @@ async function initSectionViewer(box, calm) {
     // у файлі Y угору, як і в three: шків стоїть, вал горизонтальний (перевірено обидва варіанти).
     // Площину все одно рахуємо в координатах моделі й переводимо у світові - щоб поворот моделі
     // колись потім не зламав переріз.
-    const model = new T.Group(); scene.add(model);
-    model.updateMatrixWorld(true);
-    const local = new T.Plane();
-    const meshes = [];
-    parts.forEach((p, pi) => {
+    /* Дві половини. Без розрізу видно лише першу (як і раніше - переріз із кришкою).
+       «Cut» показує й другу: та сама геометрія, але обрізана з іншого боку площини,
+       зі своїми кришками; половини розходяться вздовж осі. Площину кожної половини
+       рахуємо в її координатах і переводимо у світові - тож вона їде разом із половиною. */
+    const geos = parts.map(p => {
         const g = new T.BufferGeometry();
         g.setAttribute('position', new T.BufferAttribute(p.pos, 3));
         g.setIndex(new T.BufferAttribute(p.ind, 1));
@@ -1756,19 +1862,9 @@ async function initSectionViewer(box, calm) {
         if (p.color) col.setRGB(p.color[0], p.color[1], p.color[2]);
         else col.setHex(PULLEY_FALLBACK[Object.keys(PULLEY_FALLBACK).find(k => p.name.includes(k))] || 0xb8bec6);
         col.convertSRGBToLinear();
-        const mat = new T.MeshStandardMaterial({ color: col, roughness: .45, metalness: .25, clippingPlanes: [plane] });
-        const m = new T.Mesh(g, mat);
-        m.userData = { name: p.name || '—', base: col.clone() };
-        model.add(m); meshes.push(m);
+        g.userData = { name: p.name || '—', base: col };
+        return g;
     });
-
-    // площина перерізу: ледь видима плівка з рамкою
-    const sheetMat = new T.MeshBasicMaterial({ color: 0xD0BCFF, transparent: true, opacity: .06, side: T.DoubleSide, depthWrite: false });
-    const sheet = new T.Mesh(new T.PlaneGeometry(1, 1), sheetMat);
-    sheet.add(new T.LineSegments(new T.EdgesGeometry(sheet.geometry),
-        new T.LineBasicMaterial({ color: 0xD0BCFF, transparent: true, opacity: .55 })));
-    model.add(sheet);
-
     /* Кришки зрізу - через стенсил, як у CAD і в прикладі three.js webgl_clipping_stencil.
        Для кожної деталі: задні грані за площиною додають 1, передні віднімають 1 - де
        лишилось не 0, промінь на площині всередині тіла. Туди й малюється справжній
@@ -1776,51 +1872,89 @@ async function initSectionViewer(box, calm) {
        (зафарбовувати задні грані) давав мерехтіння, де вал сидить в отворі маточини:
        внутрішні грані обох деталей збігаються, і дві штриховки билися за ті самі пікселі. */
     const capGeo = new T.PlaneGeometry(1, 1);
-    const stencilMat = side => new T.MeshBasicMaterial({
-        side, clippingPlanes: [plane], colorWrite: false, depthWrite: false, depthTest: false,
+    const stencilMat = (side, pl) => new T.MeshBasicMaterial({
+        side, clippingPlanes: [pl], colorWrite: false, depthWrite: false, depthTest: false,
         stencilWrite: true, stencilFunc: T.AlwaysStencilFunc,
         stencilZPass: side === T.BackSide ? T.IncrementWrapStencilOp : T.DecrementWrapStencilOp,
         stencilFail: side === T.BackSide ? T.IncrementWrapStencilOp : T.DecrementWrapStencilOp,
         stencilZFail: side === T.BackSide ? T.IncrementWrapStencilOp : T.DecrementWrapStencilOp });
-    const backMat = stencilMat(T.BackSide), frontMat = stencilMat(T.FrontSide);
-    meshes.forEach((m, pi) => {
-        const ro = 1 + pi * 3;
-        const back = new T.Mesh(m.geometry, backMat); back.renderOrder = ro;
-        const front = new T.Mesh(m.geometry, frontMat); front.renderOrder = ro + 1;
-        model.add(back, front);
-        // світліший тон деталі зі штриховкою; квадрат скидає стенсил у 0 для наступної деталі
-        const capCol = m.userData.base.clone().lerp(new T.Color(0xffffff), .35);
-        const cap = new T.Mesh(capGeo, hatch(new T.MeshBasicMaterial({ color: capCol, side: T.DoubleSide,
-            stencilWrite: true, stencilRef: 0, stencilFunc: T.NotEqualStencilFunc,
-            stencilFail: T.ReplaceStencilOp, stencilZFail: T.ReplaceStencilOp, stencilZPass: T.ReplaceStencilOp }),
-            pi % 2 ? -1 : 1));
-        cap.renderOrder = ro + 2;
-        cap.onAfterRender = r => r.clearStencil();
-        sheet.add(cap);
-    });
+    const makeHalf = hi => {
+        const group = new T.Group(), plane = new T.Plane(), local = new T.Plane();
+        const pl = { uN: { value: new T.Vector3() }, uC: { value: 0 } };
+        const capHolder = new T.Group(); group.add(capHolder);
+        const backMat = stencilMat(T.BackSide, plane), frontMat = stencilMat(T.FrontSide, plane);
+        const meshes = geos.map((g, pi) => {
+            const m = new T.Mesh(g, new T.MeshStandardMaterial({ color: g.userData.base, roughness: .45, metalness: .25, clippingPlanes: [plane] }));
+            m.userData = { name: g.userData.name, plane };
+            group.add(m);
+            // черга малювання: стенсил задніх, передніх, кришка - деталь за деталлю; друга половина - після першої
+            const ro = 1 + (hi * geos.length + pi) * 3;
+            const back = new T.Mesh(g, backMat); back.renderOrder = ro;
+            const front = new T.Mesh(g, frontMat); front.renderOrder = ro + 1;
+            group.add(back, front);
+            // світліший тон деталі зі штриховкою; квадрат скидає стенсил у 0 для наступної деталі
+            const capCol = g.userData.base.clone().lerp(new T.Color(0xffffff), .35);
+            const cap = new T.Mesh(capGeo, hatch(new T.MeshBasicMaterial({ color: capCol, side: T.DoubleSide,
+                stencilWrite: true, stencilRef: 0, stencilFunc: T.NotEqualStencilFunc,
+                stencilFail: T.ReplaceStencilOp, stencilZFail: T.ReplaceStencilOp, stencilZPass: T.ReplaceStencilOp }),
+                pi % 2 ? -1 : 1, pl));
+            cap.renderOrder = ro + 2;
+            cap.onAfterRender = r => r.clearStencil();
+            capHolder.add(cap);
+            return m;
+        });
+        scene.add(group);
+        return { group, plane, local, pl, capHolder, meshes };
+    };
+    const halves = [makeHalf(0), makeHalf(1)];
+    halves[1].group.visible = false;
+    const meshes = halves.flatMap(h => h.meshes);
+
+    // площина перерізу: ледь видима плівка з рамкою (під час розрізу ховається)
+    const sheetMat = new T.MeshBasicMaterial({ color: 0xD0BCFF, transparent: true, opacity: .06, side: T.DoubleSide, depthWrite: false });
+    const sheet = new T.Mesh(new T.PlaneGeometry(1, 1), sheetMat);
+    sheet.add(new T.LineSegments(new T.EdgesGeometry(sheet.geometry),
+        new T.LineBasicMaterial({ color: 0xD0BCFF, transparent: true, opacity: .55 })));
+    scene.add(sheet);
 
     let axis = 0, u = .5, flip = false;
+    let cut = false, gap = 0;   // gap - поточна відстань між половинами, мм (до неї ведемо плавно)
+    const gapFull = () => Math.max(30, span[axis] * .22);
     const readAxis = document.getElementById('sc-axis-read'), readCut = document.getElementById('sc-cut');
     const range = box.querySelector('.sec-range');
+    // квадрат у площині зрізу: PlaneGeometry лежить у XY - повертаємо до осі, розмір за двома іншими
+    function placeOnPlane(o, c) {
+        o.position.set(0, 0, 0); o.position.setComponent(axis, c);
+        o.rotation.set(0, 0, 0);
+        if (axis === 0) o.rotation.y = Math.PI / 2;
+        if (axis === 1) o.rotation.x = Math.PI / 2;
+        const [sw, sh] = axis === 0 ? [span[2], span[1]] : axis === 1 ? [span[0], span[2]] : [span[0], span[1]];
+        o.scale.set(sw * 1.12, sh * 1.12, 1);
+    }
     function apply() {
         const half = span[axis] / 2, c = -half + u * span[axis];     // у центрованих координатах
-        const n = new T.Vector3(); n.setComponent(axis, flip ? 1 : -1);
-        // площина в координатах файлу (лишається x < c, перевернуто - x > c), обрізають - у світових
-        local.normal.copy(n); local.constant = -n.getComponent(axis) * c;
-        plane.copy(local).applyMatrix4(model.matrixWorld);
-        hatchU.uN.value.copy(plane.normal); hatchU.uC.value = plane.constant;
-        sheet.position.set(0, 0, 0); sheet.position.setComponent(axis, c);
-        sheet.rotation.set(0, 0, 0);
-        // PlaneGeometry лежить у XY: повертаємо до потрібної осі, розмір - за двома іншими
-        if (axis === 0) sheet.rotation.y = Math.PI / 2;
-        if (axis === 1) sheet.rotation.x = Math.PI / 2;
-        const [sw, sh] = axis === 0 ? [span[2], span[1]] : axis === 1 ? [span[0], span[2]] : [span[0], span[1]];
-        sheet.scale.set(sw * 1.12, sh * 1.12, 1);
+        // перша половина лишає x < c (перевернуто - x > c), друга - протилежний бік;
+        // розрізані половини розходяться на gap: кожна на половину відстані у свій бік
+        halves.forEach((h, hi) => {
+            const keepLow = hi === 0 ? !flip || cut : false;
+            const n = new T.Vector3(); n.setComponent(axis, keepLow ? -1 : 1);
+            h.group.position.set(0, 0, 0);
+            if (cut) h.group.position.setComponent(axis, (keepLow ? -1 : 1) * gap / 2);
+            h.group.updateMatrixWorld(true);
+            // площина в координатах половини, обрізають - у світових
+            h.local.normal.copy(n); h.local.constant = -n.getComponent(axis) * c;
+            h.plane.copy(h.local).applyMatrix4(h.group.matrixWorld);
+            h.pl.uN.value.copy(h.plane.normal); h.pl.uC.value = h.plane.constant;
+            placeOnPlane(h.capHolder, c);
+        });
+        halves[1].group.visible = cut;
+        placeOnPlane(sheet, c);
+        sheet.visible = !cut || gap < 1;
         const mm = (u * span[axis]).toFixed(1);
         // осі штриховки - дві інші осі моделі, переведені у світові
         const [ia, ib] = [0, 1, 2].filter(a => a !== axis);
-        hatchU.uU.value.set(0, 0, 0).setComponent(ia, 1).transformDirection(model.matrixWorld);
-        hatchU.uV.value.set(0, 0, 0).setComponent(ib, 1).transformDirection(model.matrixWorld);
+        hatchU.uU.value.set(0, 0, 0).setComponent(ia, 1);
+        hatchU.uV.value.set(0, 0, 0).setComponent(ib, 1);
         readAxis.textContent = 'XYZ'[axis] + ' · ' + mm + ' / ' + span[axis].toFixed(1) + ' mm';
         readCut.textContent = mm;
     }
@@ -1831,7 +1965,18 @@ async function initSectionViewer(box, calm) {
         apply();
     }));
     const flipBtn = box.querySelector('.sec-flip');
-    flipBtn.addEventListener('click', () => { flip = !flip; flipBtn.classList.toggle('on', flip); apply(); });
+    flipBtn.addEventListener('click', () => { if (cut) return; flip = !flip; flipBtn.classList.toggle('on', flip); apply(); });
+    const cutBtn = box.querySelector('.sec-cutbtn'), cutLabel = cutBtn.querySelector('span');
+    const setCut = on => {
+        cut = on; intro = null;
+        cutBtn.classList.toggle('on', on);
+        flipBtn.disabled = on;
+        cutLabel.setAttribute('data-i18n', on ? 'sc_join' : 'sc_cutbtn');
+        cutLabel.textContent = i18n[document.documentElement.lang][on ? 'sc_join' : 'sc_cutbtn'];
+        if (calm) gap = on ? gapFull() : 0;
+        apply();
+    };
+    cutBtn.addEventListener('click', () => setCut(!cut));
 
     // назва деталі під курсором (на дотик - під пальцем); зрізане не рахується
     const ray = new T.Raycaster(), ptr = new T.Vector2();
@@ -1841,7 +1986,7 @@ async function initSectionViewer(box, calm) {
         const r = renderer.domElement.getBoundingClientRect();
         ptr.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
         ray.setFromCamera(ptr, camera);
-        const hit = ray.intersectObjects(meshes, false).find(h => plane.distanceToPoint(h.point) >= 0);
+        const hit = ray.intersectObjects(meshes.filter(m => m.parent.visible), false).find(h => h.object.userData.plane.distanceToPoint(h.point) >= 0);
         const m = hit ? hit.object : null;
         if (m === hovered) return;
         if (hovered) hovered.material.emissive.setHex(0);
@@ -1901,6 +2046,12 @@ async function initSectionViewer(box, calm) {
             const k = Math.min(1, (t - intro.t0) / 1800), e = 1 - Math.pow(1 - k, 3);
             u = 1 - .5 * e; range.value = Math.round(u * 1000); apply();
             if (k >= 1) intro = null;
+        }
+        const want = cut ? gapFull() : 0;
+        if (Math.abs(want - gap) > .05) {
+            gap += (want - gap) * .08;
+            if (Math.abs(want - gap) <= .05) gap = want;
+            apply();
         }
         controls.update();
         hatchU.uCam.value.copy(camera.position);
@@ -1976,7 +2127,7 @@ async function initExplodeViewer(box, calm) {
         return mats.get(hex);
     };
     // напрям розльоту - від центру збірки до центру деталі, як у застосунку
-    const paint = Object.assign({}, EX_PAINT, window.__exPaint || {});
+    const paint = EX_PAINT;
     const groups = parts.map((p, pi) => {
         const g = new T.Group();
         p.pieces.forEach(pc => {
@@ -2066,6 +2217,7 @@ async function initExplodeViewer(box, calm) {
         if (saved === 'uk' || saved === 'en') lang = saved;
     } catch (e) {}
     if (lang !== 'en') setLang(lang);
+    watchToggles();
 
     // Ролики: грає тільки один — запуск наступного ставить на паузу попередній
     const reels = document.querySelectorAll('.reel video');
@@ -2074,9 +2226,14 @@ async function initExplodeViewer(box, calm) {
     }));
 
     // Запис у герої — без автопрограшу для тих, хто просить менше руху
+    const hv = document.querySelector('.hero video'), vt = document.querySelector('.vid-toggle');
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        const hv = document.querySelector('.hero video');
         if (hv) { hv.removeAttribute('autoplay'); hv.pause(); hv.controls = true; }
+        if (vt) vt.hidden = true;   // тут уже є рідні елементи керування
+    } else if (hv && vt) {
+        const syncVt = () => vt.setAttribute('aria-pressed', String(hv.paused));
+        hv.addEventListener('play', syncVt); hv.addEventListener('pause', syncVt);
+        vt.addEventListener('click', () => { if (hv.paused) hv.play().catch(() => {}); else hv.pause(); });
     }
 
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2175,12 +2332,21 @@ async function initExplodeViewer(box, calm) {
     function switcher(sec, grid, items, { panelHTML, period, cls = '' }) {
         const fx = document.createElement('div'); fx.className = 'fx ' + cls;
         fx.style.setProperty('--fx-t', period + 'ms');
+        const uid = 'fx' + (switcher.n = (switcher.n || 0) + 1);
         const list = document.createElement('div'); list.className = 'fx-list'; list.setAttribute('role', 'tablist');
-        const panel = document.createElement('div'); panel.className = 'fx-panel'; panel.setAttribute('role', 'tabpanel');
+        const panel = document.createElement('div'); panel.className = 'fx-panel'; panel.setAttribute('role', 'tabpanel'); panel.id = uid + '-p';
         panel.innerHTML = '<div class="fx-n"></div>' + panelHTML;
-        items.forEach(it => {
+        // автоперемикання довше за 5 с: явна пауза (WCAG 2.2.2); мітка - з поточної мови, далі її оновлює setLang
+        const pauseBtn = document.createElement('button');
+        pauseBtn.type = 'button'; pauseBtn.className = 'fx-pause'; pauseBtn.setAttribute('aria-pressed', 'false');
+        pauseBtn.setAttribute('data-i18n-aria', 'fx_pause');
+        pauseBtn.setAttribute('aria-label', (i18n[document.documentElement.lang] || i18n.en).fx_pause);
+        pauseBtn.innerHTML = '<svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg><svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>';
+        panel.appendChild(pauseBtn);
+        items.forEach((it, idx) => {
             const b = it.btn = document.createElement('button');
             b.type = 'button'; b.className = 'fx-tab'; b.setAttribute('role', 'tab');
+            b.id = uid + '-t' + idx; b.setAttribute('aria-controls', panel.id);
             list.appendChild(b);
         });
         const labels = () => items.forEach(it => { it.btn.innerHTML = it.tab() + '<span class="fx-prog"></span>'; });
@@ -2194,7 +2360,8 @@ async function initExplodeViewer(box, calm) {
             i = (i + items.length) % items.length;
             const same = i === cur;
             cur = i;
-            items.forEach((x, j) => { x.btn.classList.toggle('on', j === i); x.btn.setAttribute('aria-selected', j === i); });
+            items.forEach((x, j) => { x.btn.classList.toggle('on', j === i); x.btn.setAttribute('aria-selected', j === i); x.btn.tabIndex = j === i ? 0 : -1; });
+            panel.setAttribute('aria-labelledby', items[i].btn.id);
             nEl.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(items.length).padStart(2, '0');
             items[i].fill(panel, !calm && !same);
             // на телефоні активна вкладка - до центру рядка (лише сам рядок, не сторінку)
@@ -2203,9 +2370,19 @@ async function initExplodeViewer(box, calm) {
         };
         items.forEach((it, i) => it.btn.addEventListener('click', () => { hold(); show(i, true); }));
         list.addEventListener('animationend', e => { if (e.animationName === 'fxProg') show(cur + 1); });
-        let idleUntil = 0, visible = false;
-        const sync = () => fx.classList.toggle('paused', calm || !visible || performance.now() < idleUntil);
+        let idleUntil = 0, visible = false, userPaused = false;
+        const sync = () => fx.classList.toggle('paused', calm || !visible || userPaused || performance.now() < idleUntil);
         const hold = () => { idleUntil = performance.now() + 8000; sync(); setTimeout(sync, 8050); };
+        pauseBtn.addEventListener('click', () => { userPaused = !userPaused; pauseBtn.setAttribute('aria-pressed', String(userPaused)); sync(); });
+        // клавіатура: стрілки між вкладками (roving tabindex), Home/End; фокус з клавіатури теж зупиняє перемикання
+        list.addEventListener('keydown', e => {
+            const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+            const i = step ? cur + step : e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : null;
+            if (i === null) return;
+            e.preventDefault(); hold(); show(i, true); items[(i + items.length) % items.length].btn.focus();
+        });
+        fx.addEventListener('focusin', e => { if (e.target.matches(':focus-visible')) { idleUntil = Infinity; sync(); } });
+        fx.addEventListener('focusout', e => { if (!fx.contains(e.relatedTarget)) hold(); });
         fx.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { idleUntil = Infinity; sync(); } });
         fx.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hold(); });
         fx.addEventListener('touchstart', hold, { passive: true });
@@ -2222,7 +2399,7 @@ async function initExplodeViewer(box, calm) {
     // Формати: розширення «дешифрується», під ним додаткове розширення й опис
     const fmtSec = document.querySelector('.formats');
     if (fmtSec) {
-        const P = '<div class="fx-ext" aria-hidden="true"></div><div class="fx-sub"></div><p class="fx-desc" aria-live="polite"></p>';
+        const P = '<div class="fx-ext" aria-hidden="true"></div><div class="fx-sub"></div><p class="fx-desc"></p>';
         const items = [...fmtSec.querySelectorAll('.fmt')].map(f => {
             const code = f.querySelector('code'), subEl = code.querySelector('i');
             const main = code.firstChild.textContent.trim(), sub = subEl ? subEl.textContent : '', desc = f.querySelector('p');
@@ -2242,7 +2419,7 @@ async function initExplodeViewer(box, calm) {
     // Інструменти: велика іконка малюється лінією, назва «дешифрується», опис випливає
     const toolsSec = document.querySelector('.tools');
     if (toolsSec) {
-        const P = '<div class="fx-icon" aria-hidden="true"></div><h3 class="fx-title"></h3><p class="fx-desc" aria-live="polite"></p>';
+        const P = '<div class="fx-icon" aria-hidden="true"></div><h3 class="fx-title"></h3><p class="fx-desc"></p>';
         const items = [...toolsSec.querySelectorAll('.tool')].map(t => {
             const h = t.querySelector('h3'), p = t.querySelector('p'), svg = t.querySelector('.icon svg');
             return {
@@ -2281,7 +2458,7 @@ async function initExplodeViewer(box, calm) {
     }
 
     // Поява блоків при прокрутці; у сітках — зі сходинкою
-    const groups = ['.section-head', '.viewer', '.spot', '.offline .band', '.download .inner',
+    const groups = ['.section-head', '.viewer', '.offline .band', '.download .inner',
                     '.fmt-grid > *', '.tools-grid > *', '.reel-grid > *'];
     const io = new IntersectionObserver(entries => entries.forEach(e => {
         if (!e.isIntersecting) return;
@@ -2335,68 +2512,41 @@ async function initExplodeViewer(box, calm) {
         });
     }
 
-    // 3D: three.js вантажиться, лише коли блок підходить до екрана
-    const viewer = document.getElementById('viewer');
-    if (viewer) {
-        const lazy = new IntersectionObserver(es => {
-            if (!es[0].isIntersecting) return;
-            lazy.disconnect();
-            initViewer(viewer, calm).catch(err => {
-                console.error(err);
-                const l = viewer.querySelector('.loading');
-                l.setAttribute('data-i18n', 'lv_failed');
-                l.textContent = i18n[document.documentElement.lang].lv_failed;
+    /* 3D: чотири сцени туру лежать одна на одній, тож окремі IntersectionObserver-и
+       спрацьовували разом - three.js і ~4 МБ моделей вантажились ще при відкритті сторінки.
+       Тепер сцена стартує, лише коли її крок активний або наступний (warm у турі). */
+    const lazyView = (box, init) => {
+        if (!box) return;
+        const load = box.querySelector('.loading');
+        const idleHTML = load.innerHTML;
+        load.setAttribute('aria-live', 'polite');
+        const fill = root => root.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = i18n[document.documentElement.lang][el.getAttribute('data-i18n')]; });
+        const hasWebGL = () => {
+            try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) { return false; }
+        };
+        const run = () => init(box, calm).catch(err => {
+            console.error(err);
+            // data-i18n із самого блока знімаємо: setLang переписав би textContent і знищив кнопку
+            load.removeAttribute('data-i18n'); load.classList.add('fail');
+            // немає WebGL - повтор марний; усе інше (мережа, CDN, модель) - дати спробувати ще раз
+            load.innerHTML = hasWebGL()
+                ? '<span data-i18n="lv_net"></span><button class="v-retry" type="button" data-i18n="lv_retry"></button>'
+                : '<span data-i18n="lv_failed"></span>';
+            fill(load);
+            const btn = load.querySelector('.v-retry');
+            if (btn) btn.addEventListener('click', () => {
+                box.querySelectorAll(':scope > canvas').forEach(c => c.remove());   // недобудований рендерер попередньої спроби
+                load.classList.remove('fail'); load.innerHTML = idleHTML; load.setAttribute('data-i18n', 'lv_loading'); fill(load);
+                run();
             });
-        }, { rootMargin: '600px 0px' });
-        lazy.observe(viewer);
-    }
-    // Каблучка - так само ліниво: 1.3 МБ моделі вантажимо, лише коли до неї догортали
-    const ringBox = document.getElementById('ring-viewer');
-    if (ringBox) {
-        const lazyRing = new IntersectionObserver(es => {
-            if (!es[0].isIntersecting) return;
-            lazyRing.disconnect();
-            initRingViewer(ringBox, calm).catch(err => {
-                console.error(err);
-                const l = ringBox.querySelector('.loading');
-                l.setAttribute('data-i18n', 'lv_failed');
-                l.textContent = i18n[document.documentElement.lang].lv_failed;
-            });
-        }, { rootMargin: '600px 0px' });
-        lazyRing.observe(ringBox);
-    }
-
-    // Розліт - так само ліниво
-    const exBox = document.getElementById('ex-viewer');
-    if (exBox) {
-        const lazyEx = new IntersectionObserver(es => {
-            if (!es[0].isIntersecting) return;
-            lazyEx.disconnect();
-            initExplodeViewer(exBox, calm).catch(err => {
-                console.error(err);
-                const l = exBox.querySelector('.loading');
-                l.setAttribute('data-i18n', 'lv_failed');
-                l.textContent = i18n[document.documentElement.lang].lv_failed;
-            });
-        }, { rootMargin: '600px 0px' });
-        lazyEx.observe(exBox);
-    }
-
-    // Розріз - так само ліниво
-    const secBox = document.getElementById('sec-viewer');
-    if (secBox) {
-        const lazySec = new IntersectionObserver(es => {
-            if (!es[0].isIntersecting) return;
-            lazySec.disconnect();
-            initSectionViewer(secBox, calm).catch(err => {
-                console.error(err);
-                const l = secBox.querySelector('.loading');
-                l.setAttribute('data-i18n', 'lv_failed');
-                l.textContent = i18n[document.documentElement.lang].lv_failed;
-            });
-        }, { rootMargin: '600px 0px' });
-        lazySec.observe(secBox);
-    }
+        });
+        let started = false;
+        box.__start = () => { if (started) return; started = true; run(); };
+    };
+    lazyView(document.getElementById('viewer'), initViewer);
+    lazyView(document.getElementById('sec-viewer'), initSectionViewer);
+    lazyView(document.getElementById('ex-viewer'), initExplodeViewer);
+    lazyView(document.getElementById('ring-viewer'), initRingViewer);
 
     // Тур: крок, що перетинає лінію читання, вмикає свій 3D; смуга ліворуч - прогрес
     document.querySelectorAll('.tour').forEach(tourEl => {
@@ -2447,6 +2597,16 @@ async function initExplodeViewer(box, calm) {
             o.disconnect(); entered = true;
             if (!calm && cur >= 0) recount(cur);
         }, { threshold: .3 }).observe(tourEl.querySelector('.tour-stage'));
+        // сцени кроку й наступного стартують, коли тур наблизився до екрана
+        let near = false;
+        const warm = n => {
+            if (!near) return;
+            [n, n + 1].forEach(i => { const v = views[i]; if (v && v.__start) v.__start(); });
+        };
+        new IntersectionObserver((es, o) => {
+            if (!es[0].isIntersecting) return;
+            o.disconnect(); near = true; warm(cur);
+        }).observe(stageEl);
         let cur = -1;
         const show = n => {
             if (n < 0 || n === cur) return;
@@ -2457,6 +2617,7 @@ async function initExplodeViewer(box, calm) {
             steps.forEach((s, i) => s.classList.toggle('on', i === n));
             if (!calm && entered) recount(n);
             wipe(prevN, n);
+            warm(n);
             dots.forEach((d, i) => d.classList.toggle('on', i === n));
         };
         // на телефоні верх екрана зайнятий сценою - лінія читання нижче
