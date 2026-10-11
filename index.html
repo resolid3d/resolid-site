@@ -347,6 +347,8 @@ main:focus { outline: none; }
 .step:not(.on) p, .step:not(.on) .step-n i { color: var(--text); }   /* muted при .65 дав би лише 3.4:1 */
 .step h2 { font-size: clamp(26px, 3.4vw, 36px); line-height: 1.15; }
 .step p { color: var(--muted); max-width: 44ch; }
+.step p.step-for { font-size: 14px; line-height: 1.5; }
+.step-for b, .tour-caption .step-for b { color: var(--primary); font-weight: 600; }
 .step-n { font-family: var(--mono); font-size: 13px; color: var(--primary); letter-spacing: .1em; }
 .step-n i { font-style: normal; color: var(--muted); }
 .tour-caption {
@@ -704,7 +706,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
         <div class="hero-copy">
             <div class="eyebrow" data-i18n="eyebrow">ANDROID · WORKS OFFLINE</div>
             <h1 data-i18n-html="h1">A portable <span class="accent">engineering desk</span></h1>
-            <p class="lead" data-i18n-html="lead">View, measure, and analyze 3D models right on your phone: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Fully offline — your files never leave the device.</p>
+            <p class="lead" data-i18n-html="lead">Open a STEP assembly, cut a section, measure and weigh — right on your phone: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Fully offline — your files never leave the device.</p>
             <div class="cta-row">
                 <a class="btn" href="https://play.google.com/store/apps/details?id=app.resolid3d.viewer">
                     <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3.5v17c0 .4.5.7.8.4l9.5-8.1c.2-.2.2-.5 0-.7L4.8 3.1c-.3-.3-.8 0-.8.4zM15.5 9.7l2.6 2.1c.3.2.3.6 0 .8l-2.6 2.1-2.8-2.5 2.8-2.5z"/></svg>
@@ -815,18 +817,21 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <div class="eyebrow" data-i18n="sc_eyebrow">SECTION</div>
                 <h2 data-i18n="sc_h2">Cut the assembly yourself</h2>
                 <p data-i18n="sc_p">A real STEP file: a pulley bracket with two pillow-block bearings, 42 bodies. Loaded with the same CAD kernel that runs inside the app. Drag the slider, switch the axis, hover a part to see its name from the file. Press Cut and the assembly splits into two closed halves.</p>
+                <p class="step-for" data-i18n-html="for_sc"><b>For engineers.</b> Check a fit or an inner cavity on site, no laptop needed.</p>
             </article>
             <article class="step" data-step="2">
                 <div class="step-n">03 <i>/ 04</i></div>
                 <div class="eyebrow" data-i18n="ex_eyebrow">EXPLODED VIEW</div>
                 <h2 data-i18n="ex_h2">Take the motorcycle apart</h2>
                 <p data-i18n="ex_p">A real assembly: Full Assy.3mf, 394 parts. Drag the slider or press ▶ — the parts fly out from the center, just like the app's exploded view. For the page the mesh is reduced from 1.16M to 200 thousand triangles; the app opens it in full.</p>
+                <p class="step-for" data-i18n-html="for_ex"><b>For engineers and designers.</b> Read an assembly part by part and see how it comes apart.</p>
             </article>
             <article class="step" data-step="3">
                 <div class="step-n">04 <i>/ 04</i></div>
                 <div class="eyebrow" data-i18n="rm_eyebrow">TRY ON A METAL</div>
                 <h2 data-i18n="rm_h2">The same ring, in any metal</h2>
                 <p data-i18n="rm_p">A real STL from Rhino: 400 thousand triangles, a 6×8 mm oval stone. Switch the metal, just like the app's material menu. The stone stays a diamond.</p>
+                <p class="step-for" data-i18n-html="for_rm"><b>For jewelers.</b> Show a client the same model in different metals.</p>
             </article>
         </div>
     </div>
@@ -856,6 +861,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <div class="eyebrow" data-i18n="cu1_eyebrow">SECTION + MEASURE</div>
                 <h2 data-i18n="cu1_h">Cut it open, measure the wall</h2>
                 <p data-i18n="cu1_p">A section plane along X, Y or Z, hatched on the cut. Two taps on the edges and the shank thickness is in — snapped to vertices, kept in the measurement history.</p>
+                <p class="step-for" data-i18n-html="for_cu1"><b>For jewelers and engineers.</b> Check wall thickness before the part goes to casting.</p>
                 <div class="proof"><b>1.32&nbsp;mm</b><span class="draw"></span><small data-i18n="cu1_proof">shank wall on the cut</small></div>
             </article>
             <article class="step">
@@ -863,6 +869,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <div class="eyebrow" data-i18n="cu2_eyebrow">THICKNESS MAP</div>
                 <h2 data-i18n="cu2_h">It finds the weak spot for you</h2>
                 <p data-i18n="cu2_p">The whole part is colored by thickness: red is thin, blue is thick. The thinnest wall is labelled, and with a threshold only the spots you need to fix before casting or printing stay colored.</p>
+                <p class="step-for" data-i18n-html="for_cu2"><b>For casting and 3D printing.</b> Catch the thin spot before the part fails.</p>
                 <div class="proof"><b>0.351&nbsp;mm</b><span class="draw"></span><small data-i18n="cu2_proof">thinnest wall</small></div>
             </article>
             <article class="step">
@@ -870,6 +877,7 @@ footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
                 <div class="eyebrow" data-i18n="cu3_eyebrow">MATERIALS + WEIGHT</div>
                 <h2 data-i18n="cu3_h">Gold, a diamond — and what it weighs</h2>
                 <p data-i18n="cu3_p">A raw STL turns into gold with a stone. Hide the stone with a tap and the table weighs the setting alone — from PLA to 14K/18K gold, with surface area and cost.</p>
+                <p class="step-for" data-i18n-html="for_cu3"><b>For jewelers.</b> Know the metal's weight and cost before you commit.</p>
                 <div class="proof"><b>2.95&nbsp;g</b><span class="draw"></span><small data-i18n="cu3_proof">18K gold, stone excluded</small></div>
             </article>
         </div>
@@ -1058,7 +1066,7 @@ const i18n = {
         nav_get: "Google Play",
         eyebrow: "ANDROID · ПРАЦЮЄ ОФЛАЙН",
         h1: 'Портативний <span class="accent">інженерний стіл</span>',
-        lead: 'Перегляд, вимірювання та аналіз 3D-моделей просто на телефоні: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Повністю офлайн — файли не залишають пристрій.',
+        lead: 'Відкрийте STEP-збірку, зробіть розріз, виміряйте й зважте — просто на телефоні: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Повністю офлайн — файли не залишають пристрій.',
         cta: "Завантажити в Google Play",
         cta_note: "Перегляд безкоштовний · Pro разовою покупкою: STEP, розрізи, виміри, вага · Android 7.0+",
         hero_video_aria: "Запис екрана: розліт збірки мотоцикла в RE:solid",
@@ -1122,6 +1130,12 @@ const i18n = {
         cu3_h: "Золото, діамант — і скільки це важить",
         cu3_p: "Сирий STL стає золотом із каменем. Камінь ховається одним тапом, і таблиця рахує вагу самої оправи — від PLA до золота 14K/18K, з площею поверхні й вартістю.",
         cu3_proof: "золото 18K, без каменя",
+        for_sc: "<b>Інженерам.</b> Перевірте посадку чи внутрішню порожнину на місці, без ноутбука.",
+        for_ex: "<b>Інженерам і конструкторам.</b> Прочитайте збірку по деталях і побачте, як вона розбирається.",
+        for_rm: "<b>Ювелірам.</b> Покажіть клієнту ту саму модель у різних металах.",
+        for_cu1: "<b>Ювелірам та інженерам.</b> Перевірте товщину стінки до того, як деталь піде на лиття.",
+        for_cu2: "<b>Для лиття і 3D-друку.</b> Знайдіть тонке місце, поки воно не зіпсувало деталь.",
+        for_cu3: "<b>Ювелірам.</b> Дізнайтесь вагу й вартість металу до замовлення.",
         cu3_alt1: "Каблучка в матеріалі «золото» з діамантом",
         cu3_alt2: "Таблиця ваги: золото 18K — 2.95 г, приховану деталь не враховано",
         rl_eyebrow: "У ДІЇ",
@@ -1186,7 +1200,7 @@ const i18n = {
         nav_get: "Google Play",
         eyebrow: "ANDROID · WORKS OFFLINE",
         h1: 'A portable <span class="accent">engineering desk</span>',
-        lead: 'View, measure, and analyze 3D models right on your phone: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Fully offline — your files never leave the device.',
+        lead: 'Open a STEP assembly, cut a section, measure and weigh — right on your phone: <b>STL, OBJ (+MTL), 3MF, STEP, IGES, BREP, PLY, ZIP</b>. Fully offline — your files never leave the device.',
         cta: "Get it on Google Play",
         cta_note: "Free to view · one-time Pro for STEP, sections, measuring, weight · Android 7.0+",
         hero_video_aria: "Screen recording: a motorcycle assembly exploding in RE:solid",
@@ -1250,6 +1264,12 @@ const i18n = {
         cu3_h: "Gold, a diamond — and what it weighs",
         cu3_p: "A raw STL turns into gold with a stone. Hide the stone with a tap and the table weighs the setting alone — from PLA to 14K/18K gold, with surface area and cost.",
         cu3_proof: "18K gold, stone excluded",
+        for_sc: "<b>For engineers.</b> Check a fit or an inner cavity on site, no laptop needed.",
+        for_ex: "<b>For engineers and designers.</b> Read an assembly part by part and see how it comes apart.",
+        for_rm: "<b>For jewelers.</b> Show a client the same model in different metals.",
+        for_cu1: "<b>For jewelers and engineers.</b> Check wall thickness before the part goes to casting.",
+        for_cu2: "<b>For casting and 3D printing.</b> Catch the thin spot before the part fails.",
+        for_cu3: "<b>For jewelers.</b> Know the metal's weight and cost before you commit.",
         cu3_alt1: "The ring rendered in gold with a diamond",
         cu3_alt2: "Weight table: 18K gold — 2.95 g, hidden part not included",
         rl_eyebrow: "IN ACTION",
